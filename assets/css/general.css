@@ -1,0 +1,315 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    /*overflow: hidden; /* Para evitar el desplazamiento vertical */
+}
+
+body {
+    font-family: "Nunito", sans-serif;
+    background: #f4f4f4;
+}
+
+#content {
+    height: 100%; /* Ocupar todo el espacio disponible */
+    overflow-y: auto; /* Agregar barra de desplazamiento vertical si es necesario */
+}
+
+.header-title {
+    background-color: #00ffe8;
+    color: #08384d;
+    padding: 3px;
+    text-align: center;
+}
+
+.header-title h5 {
+    padding: 3px;
+}
+
+.navbar-custom {
+    background-color: #222e3c;
+    border-bottom: 2px solid #00ffe8;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 9px;
+}
+
+.navbar-custom .nav-link {
+    color: white;
+}
+
+.navbar-custom .nav-link:hover {
+    color: #00ffe8;
+}
+
+.navbar-custom .dropdown-menu {
+    background-color: #08384d;
+}
+
+.navbar-custom .dropdown-item {
+    color: white;
+}
+
+.navbar-custom .dropdown-item:hover {
+    background-color: #00ffe8;
+    color: #08384d;
+}
+
+#navbarNavDropdown {
+    font-size: 12px;
+}
+
+.notification-badge {
+    color: white;
+    background-color: red;
+    /* Cambiar color a rojo */
+    border-radius: 4px;
+    /* Forma cuadrada */
+    padding: 4px;
+    /* Espaciado interno */
+    font-size: 0.8rem;
+    /* Tamaño de fuente */
+}
+
+.btn:hover .notification-badge {
+    animation: shake 0.3s ease;
+    /* Animación de vibración al pasar el cursor sobre el botón */
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(2px) rotate(2deg);
+    }
+
+    50% {
+        transform: translateX(0);
+    }
+
+    75% {
+        transform: translateX(-2px) rotate(-2deg);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.button-list .btn {
+    margin-right: 10px;
+}
+
+.button-list .btn:last-child {
+    margin-right: 0;
+}
+
+.status_probabilidad {
+    display: inline-block;
+    width: 100px;
+    /* Ajusta el ancho según sea necesario */
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+.badge.bg-success.status_probabilidad {
+    background: #20a33c !important;
+}
+
+.badge.bg-warning.status_probabilidad {
+    background: #edca2f !important;
+}
+.badge.bg-danger.status_probabilidad {
+    background: #f45e30 !important;
+}
+
+/* Fuente y tamaño para el encabezado de la tabla */
+table thead th {
+    font-size: 12px;
+}
+
+/* Fuente y tamaño para el contenido de la tabla */
+table tbody td {
+    font-size: 10px;
+}
+
+/* Estilo minimalista para los botones de paginación */
+.pagination .page-link {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+}
+
+.pagination .page-link:hover {
+    background-color: transparent;
+    border: none;
+    color: #0056b3;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: transparent;
+    border: none;
+    color: #0056b3;
+}
+
+/* Estilo minimalista para el formulario */
+.card-body #formulario_busqueda_avanzada .form-label,
+.card-body #formulario_busqueda_avanzada .form-control,
+.card-body #formulario_busqueda_avanzada .form-select,
+.card-body #formulario_busqueda_avanzada .btn-primary {
+    font-size: 10px;
+}
+
+.card-body .formularios_gral .form-label,
+.card-body .formularios_gral .form-control,
+.card-body .formularios_gral .form-select,
+.card-body .formularios_gral .btn-primary,
+.card-body .formularios_gral .form-check-label {
+    font-size: 10px;
+}
+
+footer {
+    background-color: #222e3c;
+    border-top: 4px solid #00ffe8;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.rounded-section {
+    background-color: #f8f9fa;
+    /* Fondo claro */
+    border-radius: 15px;
+    /* Bordes redondeados */
+    padding: 20px;
+    /* Espaciado interno */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Sombra suave */
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+#logo {
+    width: 75%;
+}
+
+#section_table {
+    /*height: 950px;*/
+    margin-bottom: 25px;
+}
+
+.jconfirm.jconfirm-white .jconfirm-box .jconfirm-buttons,
+.jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons {
+    float: right;
+}
+
+.btn-modal {
+    background: #222e3c;
+    color: white;
+    font-size: 10px !important;
+}
+
+#element_acciones {
+    font-size: 12px;
+}
+
+#tabla_historial_seguimientos {
+    font-size: 12px;
+}
+
+#tabla_historial_seguimientos > thead {
+    background: #08384d !important;
+    color: white !important;
+}
+
+.fa-star {
+    color: #ff920a;
+}
+.fa-circle-check {
+    color: green;
+}
+
+.fa-triangle-exclamation {
+    color: red;
+}
+
+.btn-estatus {
+    font-size: 11px !important;
+    width: 100%;
+}
+
+/* Estilo para el overlay de carga */
+.dataTables_wrapper .dataTables_processing {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+}
+
+/* Personalización del texto de carga */
+.loading-message {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Spinner CSS */
+.spinner {
+    margin: 20px auto;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.form-alert2-container {
+    font-size: 10px;
+}
+
+.consejera {
+    background: #258dc8;
+    color: white;
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.financiera {
+    background: #9e1f69;
+    color: white;
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.sin_asignacion {
+    background: #f2522e;
+    color: white;
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 9px;
+}

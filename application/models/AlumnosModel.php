@@ -1,0 +1,810 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+class AlumnosModel extends CI_Model
+{
+
+    // Constructor
+    public function __construct()
+    {
+        parent::__construct();
+        // Cargar la base de datos
+        $this->load->database();
+        $this->table = 'alumnos';
+    }
+
+    private function ordenamiento($order_column, $order_dir)
+    {
+        // Lista de columnas válidas para ordenar
+        $valid_columns = array(
+            'nombre',              // Columna 0: nombre del estudiante
+            'periodo',             // Columna 1: periodo académico
+            'programa',            // Columna 2: programa educativo
+            'periodo_mensual',     // Columna 3: periodo mensual
+            'matricula',           // Columna 4: matrícula del estudiante
+            'correo',              // Columna 5: correo electrónico
+            'probabilidad_baja',   // Columna 6: probabilidad de baja
+            'estatus_plataforma',  // Columna 7: estatus en la plataforma
+            'nombre_consejera',    // Columna 8: nombre de la consejera
+            'nombre_financiero',   // Columna 9: nombre del asesor financiero
+        );
+
+        // Validar y obtener la columna de orden
+        // Si $order_column es un índice válido en $valid_columns, usar esa columna; de lo contrario, usar 'nombre' (índice 0)
+        $order = isset($valid_columns[$order_column]) ? $valid_columns[$order_column] : $valid_columns[0];
+
+        // Validar la dirección de orden
+        // Si $order_dir es 'asc' o 'desc', usarlo; de lo contrario, establecer 'asc' como valor por defecto
+        $order_dir = ($order_dir === 'asc' || $order_dir === 'desc') ? $order_dir : 'asc';
+
+        // Aplicar la ordenación en la consulta de la base de datos utilizando la columna y dirección validadas
+        return $this->db->order_by($order, $order_dir);
+    }
+
+    private function filtro_rol()
+    {
+        // Verificar si el usuario es Consejera o Asesor Financiero
+        $sesion = $this->session->userdata('seguimiento_iexe');
+
+        $es_consejera = false;
+        $es_asesor_financiero = false;
+        $es_administrador = false;
+        foreach ($sesion['roles'] as $rol) {
+            if ($rol->rol === 'Consejera') {
+                $es_consejera = true;
+            } elseif ($rol->rol === 'Asesor Financiero') {
+                $es_asesor_financiero = true;
+            } elseif ($rol->rol === 'Administrador') {
+                $es_administrador = true;
+            }
+        }
+
+
+        // Imprimir un mensaje dependiendo del rol del usuario
+        if ($es_administrador) {
+            return;
+        } else {
+            if ($es_consejera) {
+                return $this->db->where("alumnos.consejera", $sesion['idusuario']);
+            } elseif ($es_asesor_financiero) {
+                return $this->db->where("alumnos.financiero", $sesion['idusuario']);
+            }
+        }
+    }
+
+
+
+
+    public function busuqeda_avanzada($where, $start, $length, $order_column, $order_dir)
+    {
+
+
+        $this->db->select('
+            DISTINCT alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        foreach ($where as $key => $value) {
+            $this->db->like($key, $value);
+        }
+        $this->filtro_rol();
+        $this->ordenamiento($order_column, $order_dir);
+        $this->db->limit($length, $start);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+    public function total_busuqeda_avanzada($where)
+    {
+        $this->db->select('
+            DISTINCT alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        foreach ($where as $key => $value) {
+            $this->db->like($key, $value);
+        }
+        $this->filtro_rol();
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+
+    public function obtener_alumnos_sin_seguimiento_cerrado()
+    {
+
+        $this->db->select('COUNT(*) AS total_alumnos');
+        $this->db->from('alumnos');
+        $this->db->where('(
+            alumnos.id NOT IN (SELECT idalumno FROM seguimientos WHERE estatus = "Cerrado") 
+                OR (SELECT COUNT(*) FROM seguimientos WHERE seguimientos.idalumno = alumnos.id) = 0
+            )', NULL, FALSE);
+        $this->filtro_rol();
+
+        $query = $this->db->get();
+        $result = $query->row();
+        return $result->total_alumnos;
+    }
+
+    public function obtener_total_alumnos_seguimiento_abierto()
+    {
+        $this->db->select('COUNT(DISTINCT alumnos.id) AS total_abiertos');
+        $this->db->from('alumnos');
+        $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+        $this->db->where('seguimientos.estatus', 'Abierto');
+        $this->filtro_rol();
+
+        $query = $this->db->get();
+        return $query->row()->total_abiertos;
+    }
+
+
+
+
+    public function obtener_alumnos_seguimiento($tipo, $start, $length, $order_column, $order_dir)
+    {
+
+
+        // Selección común para ambos casos
+        $this->db->select('
+            DISTINCT alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+
+        // Aplicar la lógica específica según el tipo de seguimiento
+        if ($tipo == 'Abierto') {
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
+            $this->db->where('seguimientos.estatus', 'abierto');
+        } elseif ($tipo == 'Cerrado') {
+            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
+        }
+
+        // Aplicar ordenación y limitar resultados
+        $this->filtro_rol();
+
+        $this->ordenamiento($order_column, $order_dir);
+        $this->db->limit($length, $start);
+
+        // Ejecutar la consulta y devolver los resultados
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+    public function obtener_todos_alumnos_seguimiento($tipo)
+    {
+
+        // Selección común para ambos casos
+        $this->db->select('
+            DISTINCT alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+
+        // Aplicar la lógica específica según el tipo de seguimiento
+        if ($tipo == 'Abierto') {
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
+            $this->db->where('seguimientos.estatus', 'abierto');
+        } elseif ($tipo == 'cerrado') {
+            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
+        }
+        $this->filtro_rol();
+
+        // Ejecutar la consulta y devolver los resultados
+        $query = $this->db->get();
+        return  $query->num_rows();
+    }
+
+
+
+
+
+
+
+    // Método para contar el total de alumnos según el nivel de probabilidad
+
+    public function no_alumnos_por_probabilidad($probabilidad_baja)
+    {
+        // Selecciona la cantidad de filas y las nombra 'numrows'
+        $this->db->select('COUNT(*) AS numrows');
+        // Especifica la tabla 'alumnos' como fuente de datos
+        $this->db->from('alumnos');
+        // Aplica filtros de rol según la función definida (asumiendo que la función filtro_rol() agrega condiciones adicionales)
+        $this->filtro_rol();
+
+        // Verifica el valor de $probabilidad_baja y aplica las condiciones correspondientes
+        if ($probabilidad_baja == 'r1') {
+            // Si la probabilidad es 'r1', filtra donde variable_academica = 1 y variable_financiera = 1
+            $this->db->where('variable_academica', 1);
+            $this->db->where('variable_financiera', 1);
+        } elseif ($probabilidad_baja == 'r2') {
+            // Si la probabilidad es 'r2', filtra donde variable_academica = 0 y variable_financiera = 1
+            $this->db->where('variable_academica', 0);
+            $this->db->where('variable_financiera', 1);
+        } elseif ($probabilidad_baja == 'r3') {
+            // Si la probabilidad es 'r3', aplica una condición más compleja:
+            // Filtra donde (variable_academica = 1 y variable_financiera = 0) 
+            // o (variable_academica = 0 y variable_financiera = 0)
+            $this->db->group_start(); // Abre un grupo de condiciones
+            $this->db->group_start(); // Abre un subgrupo
+            $this->db->where('variable_academica', 1);
+            $this->db->where('variable_financiera', 0);
+            $this->db->group_end(); // Cierra el subgrupo
+            $this->db->or_group_start(); // Abre otro subgrupo con OR
+            $this->db->where('variable_academica', 0);
+            $this->db->where('variable_financiera', 0);
+            $this->db->group_end(); // Cierra el segundo subgrupo
+            $this->db->group_end(); // Cierra el grupo principal
+        } else {
+            // Si el valor de $probabilidad_baja no es válido, retorna null
+            return null;
+        }
+
+        // Ejecuta la consulta
+        $query = $this->db->get();
+        // Obtiene el resultado de la consulta como una fila
+        $result = $query->row();
+        // Retorna el número de filas contadas
+        return $result->numrows;
+    }
+
+
+
+
+
+    // Método para obtener los alumnos con probabilidad de baja paginados y según el nivel de probabilidad
+    public function obtener_alumnos_probabilidad_baja($where, $start, $length,  $order_column, $order_dir)
+    {
+
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->filtro_rol();
+
+        $this->ordenamiento($order_column, $order_dir);
+
+        if (is_array($where)) {
+            $this->db->where($where);
+        } else {
+            $this->db->where($where, null, false); // For raw where conditions
+        }
+        $this->db->limit($length, $start);
+        $query = $this->db->get();
+        //echo $this->db->last_query();
+        return $query->result();
+    }
+
+    public function obtener_total_alumnos_probabilidad_baja($where)
+    {
+
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->filtro_rol();
+
+
+        if (is_array($where)) {
+            $this->db->where($where);
+        } else {
+            $this->db->where($where, null, false); // For raw where conditions
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+
+
+
+    public function get_limit_alumnos($start, $length, $order_column, $order_dir)
+    {
+        // Selección de columnas específicas y concatenación de campos
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        // Establecimiento de la tabla principal desde la cual se obtienen los datos
+        $this->db->from($this->table);
+        // Uniones (joins) con las tablas de usuarios para obtener los nombres completos de consejeros y asesores financieros
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');   // Unión izquierda con la tabla de consejeros
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left'); // Unión izquierda con la tabla de asesores financieros
+        // Aplicación de filtros de rol
+        $this->filtro_rol();
+        // Aplicación de ordenamiento basado en los parámetros proporcionados
+        $this->ordenamiento($order_column, $order_dir);
+        // Establecimiento de límites para la paginación (cantidad de registros a obtener y desplazamiento inicial)
+        $this->db->limit($length, $start);
+        // Ejecución de la consulta
+        $query = $this->db->get();
+        // Retorno del resultado de la consulta como un array de objetos
+        return $query->result();
+    }
+
+
+    public function get_todos_alumnos()
+    {
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->filtro_rol();
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+    public function no_alumnos_bloqueados()
+    {
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->db->where('alumnos.estatus_plataforma', 'Bloqueado');
+
+        $this->filtro_rol();
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+
+    public function reporte_excel_todos()
+    {
+        $this->db->select('
+            alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->filtro_rol();
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+
+
+    function obtener_todos_alumnos_in_array()
+    {
+        $query = $this->db->select('id')->get($this->table);
+        return array_column($query->result_array(), 'id');
+    }
+
+    public function get_all_alumnos()
+    {
+        $query = $this->db->get($this->table);
+        return $query->result();
+    }
+
+    public function get_all_alumnos_where($where)
+    {
+        $query = $this->db->where($where)->get($this->table);
+        return $query->result();
+    }
+
+    public function alumno_activo_programa_academico($programa, $hoy)
+    {
+        $query = $this->db->query("SELECT * FROM alumnos WHERE is_active=1 AND update_cron_academico!='" . $hoy . "'  AND programa='" . $programa . "'");
+
+        return $query->result();
+    }
+
+
+    public function alumno_activo_programa_financiero($programa, $hoy)
+    {
+        $query = $this->db->select('*')
+            ->from($this->table)
+            ->where('is_active', 1)
+            ->where('update_cron_financiero !=', $hoy)
+            ->where('programa', $programa)
+            ->get();
+        return $query->result();
+    }
+
+    public function insert_batch($dataInsert)
+    {
+        $this->db->insert_batch($this->table, $dataInsert);
+    }
+
+
+    public function update_batch($dataUpdate)
+    {
+        $this->db->update_batch($this->table, $dataUpdate, 'id');
+        //echo $this->db->last_query();
+    }
+
+    public function desactivar_batch($excluded_ids)
+    {
+        // Establecer is_active a 0 para todos los registros cuyo id no está en $excluded_ids
+        $this->db->where_not_in('id', $excluded_ids);
+        $this->db->update($this->table, ['is_active' => 0]);
+    }
+
+
+    public function obtener_periodos_activos_consejeras($programa)
+    {
+        $this->db->distinct();
+        $this->db->select('periodo');
+        $this->db->from($this->table);
+        $this->db->where('programa', $programa);
+        $this->db->where('consejera IS NULL', NULL, FALSE); // Para manejar IS NULL
+        $this->db->order_by('periodo');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtener_periodos_activos($programa)
+    {
+        $this->db->distinct();
+        $this->db->select('periodo');
+        $this->db->from($this->table);
+        $this->db->where('programa', $programa);
+        $this->db->order_by('periodo');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    public function obtener_periodos_mensuales_activos($programa, $periodo)
+    {
+        $this->db->distinct();
+        $this->db->select('periodo_mensual');
+        $this->db->from($this->table);
+        $this->db->where('programa', $programa);
+        $this->db->where('periodo', $periodo);
+        $this->db->order_by('periodo');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+
+
+
+    // Función para verificar si existe un alumno con el id del consejero
+    public function existe_alumno_con_consejera($id_consejera, $programa, $periodo)
+    {
+        // Construir la consulta
+        $this->db->select('1'); // Solo seleccionamos 1 porque solo queremos saber si existe
+        $this->db->from($this->table);
+        $this->db->where('consejera', $id_consejera);
+        $this->db->where('programa', $programa);
+        $this->db->where('periodo', $periodo);
+        $query = $this->db->get();
+
+        // Verificar si hay algún resultado
+        if ($query->num_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Función para actualizar el campo idusuario
+    public function asigna_alumno_consejera($consejera, $periodo, $programa)
+    {
+        // Configurar los datos de actualización
+        $data = array(
+            'consejera' => $consejera
+        );
+
+        // Aplicar las condiciones
+        $this->db->where('periodo', $periodo);
+        $this->db->where('programa', $programa);
+
+        // Realizar la actualización
+        $this->db->update($this->table,  $data);
+
+        // Verificar si hubo filas afectadas
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function asigna_alumno_financiero($financiero, $matricula)
+    {
+        // Configurar los datos de actualización
+        $data = array(
+            'financiero' => $financiero
+        );
+
+        // Aplicar las condiciones
+        $this->db->where('matricula', $matricula);
+        // Realizar la actualización
+        $this->db->update($this->table,  $data);
+
+        // Verificar si hubo filas afectadas
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+    // Función para verificar si existe un alumno con el id del consejero
+    public function existe_alumno_con_financiero($matricula)
+    {
+        $this->db->select('1');
+        $this->db->from('alumnos');
+        $this->db->where('matricula', $matricula);
+        $this->db->where('(financiero IS NULL OR financiero = "")');
+        $query = $this->db->get();
+
+        if ($query->num_rows() > 0) {
+            return 0; // No tiene asesor financiero asignado
+        } else {
+            return 1; // Ya tiene un asesor financiero asignado
+        }
+    }
+
+
+    public function get_count_alumnos_por_programa()
+    {
+        $query = $this->db->query("
+            SELECT 
+                CASE 
+                    WHEN matricula LIKE 'MGPM%' THEN 'Maestría en Gestión Pública Municipal'
+                    WHEN matricula LIKE 'MFP%' THEN 'Maestría en Finanzas Públicas'
+                    WHEN matricula LIKE 'DPP%' THEN 'Doctorado en Políticas Públicas'
+                    WHEN matricula LIKE 'MEPP%' THEN 'Maestría en Evaluación de Políticas Públicas'
+                    WHEN matricula LIKE 'MCD%' OR matricula LIKE 'MCDIA%' THEN 'Maestría en Ciencias de Datos'
+                    WHEN matricula LIKE 'MAN%' THEN 'Maestría en Administración de Negocios'
+                    WHEN matricula LIKE 'MAPP%' THEN 'Maestría en Administración y Políticas Públicas'
+                    WHEN matricula LIKE 'MAG%' THEN 'Maestría en Auditoría Gubernamental'
+                    WHEN matricula LIKE 'MAIS%' THEN 'Maestría en Instituciones de Salud'
+                    WHEN matricula LIKE 'LSP%' THEN 'Licenciatura en Seguridad Pública'
+                    WHEN matricula LIKE 'LD%' THEN 'Licenciatura en Derecho'
+                    WHEN matricula LIKE 'LCPAP%' THEN 'Licenciatura en Ciencias Políticas y Administración Pública'
+                    WHEN matricula LIKE 'LCE%' THEN 'Licenciatura en Ciencias de la Educación'
+                    WHEN matricula LIKE 'LAE%' THEN 'Licenciatura en Administración de Empresas'
+                    WHEN matricula LIKE 'DSP%' THEN 'Doctorado en Seguridad Pública'
+                    WHEN matricula LIKE 'MIGE%' THEN 'Maestría en Innovación y Gestión Educativa'
+                    WHEN matricula LIKE 'MITI%' THEN 'Maestría en Innovación y Gestión Educativa'
+                    WHEN matricula LIKE 'MMPOP%' THEN 'Maestría en Marketing Político y Opinión Pública'
+                    WHEN matricula LIKE 'MSPAJO%' THEN 'Maestría en Sistema Penal Acusatorio y Juicio Oral'
+                    WHEN matricula LIKE 'MSPP%' THEN 'Maestría en Seguridad Pública y Políticas Públicas'
+                    ELSE 'Otro Programa'
+                END AS nombre_programa,
+                COUNT(*) AS cantidad_alumnos
+            FROM 
+                alumnos
+            WHERE 
+                is_active = 1
+            GROUP BY 
+                nombre_programa;
+        ");
+        return $query->result();
+    }
+
+
+    public function get_alumnos_where($where)
+    {
+        return $this->db->get_where('alumnos', $where)->row();
+    }
+
+    public function update_by_matricula($matricula, $data)
+    {
+        $this->db->where('matricula', $matricula);
+        return $this->db->update('alumnos', $data);
+    }
+
+    public function programas_periodos_activos()
+    {
+        $query = $this->db->query("
+            SELECT DISTINCT
+                CASE 
+                    WHEN matricula LIKE 'MGPM%' THEN 'Maestría en Gestión Pública Municipal'
+                    WHEN matricula LIKE 'MFP%' THEN 'Maestría en Finanzas Públicas'
+                    WHEN matricula LIKE 'DPP%' THEN 'Doctorado en Políticas Públicas'
+                    WHEN matricula LIKE 'MEPP%' THEN 'Maestría en Evaluación de Políticas Públicas'
+                    WHEN matricula LIKE 'MCD%' OR matricula LIKE 'MCDIA%' THEN 'Maestría en Ciencias de Datos'
+                    WHEN matricula LIKE 'MAN%' THEN 'Maestría en Administración de Negocios'
+                    WHEN matricula LIKE 'MAPP%' THEN 'Maestría en Administración y Políticas Públicas'
+                    WHEN matricula LIKE 'MAG%' THEN 'Maestría en Auditoría Gubernamental'
+                    WHEN matricula LIKE 'MAIS%' THEN 'Maestría en Instituciones de Salud'
+                    WHEN matricula LIKE 'LSP%' THEN 'Licenciatura en Seguridad Pública'
+                    WHEN matricula LIKE 'LD%' THEN 'Licenciatura en Derecho'
+                    WHEN matricula LIKE 'LCPAP%' THEN 'Licenciatura en Ciencias Políticas y Administración Pública'
+                    WHEN matricula LIKE 'LCE%' THEN 'Licenciatura en Ciencias de la Educación'
+                    WHEN matricula LIKE 'LAE%' THEN 'Licenciatura en Administración de Empresas'
+                    WHEN matricula LIKE 'DSP%' THEN 'Doctorado en Seguridad Pública'
+                    WHEN matricula LIKE 'MIGE%' THEN 'Maestría en Innovación y Gestión Educativa'
+                    WHEN matricula LIKE 'MITI%' THEN 'Maestría en Innovación y Gestión Educativa'
+                    WHEN matricula LIKE 'MMPOP%' THEN 'Maestría en Marketing Político y Opinión Pública'
+                    WHEN matricula LIKE 'MSPAJO%' THEN 'Maestría en Sistema Penal Acusatorio y Juicio Oral'
+                    WHEN matricula LIKE 'MSPP%' THEN 'Maestría en Seguridad Pública y Políticas Públicas'
+                    ELSE 'Otro Programa'
+                END AS nombre_programa,
+                periodo,
+                COALESCE(CONCAT(u.nombre,' ',u.apellidos), 'Sin asignar') AS consejera
+            FROM
+                alumnos a
+            LEFT JOIN
+                usuarios u ON a.consejera = u.id
+        ");
+        return $query->result();
+    }
+}
