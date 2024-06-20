@@ -1447,4 +1447,10 @@ class AlumnosController extends CI_Controller
         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
     }
+
+
+    public function actualiza_alumnos_registro()
+    {
+        
+    }
 }

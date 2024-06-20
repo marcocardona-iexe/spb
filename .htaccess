@@ -1,24 +1,5 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /seguimiento
-
-    # Remueve index.php de la URL
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L]
-
-    # Opcional: Redirige www a no-www
-    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-    # RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
-
-    # Opcional: Redirige HTTP a HTTPS
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
-
-<IfModule !mod_rewrite.c>
-    # Si no se encuentra mod_rewrite, lanza un error
-    <ErrorDocument 404>
-    The mod_rewrite module is not enabled on this server. Please enable it to use CodeIgniter without index.php in the URL.
-    </ErrorDocument>
-</IfModule>
+RewriteEngine On
+RewriteBase /spb
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?/$1 [L]
