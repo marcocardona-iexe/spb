@@ -18,3 +18,6 @@ Este método devuelve todos los alumnos que están activos (is_active=1).
   ```php
   $this->load->model('AlumnosModel');
   $alumnos_activos = $this->AlumnosModel->get_todos_activos();
+
+
+- **Retorno:** Devuelve un array de objetos que representan a los alumnos activos. Este método es útil cuando se necesita recuperar todos los alumnos que están actualmente activos en el sistema. Otros métodos del modelo AlumnosModel pueden incluir funciones para la creación, actualización o eliminación de registros de alumnos, así como métodos para consultas más específicas relacionadas con los alumnos en el sistema.
