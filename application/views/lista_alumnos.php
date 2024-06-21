@@ -9,7 +9,7 @@
         <div class="row mt-3">
             <div class="col">
                 <div class="button-list">
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="buscar_baja('r1')">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="bloqueados()">
                         <span class="badge bg-primary notification-badge"><?php echo $bloqueados; ?></span> Bloqueados
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-success" onclick="buscar_baja('r3')">
@@ -178,7 +178,10 @@
                             <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-regular fa-file-excel"></i> Descargar seguimientos</button>
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-sm btn-modal" onclick="window.location.href='<?php echo base_url('descarga_excel'); ?>'"><i class="fa-regular fa-file-excel"></i> Descargar todos los alumnos</button>
+                            <button class="btn btn-sm btn-modal" onclick="window.location.href='<?php echo base_url('descarga_excel'); ?>'"><i class="fa-regular fa-file-excel"></i> Descargar todos</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-sm btn-modal" onclick="window.location.href='<?php echo base_url('descarga_excel'); ?>'"><i class="fa-solid fa-eye"></i> Ver todos</button>
                         </div>
                     </div>
 

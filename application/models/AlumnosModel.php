@@ -13,6 +13,49 @@ class AlumnosModel extends CI_Model
         $this->table = 'alumnos';
     }
 
+    //Obtiene todos los alumnos activos
+    public function get_todos_activos()
+    {
+        // Construye la consulta SELECT para seleccionar todas las columnas de la tabla
+        // donde el campo 'is_active' es igual a 1 (activo)
+        $query = $this->db->select('*')
+            ->where("is_active", 1)
+            ->get($this->table);
+
+        // Ejecuta la consulta y devuelve todos los resultados como un array de objetos
+        return $query->result();
+    }
+
+
+    public function editar_por_id($id, $data)
+    {
+
+        // Usa el método where para especificar el ID y el método update para actualizar los datos
+        $this->db->where('id', $id);
+        $updated = $this->db->update($this->table, $data);
+
+        // Devuelve true si la actualización fue exitosa, false en caso contrario
+        return $updated;
+    }
+
+    public function get_alumnos_where($where)
+    {
+        //return $this->db->get_where('alumnos', $where)->row();
+        $this->db->select('*');
+        $this->db->from($this->table);
+        if (is_array($where)) {
+            $this->db->where($where);
+        }
+        // Si $where no es un array, asume que es una condición SQL sin procesar y la agrega sin escaparla.
+        else {
+            $this->db->where($where, null, false); // Para condiciones WHERE sin procesar
+        }
+        $this->filtro_rol();
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
     private function ordenamiento($order_column, $order_dir)
     {
         // Lista de columnas válidas para ordenar
@@ -71,6 +114,175 @@ class AlumnosModel extends CI_Model
             }
         }
     }
+
+
+    private function query_base()
+    {
+        // Selección común para ambos casos
+        $this->db->select('
+            DISTINCT alumnos.id,
+            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.matricula,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            CASE
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
+                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
+                ELSE "Desconocida"
+            END AS probabilidad_baja,
+            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
+            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
+        ', FALSE);
+
+        $this->db->from($this->table);
+        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
+        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+    }
+
+    public function no_alumnos_bloqueados()
+    {
+        $this->db->select('COUNT(*) as count');
+        $this->db->from($this->table);
+        $this->db->where('estatus_plataforma', 'Bloqueado');
+        $query = $this->db->get();
+        $resultado = $query->row(); // Usamos row() porque esperamos un único resultado
+        if ($resultado) {
+            return $resultado->count;
+        } else {
+            return "err";
+        }
+    }
+
+
+    public function get_bloqueados($start, $length, $order_column, $order_dir, $where, $use_where)
+    {
+        // Llama a la función query_base() para establecer la base de la consulta.
+        $this->query_base();
+
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+
+        // Llama a la función ordenamiento() para aplicar el ordenamiento a la consulta.
+        $this->ordenamiento($order_column, $order_dir);
+
+        // Verifica si se debe usar el parámetro $where para agregar condiciones a la consulta.
+        if ($use_where) {
+            // Si $where es un array, utiliza el método where de CodeIgniter para agregar condiciones escapadas.
+            if (is_array($where)) {
+                $this->db->where($where);
+            }
+            // Si $where no es un array, asume que es una condición SQL sin procesar y la agrega sin escaparla.
+            else {
+                $this->db->where($where, null, false); // Para condiciones WHERE sin procesar
+            }
+        }
+
+        // Aplica el límite a la consulta para paginación.
+        // $length es el número de registros a devolver y $start es el desplazamiento (offset).
+        $this->db->limit($length, $start);
+
+        // Ejecuta la consulta y obtiene el resultado.
+        $query = $this->db->get();
+
+        // Descomentar la línea siguiente para imprimir la última consulta ejecutada.
+        // Esto es útil para depuración.
+        // echo $this->db->last_query();
+
+        // Devuelve el resultado de la consulta como un array de objetos.
+        return $query->result();
+    }
+
+
+    // Método para obtener los alumnos con probabilidad de baja paginados y según el nivel de probabilidad
+    public function get_por_probabilidad_baja($start, $length,  $order_column, $order_dir, $where, $use_where)
+    {
+
+        // Llama a la función query_base() para establecer la base de la consulta.
+        $this->query_base();
+
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+
+        // Llama a la función ordenamiento() para aplicar el ordenamiento a la consulta.
+        $this->ordenamiento($order_column, $order_dir);
+
+        // Verifica si se debe usar el parámetro $where para agregar condiciones a la consulta.
+        if ($use_where) {
+            // Si $where es un array, utiliza el método where de CodeIgniter para agregar condiciones escapadas.
+            if (is_array($where)) {
+                $this->db->where($where);
+            }
+            // Si $where no es un array, asume que es una condición SQL sin procesar y la agrega sin escaparla.
+            else {
+                $this->db->where($where, null, false); // Para condiciones WHERE sin procesar
+            }
+        }
+
+        $this->db->limit($length, $start);
+        $query = $this->db->get();
+        //echo $this->db->last_query();
+        return $query->result();
+    }
+
+    public function get_alumnos_por_seguimiento($start, $length, $order_column, $order_dir, $where, $use_where)
+    {
+
+        // Llama a la función query_base() para establecer la base de la consulta.
+        $this->query_base();
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+        // Llama a la función ordenamiento() para aplicar el ordenamiento a la consulta.
+        $this->ordenamiento($order_column, $order_dir);
+        // Aplicar la lógica específica según el tipo de seguimiento
+        if ($where == 'Abierto') {
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
+            $this->db->where('seguimientos.estatus', 'abierto');
+        } elseif ($where == 'Cerrado') {
+            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
+        }
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+        // Llama a la función ordenamiento() para aplicar el ordenamiento a la consulta.
+        $this->ordenamiento($order_column, $order_dir);
+        $this->db->limit($length, $start);
+        $query = $this->db->get();
+        //echo $this->db->last_query();
+        return $query->result();
+    }
+
+
+    public function get_total_por_seguimiento($where)
+    {
+
+        // Llama a la función query_base() para establecer la base de la consulta.
+        $this->query_base();
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+        // Llama a la función ordenamiento() para aplicar el ordenamiento a la consulta.
+        // Aplicar la lógica específica según el tipo de seguimiento
+        if ($where == 'Abierto') {
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
+            $this->db->where('seguimientos.estatus', 'abierto');
+        } elseif ($where == 'Cerrado') {
+            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
+            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
+        }
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+        $query = $this->db->get();
+        //echo $this->db->last_query();
+        return $query->result();
+    }
+
+
 
 
 
@@ -145,141 +357,63 @@ class AlumnosModel extends CI_Model
     }
 
 
-
+    // Método para contar el total de alumnos con seguimiento cerrado
     public function obtener_alumnos_sin_seguimiento_cerrado()
     {
-
+        // Selecciona el conteo de todos los alumnos como total_alumnos
         $this->db->select('COUNT(*) AS total_alumnos');
+
+        // Establece la tabla desde la cual se va a realizar la consulta
         $this->db->from('alumnos');
+
+        // Añade una condición WHERE sin escapar. La condición verifica que:
+        // 1. El id del alumno no está en los seguimientos con estatus "Cerrado"
+        // 2. O que el conteo de seguimientos para un alumno específico es igual a 0 (no hay seguimientos)
         $this->db->where('(
-            alumnos.id NOT IN (SELECT idalumno FROM seguimientos WHERE estatus = "Cerrado") 
-                OR (SELECT COUNT(*) FROM seguimientos WHERE seguimientos.idalumno = alumnos.id) = 0
-            )', NULL, FALSE);
+        alumnos.id NOT IN (SELECT idalumno FROM seguimientos WHERE estatus = "Cerrado") 
+            OR (SELECT COUNT(*) FROM seguimientos WHERE seguimientos.idalumno = alumnos.id) = 0
+        )', NULL, FALSE);
+
+        // Aplica filtros adicionales según el rol del usuario actual.
+        // Es probable que esta función agregue condiciones WHERE adicionales.
         $this->filtro_rol();
 
+        // Ejecuta la consulta y obtiene el resultado
         $query = $this->db->get();
+
+        // Obtiene una sola fila del resultado como un objeto
         $result = $query->row();
+
+        // Devuelve el total de alumnos sin seguimiento cerrado
         return $result->total_alumnos;
     }
 
+    // Método para contar el total de alumnos con seguimiento abierto
     public function obtener_total_alumnos_seguimiento_abierto()
     {
+        // Selecciona el conteo de alumnos distintos que tienen seguimientos abiertos
         $this->db->select('COUNT(DISTINCT alumnos.id) AS total_abiertos');
+
+        // Establece la tabla principal desde la cual se realizará la consulta
         $this->db->from('alumnos');
+
+        // Realiza una unión izquierda con la tabla 'seguimientos' basada en la igualdad de ids
         $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
+
+        // Agrega una condición WHERE para filtrar los seguimientos que están 'Abiertos'
         $this->db->where('seguimientos.estatus', 'Abierto');
+
+        // Aplica filtros adicionales basados en el rol actual del usuario
         $this->filtro_rol();
 
+        // Ejecuta la consulta y obtiene el resultado
         $query = $this->db->get();
+
+        // Devuelve el valor de 'total_abiertos' obtenido de la fila del resultado
         return $query->row()->total_abiertos;
     }
 
-
-
-
-    public function obtener_alumnos_seguimiento($tipo, $start, $length, $order_column, $order_dir)
-    {
-
-
-        // Selección común para ambos casos
-        $this->db->select('
-            DISTINCT alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
-
-        // Aplicar la lógica específica según el tipo de seguimiento
-        if ($tipo == 'Abierto') {
-            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
-            $this->db->where('seguimientos.estatus', 'abierto');
-        } elseif ($tipo == 'Cerrado') {
-            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
-            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
-            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
-        }
-
-        // Aplicar ordenación y limitar resultados
-        $this->filtro_rol();
-
-        $this->ordenamiento($order_column, $order_dir);
-        $this->db->limit($length, $start);
-
-        // Ejecutar la consulta y devolver los resultados
-        $query = $this->db->get();
-        return $query->result();
-    }
-
-
-    public function obtener_todos_alumnos_seguimiento($tipo)
-    {
-
-        // Selección común para ambos casos
-        $this->db->select('
-            DISTINCT alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
-
-        // Aplicar la lógica específica según el tipo de seguimiento
-        if ($tipo == 'Abierto') {
-            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno');
-            $this->db->where('seguimientos.estatus', 'abierto');
-        } elseif ($tipo == 'cerrado') {
-            $this->db->join('(SELECT idalumno FROM seguimientos WHERE estatus = "cerrado") AS seguimientos_cerrados', 'alumnos.id = seguimientos_cerrados.idalumno', 'left');
-            $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
-            $this->db->where('(seguimientos_cerrados.idalumno IS NOT NULL OR seguimientos.idalumno IS NULL)', NULL, FALSE);
-        }
-        $this->filtro_rol();
-
-        // Ejecutar la consulta y devolver los resultados
-        $query = $this->db->get();
-        return  $query->num_rows();
-    }
-
-
-
-
-
-
-
     // Método para contar el total de alumnos según el nivel de probabilidad
-
     public function no_alumnos_por_probabilidad($probabilidad_baja)
     {
         // Selecciona la cantidad de filas y las nombra 'numrows'
@@ -327,85 +461,6 @@ class AlumnosModel extends CI_Model
 
 
 
-
-
-    // Método para obtener los alumnos con probabilidad de baja paginados y según el nivel de probabilidad
-    public function obtener_alumnos_probabilidad_baja($where, $start, $length,  $order_column, $order_dir)
-    {
-
-        $this->db->select('
-            alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
-        $this->filtro_rol();
-
-        $this->ordenamiento($order_column, $order_dir);
-
-        if (is_array($where)) {
-            $this->db->where($where);
-        } else {
-            $this->db->where($where, null, false); // For raw where conditions
-        }
-        $this->db->limit($length, $start);
-        $query = $this->db->get();
-        //echo $this->db->last_query();
-        return $query->result();
-    }
-
-    public function obtener_total_alumnos_probabilidad_baja($where)
-    {
-
-        $this->db->select('
-            alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
-        $this->filtro_rol();
-
-
-        if (is_array($where)) {
-            $this->db->where($where);
-        } else {
-            $this->db->where($where, null, false); // For raw where conditions
-        }
-        $query = $this->db->get();
-        return $query->result();
-    }
 
 
 
@@ -481,36 +536,7 @@ class AlumnosModel extends CI_Model
     }
 
 
-    public function no_alumnos_bloqueados()
-    {
-        $this->db->select('
-            alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
-        $this->db->where('alumnos.estatus_plataforma', 'Bloqueado');
 
-        $this->filtro_rol();
-        $query = $this->db->get();
-        return $query->num_rows();
-    }
 
 
     public function reporte_excel_todos()
@@ -760,10 +786,7 @@ class AlumnosModel extends CI_Model
     }
 
 
-    public function get_alumnos_where($where)
-    {
-        return $this->db->get_where('alumnos', $where)->row();
-    }
+
 
     public function update_by_matricula($matricula, $data)
     {

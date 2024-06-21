@@ -1,48 +1,50 @@
 $(document).ready(function () {
-    window.consultar = (idmoodle) => {
-        window.open(`detalle-del-alumno/${idmoodle}`, "_blank");
-    };
+	window.consultar = (idmoodle) => {
+		window.open(`detalle-del-alumno/${idmoodle}`, "_blank");
+	};
 
-    $("#descargar_seguimientos").on("click", function () {
-        let f_inicial = $("#fecha_inicial").val();
-        let f_final = $("#fecha_final").val();
-        window.open(
-            `https://archivo.iexe.edu.mx/asesores/reporte?fecha_inicial=${f_inicial}&fecha_final=${f_final}`,
-            "_blank"
-        );
-    });
+	$("#descargar_seguimientos").on("click", function () {
+		let f_inicial = $("#fecha_inicial").val();
+		let f_final = $("#fecha_final").val();
+		window.open(
+			`https://archivo.iexe.edu.mx/asesores/reporte?fecha_inicial=${f_inicial}&fecha_final=${f_final}`,
+			"_blank"
+		);
+	});
 
-    window.probabilidad_baja = (matricula) => {
-        $.ajax({
-            type: "POST",
-            url: `probabilidad_baja/${matricula}`,
-            dataType: "json",
-            success: function (response) {
-                console.log(response);
-                let actividades = "";
-                const icon_financiero =
-                    response.financiera.variable_financiera == 0
-                        ? '<i class="fa-regular fa-circle-check"></i>'
-                        : '<i class="fa-solid fa-triangle-exclamation"></i>';
+	window.probabilidad_baja = (matricula) => {
+		$.ajax({
+			type: "POST",
+			url: `probabilidad_baja/${matricula}`,
+			dataType: "json",
+			success: function (response) {
+				console.log(response);
+				let actividades = "";
+				const icon_financiero =
+					response.financiera.variable_financiera == 0
+						? '<i class="fa-regular fa-circle-check"></i>'
+						: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-                const clase_card_financiero =
-                    response.financiera.variable_financiera == 0 ? "bg-success text-white" : "bg-danger text-white";
-                $.each(response.academica.materia[0].actividades, function (i, a) {
-                    if (a.opcional == 1) {
-                        icon = '<i class="fa-regular fa-star"></i>';
-                        fecha_establecida = "";
-                    } else {
-                        icon =
-                            a.notificacion == 0
-                                ? '<i class="fa-regular fa-circle-check"></i>'
-                                : '<i class="fa-solid fa-triangle-exclamation"></i>';
+				const clase_card_financiero =
+					response.financiera.variable_financiera == 0
+						? "bg-success text-white"
+						: "bg-danger text-white";
+				$.each(response.academica.materia[0].actividades, function (i, a) {
+					if (a.opcional == 1) {
+						icon = '<i class="fa-regular fa-star"></i>';
+						fecha_establecida = "";
+					} else {
+						icon =
+							a.notificacion == 0
+								? '<i class="fa-regular fa-circle-check"></i>'
+								: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-                        fecha_establecida = `(${a.finalizacion})`;
-                    }
-                    actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
-                });
+						fecha_establecida = `(${a.finalizacion})`;
+					}
+					actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
+				});
 
-                let body = `
+				let body = `
                 <div class="container-fluid">
                     <div class="row g-3">
                         <div class="col-md-12">
@@ -108,61 +110,61 @@ $(document).ready(function () {
                     </div>
                 </div>`;
 
-                $.alert({
-                    title: false,
-                    closeIcon: true,
-                    columnClass: "col-md-8 col-md-offset-2",
-                    content: body,
-                    type: "blue",
-                    theme: "Modern",
+				$.alert({
+					title: false,
+					closeIcon: true,
+					columnClass: "col-md-8 col-md-offset-2",
+					content: body,
+					type: "blue",
+					theme: "Modern",
 
-                    buttons: {
-                        ok: {
-                            text: "Aceptar",
-                            btnClass: "btn btn-info btn-modal",
-                            action: function () {},
-                        },
-                    },
-                });
-            },
-        });
-    };
+					buttons: {
+						ok: {
+							text: "Aceptar",
+							btnClass: "btn btn-info btn-modal",
+							action: function () {},
+						},
+					},
+				});
+			},
+		});
+	};
 
-    window.buscar_seguimiento = function (tipo) {
-        $("#loading").show();
-        $("#contenedor_tabla_alumnos").hide();
-        let URL = `alumnos_buscar_seguimientos/${tipo}`;
+	window.buscar_seguimiento = function (tipo) {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = `alumnos_buscar_seguimientos/${tipo}`;
 
-        // Destruir la tabla DataTable actual si ya existe
-        if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
-            $("#tbl_alumnos").DataTable().destroy();
-        }
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
 
-        // Configurar la tabla con la URL específica
-        const table = configurarTablaAlumnos(URL);
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
 
-        // Mostrar la tabla y ocultar el loading después de cargar los datos
-        table.on("draw", function () {
-            $("#loading").hide();
-            $("#contenedor_tabla_alumnos").show();
-        });
-    };
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
 
-    window.seguimiento = function (id, periodo) {
-        $.ajax({
-            type: "POST",
-            url: `verificar_seguimientos/${id}`,
-            dataType: "json",
-            success: function (response) {
-                let fila = "";
-                let idseguimento = 0;
-                let historial = "";
-                if (response.status == "active") {
-                    console.log(response.seguimiento[0]);
-                    idseguimento = response.seguimiento[0]["idseguimiento"];
+	window.seguimiento = function (id, periodo) {
+		$.ajax({
+			type: "POST",
+			url: `verificar_seguimientos/${id}`,
+			dataType: "json",
+			success: function (response) {
+				let fila = "";
+				let idseguimento = 0;
+				let historial = "";
+				if (response.status == "active") {
+					console.log(response.seguimiento[0]);
+					idseguimento = response.seguimiento[0]["idseguimiento"];
 
-                    $.each(response.historial, function (i, h) {
-                        fila += `
+					$.each(response.historial, function (i, h) {
+						fila += `
                         <tr>
                         <td>${i + 1}</td>
                         <td>${h.metodo_contacto}</td>
@@ -172,8 +174,8 @@ $(document).ready(function () {
                         <td>${h.insert_date}</td>
                         <td>${h.asesor}</td>
                         </tr>`;
-                    });
-                    historial = `
+					});
+					historial = `
                     <h6>HISTORIAL DE SEGUIMIENTOS</h6>
                     <table class="table table-striped table-hover table-bordered table-sm" id="tabla_historial_seguimientos">
                         <thead style="background:#08384d; color:white;">
@@ -191,14 +193,14 @@ $(document).ready(function () {
                             ${fila}
                         </tbody>
                     </table>`;
-                }
-                primerConfirm(idseguimento, id, periodo, historial);
-            },
-        });
-    };
+				}
+				primerConfirm(idseguimento, id, periodo, historial);
+			},
+		});
+	};
 
-    const primerConfirm = (idseguimento, id, periodo, historial) => {
-        let formulario_registro = `
+	const primerConfirm = (idseguimento, id, periodo, historial) => {
+		let formulario_registro = `
                     <div class="container-fluid">
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -246,78 +248,78 @@ $(document).ready(function () {
                         <div id="error_message" class="text-danger mt-3" style="display: none;">Todos los campos son obligatorios.</div>
                     </div>`;
 
-        $.confirm({
-            title: false,
+		$.confirm({
+			title: false,
 
-            closeIcon: true, // explicitly show the close icon
-            escapeKey: true,
-            content: formulario_registro,
-            theme: "Modern",
-            columnClass: "col-md-8 col-md-offset-2",
-            type: "blue",
-            buttons: {
-                pendiente: {
-                    btnClass: "btn btn-sm float-end btn-modal",
-                    text: '<i class="fa-solid fa-clock"></i> Pendiente de contacto',
-                    action: function () {
-                        // Validar los campos
-                        let valid = true;
-                        let metodo_contacto = $("#m_contacto").val();
-                        let estatus_seguimiento = $("#estatus_seguimiento").val();
-                        let estatus_acuerdo = $("#estatus_acuerdo").val();
-                        let comentarios = $("#comentarios").val().trim();
+			closeIcon: true, // explicitly show the close icon
+			escapeKey: true,
+			content: formulario_registro,
+			theme: "Modern",
+			columnClass: "col-md-8 col-md-offset-2",
+			type: "blue",
+			buttons: {
+				pendiente: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-clock"></i> Pendiente de contacto',
+					action: function () {
+						// Validar los campos
+						let valid = true;
+						let metodo_contacto = $("#m_contacto").val();
+						let estatus_seguimiento = $("#estatus_seguimiento").val();
+						let estatus_acuerdo = $("#estatus_acuerdo").val();
+						let comentarios = $("#comentarios").val().trim();
 
-                        if (metodo_contacto == "1") {
-                            $("#m_contacto").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#m_contacto").removeClass("is-invalid");
-                        }
+						if (metodo_contacto == "1") {
+							$("#m_contacto").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#m_contacto").removeClass("is-invalid");
+						}
 
-                        if (estatus_seguimiento == "1") {
-                            $("#estatus_seguimiento").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#estatus_seguimiento").removeClass("is-invalid");
-                        }
+						if (estatus_seguimiento == "1") {
+							$("#estatus_seguimiento").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_seguimiento").removeClass("is-invalid");
+						}
 
-                        if (estatus_acuerdo == "1") {
-                            $("#estatus_acuerdo").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#estatus_acuerdo").removeClass("is-invalid");
-                        }
+						if (estatus_acuerdo == "1") {
+							$("#estatus_acuerdo").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_acuerdo").removeClass("is-invalid");
+						}
 
-                        if (comentarios == "") {
-                            $("#comentarios").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#comentarios").removeClass("is-invalid");
-                        }
+						if (comentarios == "") {
+							$("#comentarios").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#comentarios").removeClass("is-invalid");
+						}
 
-                        if (!valid) {
-                            $("#error_message").show();
-                            return false;
-                        } else {
-                            $("#error_message").hide();
-                            // Aquí manejamos la acción si la validación es correcta
-                            $.ajax({
-                                type: "POST",
-                                url: `guardar_seguimiento/${idseguimento}/activo`,
-                                data: {
-                                    metodo_contacto: metodo_contacto,
-                                    estatus_seguimiento: estatus_seguimiento,
-                                    estatus_acuerdo: estatus_acuerdo,
-                                    comentarios: comentarios,
-                                    idalumno: id,
-                                    periodo: periodo,
-                                },
-                                dataType: "json",
-                                success: function (response) {
-                                    console.log(response.message);
-                                    $.confirm({
-                                        title: false,
-                                        content: `
+						if (!valid) {
+							$("#error_message").show();
+							return false;
+						} else {
+							$("#error_message").hide();
+							// Aquí manejamos la acción si la validación es correcta
+							$.ajax({
+								type: "POST",
+								url: `guardar_seguimiento/${idseguimento}/activo`,
+								data: {
+									metodo_contacto: metodo_contacto,
+									estatus_seguimiento: estatus_seguimiento,
+									estatus_acuerdo: estatus_acuerdo,
+									comentarios: comentarios,
+									idalumno: id,
+									periodo: periodo,
+								},
+								dataType: "json",
+								success: function (response) {
+									console.log(response.message);
+									$.confirm({
+										title: false,
+										content: `
                                             <div class="container-fluid">
                                                 <div class="row g-3">
                                                     <div class="col-md-12 text-center">
@@ -326,107 +328,107 @@ $(document).ready(function () {
                                                     </div>
                                                 </div>
                                             </div>`,
-                                        type: "blue",
-                                        buttons: {
-                                            continuar: {
-                                                text: `<i class="fa-solid fa-check"></i> Continuar`,
-                                                btnClass: "btn btn-modal",
-                                                action: function () {},
-                                            },
-                                        },
-                                    });
-                                },
-                                error: function () {
-                                    $.confirm({
-                                        title: "Error",
-                                        content: "Error de lado del servidor",
-                                        type: "red",
-                                        buttons: {
-                                            ok: {
-                                                text: "OK",
-                                                btnClass: "btn btn-danger",
-                                                action: function () {},
-                                            },
-                                        },
-                                    });
-                                },
-                            });
-                        }
-                    },
-                },
-                cerrar: {
-                    btnClass: "btn btn-sm float-end btn-modal",
-                    text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
-                    action: function () {
-                        // Validar los campos
-                        let valid = true;
-                        let metodo_contacto = $("#m_contacto").val();
-                        let estatus_seguimiento = $("#estatus_seguimiento").val();
-                        let estatus_acuerdo = $("#estatus_acuerdo").val();
-                        let comentarios = $("#comentarios").val().trim();
+										type: "blue",
+										buttons: {
+											continuar: {
+												text: `<i class="fa-solid fa-check"></i> Continuar`,
+												btnClass: "btn btn-modal",
+												action: function () {},
+											},
+										},
+									});
+								},
+								error: function () {
+									$.confirm({
+										title: "Error",
+										content: "Error de lado del servidor",
+										type: "red",
+										buttons: {
+											ok: {
+												text: "OK",
+												btnClass: "btn btn-danger",
+												action: function () {},
+											},
+										},
+									});
+								},
+							});
+						}
+					},
+				},
+				cerrar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
+					action: function () {
+						// Validar los campos
+						let valid = true;
+						let metodo_contacto = $("#m_contacto").val();
+						let estatus_seguimiento = $("#estatus_seguimiento").val();
+						let estatus_acuerdo = $("#estatus_acuerdo").val();
+						let comentarios = $("#comentarios").val().trim();
 
-                        if (metodo_contacto == "1") {
-                            $("#m_contacto").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#m_contacto").removeClass("is-invalid");
-                        }
+						if (metodo_contacto == "1") {
+							$("#m_contacto").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#m_contacto").removeClass("is-invalid");
+						}
 
-                        if (estatus_seguimiento == "1") {
-                            $("#estatus_seguimiento").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#estatus_seguimiento").removeClass("is-invalid");
-                        }
+						if (estatus_seguimiento == "1") {
+							$("#estatus_seguimiento").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_seguimiento").removeClass("is-invalid");
+						}
 
-                        if (estatus_acuerdo == "1") {
-                            $("#estatus_acuerdo").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#estatus_acuerdo").removeClass("is-invalid");
-                        }
+						if (estatus_acuerdo == "1") {
+							$("#estatus_acuerdo").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_acuerdo").removeClass("is-invalid");
+						}
 
-                        if (comentarios == "") {
-                            $("#comentarios").addClass("is-invalid");
-                            valid = false;
-                        } else {
-                            $("#comentarios").removeClass("is-invalid");
-                        }
+						if (comentarios == "") {
+							$("#comentarios").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#comentarios").removeClass("is-invalid");
+						}
 
-                        if (!valid) {
-                            $("#error_message").show();
-                            return false;
-                        } else {
-                            $("#error_message").hide();
-                            // Aquí manejamos la acción si la validación es correcta
+						if (!valid) {
+							$("#error_message").show();
+							return false;
+						} else {
+							$("#error_message").hide();
+							// Aquí manejamos la acción si la validación es correcta
 
-                            segundoConfirm(
-                                metodo_contacto,
-                                estatus_seguimiento,
-                                estatus_acuerdo,
-                                comentarios,
-                                id,
-                                idseguimento
-                            );
-                        }
-                    },
-                },
-            },
-        });
-    };
+							segundoConfirm(
+								metodo_contacto,
+								estatus_seguimiento,
+								estatus_acuerdo,
+								comentarios,
+								id,
+								idseguimento
+							);
+						}
+					},
+				},
+			},
+		});
+	};
 
-    const segundoConfirm = (
-        metodo_contacto,
-        estatus_seguimiento,
-        estatus_acuerdo,
-        comentarios,
-        id,
-        idseguimento,
-        periodo
-    ) => {
-        $.confirm({
-            title: false,
-            content: `
+	const segundoConfirm = (
+		metodo_contacto,
+		estatus_seguimiento,
+		estatus_acuerdo,
+		comentarios,
+		id,
+		idseguimento,
+		periodo
+	) => {
+		$.confirm({
+			title: false,
+			content: `
         <div class="container-fluid">
             <div class="row g-3">
                 <div class="col-md-12 text-center">
@@ -435,37 +437,37 @@ $(document).ready(function () {
                 </div>
             </div>
         </div>`,
-            type: "blue",
-            theme: "Modern",
-            columnClass: "col-md-4 col-md-offset-4",
-            buttons: {
-                regresar: {
-                    btnClass: "btn btn-sm float-end btn-modal",
-                    text: '<i class="fa-solid fa-arrow-left"></i> Regresar',
-                    action: function () {
-                        seguimiento(id, periodo);
-                    },
-                },
-                finalizar: {
-                    btnClass: "btn btn-sm float-end btn-modal",
-                    text: '<i class="fa-solid fa-check-to-slot"></i> Continuar',
-                    action: function () {
-                        $.ajax({
-                            type: "POST",
-                            url: `guardar_seguimiento/${idseguimento}/cerrado`,
-                            data: {
-                                metodo_contacto: metodo_contacto,
-                                estatus_seguimiento: estatus_seguimiento,
-                                estatus_acuerdo: estatus_acuerdo,
-                                comentarios: comentarios,
-                                idalumno: id,
-                            },
-                            dataType: "json",
-                            success: function (response) {
-                                console.log(response.message);
-                                $.confirm({
-                                    title: false,
-                                    content: `
+			type: "blue",
+			theme: "Modern",
+			columnClass: "col-md-4 col-md-offset-4",
+			buttons: {
+				regresar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-arrow-left"></i> Regresar',
+					action: function () {
+						seguimiento(id, periodo);
+					},
+				},
+				finalizar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-check-to-slot"></i> Continuar',
+					action: function () {
+						$.ajax({
+							type: "POST",
+							url: `guardar_seguimiento/${idseguimento}/cerrado`,
+							data: {
+								metodo_contacto: metodo_contacto,
+								estatus_seguimiento: estatus_seguimiento,
+								estatus_acuerdo: estatus_acuerdo,
+								comentarios: comentarios,
+								idalumno: id,
+							},
+							dataType: "json",
+							success: function (response) {
+								console.log(response.message);
+								$.confirm({
+									title: false,
+									content: `
                                             <div class="container-fluid">
                                                 <div class="row g-3">
                                                     <div class="col-md-12 text-center">
@@ -474,120 +476,120 @@ $(document).ready(function () {
                                                     </div>
                                                 </div>
                                             </div>`,
-                                    type: "blue",
-                                    buttons: {
-                                        continuar: {
-                                            text: `<i class="fa-solid fa-check"></i> Continuar`,
-                                            btnClass: "btn btn-modal",
-                                            action: function () {},
-                                        },
-                                    },
-                                });
-                            },
-                            error: function () {
-                                $.confirm({
-                                    title: "Error",
-                                    content: "Error de lado del servidor",
-                                    type: "red",
-                                    buttons: {
-                                        ok: {
-                                            text: "OK",
-                                            btnClass: "btn btn-danger",
-                                            action: function () {},
-                                        },
-                                    },
-                                });
-                            },
-                        });
-                    },
-                },
-            },
-        });
-    };
+									type: "blue",
+									buttons: {
+										continuar: {
+											text: `<i class="fa-solid fa-check"></i> Continuar`,
+											btnClass: "btn btn-modal",
+											action: function () {},
+										},
+									},
+								});
+							},
+							error: function () {
+								$.confirm({
+									title: "Error",
+									content: "Error de lado del servidor",
+									type: "red",
+									buttons: {
+										ok: {
+											text: "OK",
+											btnClass: "btn btn-danger",
+											action: function () {},
+										},
+									},
+								});
+							},
+						});
+					},
+				},
+			},
+		});
+	};
 
-    function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
-        let ajaxConfig = {
-            url: url,
-            type: "POST", // o "GET" dependiendo de tu aplicación
-        };
-        if (data !== null) {
-            ajaxConfig = {
-                url: url,
-                type: "POST", // o "GET" dependiendo de tu aplicación
-                data: data,
-            };
-        }
-        return $("#tbl_alumnos").DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            pagingType: "simple_numbers",
-            ajax: ajaxConfig,
-            columns: [
-                {data: "nombre", searchable: true},
-                {data: "periodo", searchable: true},
-                {data: "programa", searchable: true},
-                {data: "periodo_mensual", searchable: true},
-                {data: "matricula", searchable: true},
-                {data: "correo", searchable: true},
-                {
-                    data: "probabilidad_baja",
-                    render: function (data, type, row) {
-                        let badgeClass = "bg-secondary";
-                        if (data === "Alta R1") {
-                            badgeClass = "bg-danger";
-                        } else if (data === "Media R2") {
-                            badgeClass = "bg-warning text-dark";
-                        } else if (data === "Baja R3") {
-                            badgeClass = "bg-success";
-                        }
-                        return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
-                    },
-                    searchable: true,
-                },
-                {
-                    data: "estatus_plataforma",
-                    render: function (data, type, row) {
-                        let btnClass = "";
-                        if (data === "Bloqueado") {
-                            btnClass = "btn-outline-warning";
-                        } else if (data === "Desbloqueado") {
-                            btnClass = "btn-outline-success";
-                        } else if (data === "Baja temporal" || data === "Baja definitiva") {
-                            btnClass = "btn-outline-danger";
-                        } else if (data === "Activo") {
-                            btnClass = "btn-outline-secondary";
-                        }
-                        return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
-                    },
-                    searchable: true,
-                },
-                {
-                    data: "nombre_consejera",
-                    render: function (data, type, row) {
-                        if (!data) {
-                            return `<td class="text-center"><span class="badge bg-warning text-dark warning">Sin consejera asignada</span></td>`;
-                        } else {
-                            return `<div class="text-center">${data}</div>`;
-                        }
-                    },
-                    searchable: true,
-                },
-                {
-                    data: "nombre_financiero",
-                    render: function (data, type, row) {
-                        if (!data) {
-                            return `<td class="text-center"><span class="badge sin_asignacion">Sin asignación</span></td>`;
-                        } else {
-                            return `<div class="text-center"><span class="badge financiera">${data}</span></div>`;
-                        }
-                    },
-                    searchable: true,
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return `
+	function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
+		let ajaxConfig = {
+			url: url,
+			type: "POST", // o "GET" dependiendo de tu aplicación
+		};
+		if (data !== null) {
+			ajaxConfig = {
+				url: url,
+				type: "POST", // o "GET" dependiendo de tu aplicación
+				data: data,
+			};
+		}
+		return $("#tbl_alumnos").DataTable({
+			processing: true,
+			serverSide: true,
+			searching: false,
+			pagingType: "simple_numbers",
+			ajax: ajaxConfig,
+			columns: [
+				{ data: "nombre", searchable: true },
+				{ data: "periodo", searchable: true },
+				{ data: "programa", searchable: true },
+				{ data: "periodo_mensual", searchable: true },
+				{ data: "matricula", searchable: true },
+				{ data: "correo", searchable: true },
+				{
+					data: "probabilidad_baja",
+					render: function (data, type, row) {
+						let badgeClass = "bg-secondary";
+						if (data === "Alta R1") {
+							badgeClass = "bg-danger";
+						} else if (data === "Media R2") {
+							badgeClass = "bg-warning text-dark";
+						} else if (data === "Baja R3") {
+							badgeClass = "bg-success";
+						}
+						return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
+					},
+					searchable: true,
+				},
+				{
+					data: "estatus_plataforma",
+					render: function (data, type, row) {
+						let btnClass = "";
+						if (data === "Bloqueado") {
+							btnClass = "btn-outline-warning";
+						} else if (data === "Desbloqueado") {
+							btnClass = "btn-outline-success";
+						} else if (data === "Baja temporal" || data === "Baja definitiva") {
+							btnClass = "btn-outline-danger";
+						} else if (data === "Activo") {
+							btnClass = "btn-outline-secondary";
+						}
+						return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
+					},
+					searchable: true,
+				},
+				{
+					data: "nombre_consejera",
+					render: function (data, type, row) {
+						if (!data) {
+							return `<td class="text-center"><span class="badge bg-warning text-dark warning">Sin consejera asignada</span></td>`;
+						} else {
+							return `<div class="text-center">${data}</div>`;
+						}
+					},
+					searchable: true,
+				},
+				{
+					data: "nombre_financiero",
+					render: function (data, type, row) {
+						if (!data) {
+							return `<td class="text-center"><span class="badge sin_asignacion">Sin asignación</span></td>`;
+						} else {
+							return `<div class="text-center"><span class="badge financiera">${data}</span></div>`;
+						}
+					},
+					searchable: true,
+				},
+				{
+					data: null,
+					render: function (data, type, row) {
+						return `
                         <div class="text-center">
                             <div class="dropdown">
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -599,130 +601,144 @@ $(document).ready(function () {
                                 </ul>
                             </div>
                         </div>`;
-                    },
-                    searchable: true,
-                },
-            ],
-            order: [[0, "asc"]], // Orden inicial por la primera columna
-            responsive: true,
-            paging: true,
-            pageLength: 10,
-            language: {
-                decimal: ",",
-                emptyTable: "No hay datos disponibles en la tabla",
-                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                infoEmpty: "Mostrando 0 a 0 de 0 registros",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                infoPostFix: "",
-                thousands: ".",
-                lengthMenu: "Mostrar _MENU_ registros por página",
-                loadingRecords: "Cargando...",
-                processing: "Procesando...",
-                search: "Buscar:",
-                zeroRecords: "No se encontraron registros",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior",
-                },
-                aria: {
-                    sortAscending: ": activar para ordenar la columna ascendente",
-                    sortDescending: ": activar para ordenar la columna descendente",
-                },
-            },
-        });
-    }
+					},
+					searchable: true,
+				},
+			],
+			order: [[0, "asc"]], // Orden inicial por la primera columna
+			responsive: true,
+			paging: true,
+			pageLength: 10,
+			language: {
+				decimal: ",",
+				emptyTable: "No hay datos disponibles en la tabla",
+				info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+				infoEmpty: "Mostrando 0 a 0 de 0 registros",
+				infoFiltered: "(filtrado de _MAX_ registros totales)",
+				infoPostFix: "",
+				thousands: ".",
+				lengthMenu: "Mostrar _MENU_ registros por página",
+				loadingRecords: "Cargando...",
+				processing: "Procesando...",
+				search: "Buscar:",
+				zeroRecords: "No se encontraron registros",
+				paginate: {
+					first: "Primero",
+					last: "Último",
+					next: "Siguiente",
+					previous: "Anterior",
+				},
+				aria: {
+					sortAscending: ": activar para ordenar la columna ascendente",
+					sortDescending: ": activar para ordenar la columna descendente",
+				},
+			},
+		});
+	}
 
-    configurarTablaAlumnos();
+	configurarTablaAlumnos();
+	window.bloqueados = function () {
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos("alumnos-bloqueados");
 
-    window.buscar_baja = function (probabilidad) {
-        $("#loading").show();
-        $("#contenedor_tabla_alumnos").hide();
-        let URL = "";
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
 
-        if (probabilidad === "r3") {
-            URL = "alumnos_probabilidad_baja/r3";
-        } else if (probabilidad === "r2") {
-            URL = "alumnos_probabilidad_baja/r2";
-        } else if (probabilidad === "r1") {
-            URL = "alumnos_probabilidad_baja/r1";
-        } else {
-            console.error("Nivel de probabilidad no válido");
-            return;
-        }
+	window.buscar_baja = function (probabilidad) {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = "";
 
-        // Destruir la tabla DataTable actual si ya existe
-        if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
-            $("#tbl_alumnos").DataTable().destroy();
-        }
+		if (probabilidad === "r3") {
+			URL = "alumnos_probabilidad_baja/r3";
+		} else if (probabilidad === "r2") {
+			URL = "alumnos_probabilidad_baja/r2";
+		} else if (probabilidad === "r1") {
+			URL = "alumnos_probabilidad_baja/r1";
+		} else {
+			console.error("Nivel de probabilidad no válido");
+			return;
+		}
 
-        // Configurar la tabla con la URL específica
-        const table = configurarTablaAlumnos(URL);
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
 
-        // Mostrar la tabla y ocultar el loading después de cargar los datos
-        table.on("draw", function () {
-            $("#loading").hide();
-            $("#contenedor_tabla_alumnos").show();
-        });
-    };
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
 
-    window.busqueda_avanzada = function () {
-        // Obtener los valores de los campos
-        var nombre = $("#nombre").val().trim();
-        var apellidos = $("#apellidos").val().trim();
-        var correo = $("#correo").val().trim();
-        var matricula = $("#matricula").val().trim();
-        var programa = $("#programas").val();
-        var periodo = $("#periodos").val();
-        var periodoMensual = $("#periodos_mensuales").val();
-        var estatusPlataforma = $("#estatus-plataforma").val();
-        var consejera = $("#consejera").val();
-        var financiero = $("#consejera").val(); // Asegúrate de usar un id único para este campo
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
 
-        if (
-            nombre === "" &&
-            apellidos === "" &&
-            correo === "" &&
-            matricula === "" &&
-            programa === "0" &&
-            periodo === "0" &&
-            periodoMensual === "0" &&
-            estatusPlataforma === "0" &&
-            consejera === "0" &&
-            financiero === "0"
-        ) {
-            $("#alert-busqueda").show();
-            $("#alert-busqueda").fadeOut(3000);
-        } else {
-            $("#loading").show();
-            $("#contenedor_tabla_alumnos").hide();
+	window.busqueda_avanzada = function () {
+		// Obtener los valores de los campos
+		var nombre = $("#nombre").val().trim();
+		var apellidos = $("#apellidos").val().trim();
+		var correo = $("#correo").val().trim();
+		var matricula = $("#matricula").val().trim();
+		var programa = $("#programas").val();
+		var periodo = $("#periodos").val();
+		var periodoMensual = $("#periodos_mensuales").val();
+		var estatusPlataforma = $("#estatus-plataforma").val();
+		var consejera = $("#consejera").val();
+		var financiero = $("#consejera").val(); // Asegúrate de usar un id único para este campo
 
-            // Destruir la tabla DataTable actual si ya existe
-            if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
-                $("#tbl_alumnos").DataTable().destroy();
-            }
+		if (
+			nombre === "" &&
+			apellidos === "" &&
+			correo === "" &&
+			matricula === "" &&
+			programa === "0" &&
+			periodo === "0" &&
+			periodoMensual === "0" &&
+			estatusPlataforma === "0" &&
+			consejera === "0" &&
+			financiero === "0"
+		) {
+			$("#alert-busqueda").show();
+			$("#alert-busqueda").fadeOut(3000);
+		} else {
+			$("#loading").show();
+			$("#contenedor_tabla_alumnos").hide();
 
-            // Configurar la tabla con la URL específica
-            let data = {
-                nombre,
-                apellidos,
-                correo,
-                matricula,
-                programa,
-                periodo,
-                periodoMensual,
-                estatusPlataforma,
-                consejera,
-                financiero,
-            };
-            const table = configurarTablaAlumnos("busuqeda_avanzada", data);
+			// Destruir la tabla DataTable actual si ya existe
+			if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+				$("#tbl_alumnos").DataTable().destroy();
+			}
 
-            // Mostrar la tabla y ocultar el loading después de cargar los datos
-            table.on("draw", function () {
-                $("#loading").hide();
-                $("#contenedor_tabla_alumnos").show();
-            });
-        }
-    };
+			// Configurar la tabla con la URL específica
+			let data = {
+				nombre,
+				apellidos,
+				correo,
+				matricula,
+				programa,
+				periodo,
+				periodoMensual,
+				estatusPlataforma,
+				consejera,
+				financiero,
+			};
+			const table = configurarTablaAlumnos("busuqeda_avanzada", data);
+
+			// Mostrar la tabla y ocultar el loading después de cargar los datos
+			table.on("draw", function () {
+				$("#loading").hide();
+				$("#contenedor_tabla_alumnos").show();
+			});
+		}
+	};
 });

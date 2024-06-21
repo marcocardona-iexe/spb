@@ -30,6 +30,153 @@ class AlumnosController extends CI_Controller
         $this->load->library('session');
 
         $this->URL_API_FINACIERO = "https://beta.dockserver.lat/retraso_en_pagos";
+        $this->isopais = array(
+            "AG" => "Antigua and Barbuda",
+            "AR" => "Argentina",
+            "BS" => "Bahamas",
+            "BB" => "Barbados",
+            "BZ" => "Belize",
+            "BO" => "Bolivia",
+            "BR" => "Brazil",
+            "CA" => "Canada",
+            "CL" => "Chile",
+            "CO" => "Colombia",
+            "CR" => "Costa Rica",
+            "CU" => "Cuba",
+            "DM" => "Dominica",
+            "DO" => "Dominican Republic",
+            "EC" => "Ecuador",
+            "SV" => "El Salvador",
+            "GD" => "Grenada",
+            "GT" => "Guatemala",
+            "GY" => "Guyana",
+            "HT" => "Haiti",
+            "HN" => "Honduras",
+            "JM" => "Jamaica",
+            "MX" => "Mexico",
+            "NI" => "Nicaragua",
+            "PA" => "Panama",
+            "PY" => "Paraguay",
+            "PE" => "Peru",
+            "KN" => "Saint Kitts and Nevis",
+            "LC" => "Saint Lucia",
+            "VC" => "Saint Vincent and the Grenadines",
+            "SR" => "Suriname",
+            "TT" => "Trinidad and Tobago",
+            "US" => "United States of America",
+            "UY" => "Uruguay",
+            "VE" => "Venezuela"
+        );
+    }
+
+
+    //Funcion principal que pinta la vista de todo el modulo
+    public function index()
+    {
+        // Verificar sesión
+        $this->check_session();
+
+        // Obtener datos de sesión para el menú
+        $dataMenu['sesion'] = $this->session->userdata('seguimiento_iexe');
+
+        // Verificar si hay roles en la sesión para mostrar opciones select
+        $sesion = $this->session->userdata('seguimiento_iexe');
+        $ver_select = (count($sesion['roles']) > 0) ? 1 : 0;
+
+        // Obtener totales de alumnos por estatus de bloqueo
+        $bloqueados = $this->AlumnosModel->no_alumnos_bloqueados();
+        // Obtener totales de alumnos por cada nivel de probabilidad
+        $total_r1 = $this->AlumnosModel->no_alumnos_por_probabilidad("r1");
+        $total_r2 = $this->AlumnosModel->no_alumnos_por_probabilidad("r2");
+        $total_r3 = $this->AlumnosModel->no_alumnos_por_probabilidad("r3");
+
+        // Obtener el total de alumnos con seguimiento cerrado
+        $total_cerrados = $this->AlumnosModel->obtener_alumnos_sin_seguimiento_cerrado();
+
+        // Obtener el total de alumnos con seguimiento abierto
+        $total_abiertos = $this->AlumnosModel->obtener_total_alumnos_seguimiento_abierto();
+
+        // Obtener listas de consejeras y financieros
+        $consejeras = $this->UsuariosModel->get_usuario_by_rol(2);
+        $financieros = $this->UsuariosModel->get_usuario_by_rol(3);
+
+        // Preparar datos para pasar a la vista
+        $data = array(
+            "total_r1" => $total_r1,
+            "total_r2" => $total_r2,
+            "total_r3" => $total_r3,
+            "ver_select" => $ver_select,
+            "total_cerrados" => $total_cerrados,
+            "total_abiertos" => $total_abiertos,
+            "consejeras" => $consejeras,
+            "financieros" => $financieros,
+            "bloqueados" => $bloqueados
+        );
+
+        // Cargar vistas y pasar datos a ellas
+        $this->load->view('head', array("css" => "assets/css/lista_usuarios.css"));
+        $this->load->view('menu', $dataMenu);
+        $this->load->view('lista_alumnos', $data);
+        $this->load->view('footer', array("js" => "assets/js/lista_alumnos_test.js"));
+    }
+
+
+    private function response_to_datatable($model, $get_limit_method, $get_all_method, $where, $user_where)
+    {
+        $start = $this->input->post('start');
+        $length = $this->input->post('length');
+        $order = $this->input->post("order");
+        $order_column = 0;
+        $order_dir = "asc";
+
+        if (!empty($order)) {
+            $order_column = $order[0]['column'];
+            $order_dir = $order[0]['dir'];
+        }
+
+
+        $items = $this->$model->$get_limit_method($start, $length, $order_column, $order_dir, $where, $user_where);
+        $total_items = $this->$model->$get_all_method($where);
+
+        $data = array(
+            "draw" => intval($this->input->post("draw")),
+            "recordsTotal" => count($items),
+            "recordsFiltered" =>  count($total_items),
+            "data" => $items
+        );
+
+        echo json_encode($data);
+    }
+
+    public function alumnos_bloqueados()
+    {
+        $this->response_to_datatable('AlumnosModel', 'get_bloqueados', 'get_alumnos_where', array("estatus_plataforma" => "Bloqueado"), true);
+    }
+
+
+    public function alumnos_probabilidad_baja($nivel_probabilidad)
+    {
+        // Determinar las condiciones de la consulta según el nivel de probabilidad
+        switch ($nivel_probabilidad) {
+            case 'r1':
+                $where = array('variable_academica' => 1, 'variable_financiera' => 1);
+                break;
+            case 'r2':
+                $where = array('variable_academica' => 0, 'variable_financiera' => 1);
+                break;
+            case 'r3':
+                $where = "((variable_academica = 1 AND variable_financiera = 0) OR (variable_academica = 0 AND variable_financiera = 0))";
+                break;
+            default:
+                return;
+        }
+        $this->response_to_datatable('AlumnosModel', 'get_por_probabilidad_baja', 'get_alumnos_where', $where, true);
+    }
+
+
+    public function alumnos_buscar_seguimientos($tipo)
+    {
+        $this->response_to_datatable('AlumnosModel', 'get_alumnos_por_seguimiento', 'get_total_por_seguimiento', $tipo, true);
     }
 
 
@@ -316,56 +463,7 @@ class AlumnosController extends CI_Controller
     }
 
 
-    //Funcion principal que pinta la vista de todo el modulo
-    public function index()
-    {
-        // Verificar sesión
-        $this->check_session();
 
-        // Obtener datos de sesión para el menú
-        $dataMenu['sesion'] = $this->session->userdata('seguimiento_iexe');
-
-        // Verificar si hay roles en la sesión para mostrar opciones select
-        $sesion = $this->session->userdata('seguimiento_iexe');
-        $ver_select = (count($sesion['roles']) > 0) ? 1 : 0;
-
-        // Obtener totales de alumnos por cada nivel de probabilidad
-        $bloqueados = $this->AlumnosModel->no_alumnos_bloqueados();
-
-
-        $total_r1 = $this->AlumnosModel->no_alumnos_por_probabilidad("r1");
-        $total_r2 = $this->AlumnosModel->no_alumnos_por_probabilidad("r2");
-        $total_r3 = $this->AlumnosModel->no_alumnos_por_probabilidad("r3");
-
-        // Obtener el total de alumnos con seguimiento cerrado
-        $total_cerrados = $this->AlumnosModel->obtener_alumnos_sin_seguimiento_cerrado();
-
-        // Obtener el total de alumnos con seguimiento abierto
-        $total_abiertos = $this->AlumnosModel->obtener_total_alumnos_seguimiento_abierto();
-
-        // Obtener listas de consejeras y financieros
-        $consejeras = $this->UsuariosModel->get_usuario_by_rol(2);
-        $financieros = $this->UsuariosModel->get_usuario_by_rol(3);
-
-        // Preparar datos para pasar a la vista
-        $data = array(
-            "total_r1" => $total_r1,
-            "total_r2" => $total_r2,
-            "total_r3" => $total_r3,
-            "ver_select" => $ver_select,
-            "total_cerrados" => $total_cerrados,
-            "total_abiertos" => $total_abiertos,
-            "consejeras" => $consejeras,
-            "financieros" => $financieros,
-            "bloqueados" => $bloqueados
-        );
-
-        // Cargar vistas y pasar datos a ellas
-        $this->load->view('head', array("css" => "assets/css/lista_usuarios.css"));
-        $this->load->view('menu', $dataMenu);
-        $this->load->view('lista_alumnos', $data);
-        $this->load->view('footer', array("js" => "assets/js/lista_alumnos_test.js"));
-    }
 
     //Validador de que este una sesion activa
     private function check_session()
@@ -720,99 +818,10 @@ class AlumnosController extends CI_Controller
 
 
 
-    public function alumnos_probabilidad_baja($nivel_probabilidad)
-    {
-        // Obtener los parámetros de paginación del DataTable
-        $length = $this->input->post('length'); // Cantidad de registros por página
-        $start = $this->input->post('start'); // Índice de inicio
-        $draw = $this->input->post('draw'); // Número de veces que se ha dibujado la tabla
-
-        $order = $this->input->post("order");
-        $order_column = 0;
-        $order_dir = "asc";
-
-        if (!empty($order)) {
-            $order_column = $order[0]['column'];
-            $order_dir = $order[0]['dir'];
-        }
-
-        // Determinar las condiciones de la consulta según el nivel de probabilidad
-        switch ($nivel_probabilidad) {
-            case 'r1':
-                $where = array('variable_academica' => 1, 'variable_financiera' => 1);
-                break;
-            case 'r2':
-                $where = array('variable_academica' => 0, 'variable_financiera' => 1);
-                break;
-            case 'r3':
-                $where = "((variable_academica = 1 AND variable_financiera = 0) OR (variable_academica = 0 AND variable_financiera = 0))";
-                break;
-            default:
-                // Nivel de probabilidad no válido, devolver respuesta vacía o error
-                // En este ejemplo, se devuelve una respuesta vacía
-                $response = array(
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => array()
-                );
-                echo json_encode($response);
-                return;
-        }
-
-
-        // Obtener los alumnos con probabilidad de baja paginados y según el nivel de probabilidad
-        $alumnos = $this->AlumnosModel->obtener_alumnos_probabilidad_baja($where, $start, $length, $order_column, $order_dir);
-        $total_alumnos = $this->AlumnosModel->obtener_total_alumnos_probabilidad_baja($where);
-
-        // Devolver los resultados en el formato esperado por DataTable
-        $response = array(
-            'draw' => $draw,
-            'recordsTotal' => count($total_alumnos),
-            'recordsFiltered' =>  count($total_alumnos),
-            'data' => $alumnos // Datos de los alumnos paginados
-        );
-
-        // Devolver los datos como JSON
-        echo json_encode($response);
-    }
-
-
-    public function alumnos_buscar_seguimientos($tipo)
-    {
-        // Obtener los parámetros de paginación del DataTable
-        $length = $this->input->post('length'); // Cantidad de registros por página
-        $start = $this->input->post('start'); // Índice de inicio
-        $draw = $this->input->post('draw'); // Número de veces que se ha dibujado la tabla
-
-        $order = $this->input->post("order");
-        $order_column = 0;
-        $order_dir = "asc";
-
-        if (!empty($order)) {
-            $order_column = $order[0]['column'];
-            $order_dir = $order[0]['dir'];
-        }
 
 
 
-        // Obtener los alumnos con probabilidad de baja paginados y según el nivel de probabilidad
-        $alumnos = $this->AlumnosModel->obtener_alumnos_seguimiento($tipo, $start, $length, $order_column, $order_dir);
 
-        // Obtener el total de registros sin paginación
-        $totalRegistros = $this->AlumnosModel->obtener_todos_alumnos_seguimiento($tipo);
-
-        // Devolver los resultados en el formato esperado por DataTable
-        $response = array(
-            'draw' => $draw,
-            'recordsTotal' => $totalRegistros, // Total de registros sin paginación
-            'recordsFiltered' => $totalRegistros, // Total de registros después de aplicar filtros (en este caso no hay filtros)
-            'data' => $alumnos // Datos de los alumnos paginados
-        );
-
-        // Devolver los datos como JSON
-        echo json_encode($response);
-    }
 
     public function ingresa_alumnos_activos()
     {
@@ -1449,8 +1458,43 @@ class AlumnosController extends CI_Controller
     }
 
 
+
     public function actualiza_alumnos_registro()
     {
-        
+
+        $dataAlumnos  = $this->AlumnosModel->get_todos_activos();
+        foreach ($dataAlumnos as $a) {
+            $dataInformacion = $this->PlataformasModel->get_alumnos_por_matricula_registro($a->matricula);
+            if (count($dataInformacion) > 0) {
+                $dataUpdate = array(
+                    "fnacimiento" => $dataInformacion[0]->fnacimiento,
+                    "ecivil" => $dataInformacion[0]->ecivil,
+                    "rfc" => $dataInformacion[0]->rfc,
+                    "direccion" => $dataInformacion[0]->dcalle,
+                    "colonia" => $dataInformacion[0]->colonia,
+                    "cpostal" => $dataInformacion[0]->cpostal,
+                    "estado" => $dataInformacion[0]->estado,
+                    "telefono" => $dataInformacion[0]->telefono,
+                    "celular" => $dataInformacion[0]->celular,
+                    "pais" => $dataInformacion[0]->pais,
+                    "isopais" => $this->isopais[$dataInformacion[0]->pais],
+                );
+            } else {
+                $dataUpdate = array(
+                    "fnacimiento" => '---',
+                    "ecivil" => '---',
+                    "rfc" => '---',
+                    "direccion" => '---',
+                    "colonia" => '---',
+                    "cpostal" => '---',
+                    "estado" => '---',
+                    "telefono" => '---',
+                    "celular" => '---',
+                    "pais" => '---',
+                    "isopais" => '---'
+                );
+            }
+            $this->AlumnosModel->editar_por_id($a->id, $dataUpdate);
+        }
     }
 }

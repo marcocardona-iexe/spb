@@ -50,6 +50,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 $route['default_controller'] = 'UsuariosController/index';
+
+$route['actualiza_alumnos_registro'] = 'AlumnosController/actualiza_alumnos_registro';
+$route['alumnos-bloqueados'] = 'AlumnosController/alumnos_bloqueados';
+$route['alumnos_probabilidad_baja/(:any)'] = 'AlumnosController/alumnos_probabilidad_baja/$1';
+$route['alumnos_buscar_seguimientos/(:any)'] = 'AlumnosController/alumnos_buscar_seguimientos/$1';
+
+
+
+
 $route['ingresa_alumnos_activos'] = 'AlumnosController/ingresa_alumnos_activos';
 $route['lista-alumnos'] = 'AlumnosController';
 $route['data_tabla_inicial'] = 'AlumnosController/data_tabla_inicial';
@@ -73,15 +82,13 @@ $route['obtener_periodos_activos/(:any)'] = 'AlumnosController/obtener_periodos_
 $route['asignar_consejera_masivo'] = 'AlumnosController/asignar_consejera_masivo';
 $route['verifica_financiero_alumno'] = 'AlumnosController/verifica_financiero_alumno';
 $route['asignar_financiero_matricula'] = 'AlumnosController/asignar_financiero_matricula';
-$route['alumnos_buscar_seguimientos/(:any)'] = 'AlumnosController/alumnos_buscar_seguimientos/$1';
 $route['obtener_periodos_mensuales_activos/(:any)/(:any)'] = 'AlumnosController/obtener_periodos_mensuales_activos/$1/$2';
 $route['obtener_datos_alumnos_ajax_dashboard'] = 'AlumnosController/obtener_datos_alumnos_ajax_dashboard';
 $route['asignaciones-financiero'] = 'AlumnosController/asignaciones_financiero';
 $route['financiero_masivo'] = 'AlumnosController/financiero_masivo';
 $route['consejera_masiva'] = 'AlumnosController/consejera_masiva';
 $route['asignaciones-consejeras'] = 'AlumnosController/asignaciones_consejeras';
-#Ruta para filtrar los alumnos por probabilidad de baja (botones de filtro)
-$route['alumnos_probabilidad_baja/(:any)'] = 'AlumnosController/alumnos_probabilidad_baja/$1';
+
 #Muestra la probabilidad de baja del alumno
 $route['probabilidad_baja/(:any)'] = 'AlumnosController/probabilidad_baja/$1';
 $route['variable_academica/(:any)'] = 'AlumnosController/variable_academica/$1';

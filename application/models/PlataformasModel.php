@@ -849,4 +849,12 @@ ORDER BY
         // Devolver los resultados como un array
         return $query->result();
     }
+
+    public function get_alumnos_por_matricula_registro($matricula)
+    {
+
+        $registro = $this->load->database('registro', TRUE);
+        $query = $registro->select('*')->where("usuario", $matricula)->get('registro');
+        return $query->result();
+    }
 }
