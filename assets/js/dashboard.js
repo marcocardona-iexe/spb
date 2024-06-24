@@ -28,8 +28,9 @@ $(function () {
 					},
 				},
 				legend: {
-					horizontalAlignment: "center",
-					verticalAlignment: "bottom",
+					horizontalAlignment: "right",
+					verticalAlignment: "top",
+					margin: 0,
 				},
 				dataSource: data.grafica,
 				series: [

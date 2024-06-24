@@ -698,6 +698,13 @@ class AlumnosController extends CI_Controller
         $madis = $this->AlumnosModel->get_count_alumnos_por_programa('mais');
         $mag = $this->AlumnosModel->get_count_alumnos_por_programa('mag');
         $man = $this->AlumnosModel->get_count_alumnos_por_programa('man');
+        $mcd = $this->AlumnosModel->get_count_alumnos_por_programa('mcd');
+        $mfp = $this->AlumnosModel->get_count_alumnos_por_programa('mfp');
+        $mgpm = $this->AlumnosModel->get_count_alumnos_por_programa('mgpm');
+        $mige = $this->AlumnosModel->get_count_alumnos_por_programa('mige');
+        $miti = $this->AlumnosModel->get_count_alumnos_por_programa('miti');
+        $mmpop = $this->AlumnosModel->get_count_alumnos_por_programa('mmpop');
+        $mspajo = $this->AlumnosModel->get_count_alumnos_por_programa('mspajo');
 
         $dataGrafica = [
             ['programa' => 'DPP', 'val' => $dpp],
@@ -713,6 +720,13 @@ class AlumnosController extends CI_Controller
             ['programa' => 'MAIS', 'val' => $madis],
             ['programa' => 'MAG', 'val' => $mag],
             ['programa' => 'MAN', 'val' => $man],
+            ['programa' => 'MCD', 'val' => $mcd],
+            ['programa' => 'MFP', 'val' => $mfp],
+            ['programa' => 'MGPM', 'val' => $mgpm],
+            ['programa' => 'MIGE', 'val' => $mige],
+            ['programa' => 'MITI', 'val' => $miti],
+            ['programa' => 'MMPOP', 'val' => $mmpop],
+            ['programa' => 'MSPAJO', 'val' => $mspajo],
 
         ];
 
@@ -731,6 +745,13 @@ class AlumnosController extends CI_Controller
             ['programa' => 'Maestría en Instituciones de Salud', 'matricula' => 'MADIS', 'val' => $madis],
             ['programa' => 'Maestría en Auditoría Gubernamental', 'matricula' => 'MAG', 'val' => $mag],
             ['programa' => 'Maestría en Administración de Negocios', 'matricula' => 'MAN', 'val' => $man],
+            ['programa' => 'Maestría en Ciencias de Datos', 'matricula' => 'MCD', 'val' => $mcd],
+            ['programa' => 'Maestría en Finanzas Públicas', 'matricula' => 'MFP', 'val' => $mfp],
+            ['programa' => 'Maestría en Gestión Pública Municipal', 'matricula' => 'MGPM', 'val' => $mgpm],
+            ['programa' => 'Maestría en Innovación y Gestión Educativa', 'matricula' => 'MIGE', 'val' => $mige],
+            ['programa' => 'Innovación y Gestión Educativa', 'matricula' => 'MITI', 'val' => $miti],
+            ['programa' => 'Maestría en Marketing Político y Opinión Pública', 'matricula' => 'MMPOP', 'val' => $mmpop],
+            ['programa' => 'Maestría en Sistema Penal Acusatorio y Juicio Oral', 'matricula' => 'MSPAJO', 'val' => $mspajo],
 
         ];
 
