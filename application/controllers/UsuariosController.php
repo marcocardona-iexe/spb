@@ -58,15 +58,15 @@ class UsuariosController extends CI_Controller
                 foreach ($roles as $r) {
                     switch ($r->idrol) {
                         case 1:
-                            $badge .= ' <span class="badge bg-primary">Administrador</span> ';
+                            $badge .= ' <span class="badge bg-info tipo_usuario">Administrador</span> ';
                             $admin = 1;
                             break;
                         case 2:
-                            $badge .= ' <span class="badge bg-secondary">Asesor académico</span>';
+                            $badge .= ' <span class="badge bg-academico tipo_usuario">Asesor académico</span>';
                             $academico = 1;
                             break;
                         case 3:
-                            $badge .= ' <span class="badge bg-success">Asesor financiero</span> ';
+                            $badge .= ' <span class="badge bg-warning text-dark">Asesor financiero</span> ';
                             $financiero = 1;
                             break;
                     }
@@ -84,7 +84,7 @@ class UsuariosController extends CI_Controller
                 // Agregar el atributo 'roles' al usuario actual
                 $usuario->badge = $badge;
 
-                $usuario->estatus = ($usuario->estatus == 1) ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Suspendido</span>';
+                $usuario->estatus = ($usuario->estatus == 1) ? '<span class="badge bg-success status_usuarios">Activo</span>' : '<span class="badge bg-danger">Suspendido</span>';
                 $estatus_activa_suspende  = ($usuario->estatus == 1) ? '<i class="fa-solid fa-user-minus"></i> Suspender' : '<i class="fa-solid fa-user-plus"></i> Suspender';
 
                 $usuario->acciones = '

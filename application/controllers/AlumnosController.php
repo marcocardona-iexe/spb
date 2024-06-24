@@ -70,7 +70,7 @@ class AlumnosController extends CI_Controller
     }
 
 
-    //Funcion principal que pinta la vista de todo el modulo
+    // Función principal que pinta la vista de todo el módulo
     public function index()
     {
         // Verificar sesión
@@ -477,30 +477,10 @@ class AlumnosController extends CI_Controller
 
     public function data_tabla_inicial()
     {
-        $start = $this->input->post('start');
-        $length = $this->input->post('length');
-        $order = $this->input->post("order");
-        $order_column = 0;
-        $order_dir = "asc";
-
-        if (!empty($order)) {
-            $order_column = $order[0]['column'];
-            $order_dir = $order[0]['dir'];
-        }
 
 
-        $items = $this->AlumnosModel->get_limit_alumnos($start, $length, $order_column, $order_dir);
-        $total_items = $this->AlumnosModel->get_todos_alumnos();
 
-
-        $data = array(
-            "draw" => intval($this->input->post("draw")),
-            "recordsTotal" => count($total_items),
-            "recordsFiltered" =>  count($total_items),
-            "data" => $items
-        );
-
-        echo json_encode($data);
+        $this->response_to_datatable('AlumnosModel', 'get_limit_alumnos', 'get_todos_alumnos', null, false);
     }
 
     public function asignaciones_consejeras()
@@ -524,7 +504,9 @@ class AlumnosController extends CI_Controller
         $dataMenu['sesion'] = $this->session->userdata('seguimiento_iexe');
 
         $dataFinancieros = $this->UsuariosModel->get_usuario_by_rol(3);
-        $data = array("usuarios" => $dataFinancieros);
+        $dataAsignaciones = $this->UsuariosModel->get_usuarios_financieros_alumnos_total();
+
+        $data = array("usuarios" => $dataFinancieros, "asignaciones" => $dataAsignaciones);
 
         $this->load->view('head', array("css" => "assets/css/asignaciones_financiero.css"));
         $this->load->view('menu', $dataMenu);
@@ -740,13 +722,6 @@ class AlumnosController extends CI_Controller
 
     public function busuqeda_avanzada()
     {
-        // Obtener los parámetros de paginación del DataTable
-        $length = $this->input->post('length'); // Cantidad de registros por página
-        $start = $this->input->post('start'); // Índice de inicio
-        $draw = $this->input->post('draw'); // Número de veces que se ha dibujado la tabla
-        $order = $this->input->post("order");
-
-
 
         $nombre = $this->input->post('nombre');
         $apellidos = $this->input->post('apellidos');
@@ -760,60 +735,66 @@ class AlumnosController extends CI_Controller
         $financiero = $this->input->post('financiero');
 
 
-        // Preparar los parámetros para el modelo, solo si existen
+
         $where = array();
         if (!empty($nombre)) {
-            $where['alumnos.nombre'] = $nombre;
+            $where['alumnos.nombre LIKE'] = '%' . $nombre . '%';
         }
         if (!empty($apellidos)) {
-            $where['alumnos.apellidos'] = $apellidos;
+            $where['alumnos.apellidos LIKE'] = '%' . $apellidos . '%';
         }
         if (!empty($correo)) {
-            $where['alumnos.correo'] = $correo;
+            $where['alumnos.correo LIKE'] = '%' . $correo . '%';
         }
         if (!empty($matricula)) {
-            $where['alumnos.matricula'] = $matricula;
+            $where['alumnos.matricula LIKE'] = '%' . $matricula . '%';
         }
         if (!empty($programa)) {
-            $where['alumnos.programa'] = $programa;
+            $where['alumnos.programa LIKE'] = '%' . $programa . '%';
         }
         if (!empty($periodo)) {
-            $where['alumnos.periodo'] = $periodo;
+            $where['alumnos.periodo LIKE'] = '%' . $periodo . '%';
         }
         if (!empty($periodoMensual)) {
-            $where['alumnos.periodoMensual'] = $periodoMensual;
+            $where['alumnos.periodoMensual LIKE'] = '%' . $periodoMensual . '%';
         }
         if (!empty($estatusPlataforma)) {
-            $where['alumnos.estatus_plataforma'] = $estatusPlataforma;
+            $where['alumnos.estatus_plataforma LIKE'] = '%' . $estatusPlataforma . '%';
         }
         if (!empty($consejera)) {
-            $where['alumnos.consejera'] = $consejera;
+            $where['alumnos.consejera LIKE'] = '%' . $consejera . '%';
         }
         if (!empty($financiero)) {
-            $where['alumnos.financiero'] = $financiero;
+            $where['alumnos.financiero LIKE'] = '%' . $financiero . '%';
         }
 
-        $order_column = 0;
-        $order_dir = "asc";
 
-        if (!empty($order)) {
-            $order_column = $order[0]['column'];
-            $order_dir = $order[0]['dir'];
-        }
-        $alumnos = $this->AlumnosModel->busuqeda_avanzada($where, $start, $length, $order_column, $order_dir);
-        $alumnos_total = $this->AlumnosModel->total_busuqeda_avanzada($where);
+        $this->response_to_datatable('AlumnosModel', 'busuqeda_avanzada', 'total_busuqeda_avanzada', $where, true);
 
 
-        // Devolver los resultados en el formato esperado por DataTable
-        $response = array(
-            'draw' => $draw,
-            'recordsTotal' => count($alumnos_total),
-            'recordsFiltered' => count($alumnos_total),
-            'data' => $alumnos // Datos de los alumnos paginados
-        );
 
-        // Devolver los datos como JSON
-        echo json_encode($response);
+
+        // $order_column = 0;
+        // $order_dir = "asc";
+
+        // if (!empty($order)) {
+        //     $order_column = $order[0]['column'];
+        //     $order_dir = $order[0]['dir'];
+        // }
+        // $alumnos = $this->AlumnosModel->busuqeda_avanzada($where, $start, $length, $order_column, $order_dir);
+        // $alumnos_total = $this->AlumnosModel->total_busuqeda_avanzada($where);
+
+
+        // // Devolver los resultados en el formato esperado por DataTable
+        // $response = array(
+        //     'draw' => $draw,
+        //     'recordsTotal' => count($alumnos_total),
+        //     'recordsFiltered' => count($alumnos_total),
+        //     'data' => $alumnos // Datos de los alumnos paginados
+        // );
+
+        // // Devolver los datos como JSON
+        // echo json_encode($response);
     }
 
 
@@ -1148,9 +1129,9 @@ class AlumnosController extends CI_Controller
         $matricula  = strtoupper($matches[0]);
 
         if (
-            $matricula == 'MAPP'  || $matricula == 'MEPP'  || $matricula == 'MSPPP' || $matricula == 'MFP'   ||
+            $matricula == 'MAPP'  || $matricula == 'MEPP'  || $matricula == 'MSPPP' || $matricula == 'MFP'   || $matricula == 'MAIS' ||
             $matricula == 'MBA'   || $matricula == 'MIGE'  || $matricula == 'MMPOP' || $matricula == 'MADIS' ||
-            $matricula == 'MAG'   || $matricula == 'MGPM'  || $matricula == 'MSPJO' || $matricula == 'MCDA'  ||
+            $matricula == 'MAG'   || $matricula == 'MGPM'  || $matricula == 'MSPJO' || $matricula == 'MCDA'  || $matricula == 'MCDIA'  ||
             $matricula == 'MCDIA' || $matricula == 'MITI'  || $matricula == 'MAN'   || $matricula == 'MSPAJO'
         ) {
             $moroso = 21;
@@ -1461,25 +1442,63 @@ class AlumnosController extends CI_Controller
 
     public function actualiza_alumnos_registro()
     {
-
+        // Obtiene todos los alumnos que están activos
         $dataAlumnos  = $this->AlumnosModel->get_todos_activos();
+
+
+        // Itera sobre cada alumno activo
         foreach ($dataAlumnos as $a) {
+            // Obtiene la información del alumno de otra fuente (PlataformasModel) usando su matrícula
             $dataInformacion = $this->PlataformasModel->get_alumnos_por_matricula_registro($a->matricula);
-            if (count($dataInformacion) > 0) {
+
+            // URL a la que se realizará la solicitud
+            $url = "https://iexe.app/alumnos/obtenerRegistroAlumno?matricula=" . $a->matricula;
+
+            // Inicializar cURL
+            $ch = curl_init($url);
+
+            // Configurar opciones de cURL
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+            // Ejecutar la solicitud cURL
+            $response = json_decode(curl_exec($ch));
+
+            // Determinar el país y clave del país con prioridad en response
+            if (!empty($response->pais)) {
+                $pais = $response->pais;
+            } elseif (!empty($dataInformacion) && !empty($dataInformacion[0]->pais)) {
+                $pais = $this->isopais[$dataInformacion[0]->pais];
+            } else {
+                $pais = '---';
+            }
+
+            if (!empty($response->clavePais)) {
+                $isopais = $response->clavePais;
+            } elseif (!empty($dataInformacion) && !empty($dataInformacion[0]->pais)) {
+                $isopais = $dataInformacion[0]->pais;
+            } else {
+                $isopais = '---';
+            }
+
+            // Si hay información del alumno disponible
+            if (!empty($dataInformacion)) {
+                // Prepara los datos de actualización con la información obtenida
                 $dataUpdate = array(
-                    "fnacimiento" => $dataInformacion[0]->fnacimiento,
-                    "ecivil" => $dataInformacion[0]->ecivil,
-                    "rfc" => $dataInformacion[0]->rfc,
-                    "direccion" => $dataInformacion[0]->dcalle,
-                    "colonia" => $dataInformacion[0]->colonia,
-                    "cpostal" => $dataInformacion[0]->cpostal,
-                    "estado" => $dataInformacion[0]->estado,
-                    "telefono" => $dataInformacion[0]->telefono,
-                    "celular" => $dataInformacion[0]->celular,
-                    "pais" => $dataInformacion[0]->pais,
-                    "isopais" => $this->isopais[$dataInformacion[0]->pais],
+                    "fnacimiento" => !empty($dataInformacion[0]->fnacimiento) ? $dataInformacion[0]->fnacimiento : '---',
+                    "ecivil" => !empty($dataInformacion[0]->ecivil) ? $dataInformacion[0]->ecivil : '---',
+                    "rfc" => !empty($dataInformacion[0]->rfc) ? $dataInformacion[0]->rfc : '---',
+                    "direccion" => !empty($dataInformacion[0]->dcalle) ? $dataInformacion[0]->dcalle : '---',
+                    "colonia" => !empty($dataInformacion[0]->colonia) ? $dataInformacion[0]->colonia : '---',
+                    "cpostal" => !empty($dataInformacion[0]->cpostal) ? $dataInformacion[0]->cpostal : '---',
+                    "estado" => !empty($dataInformacion[0]->estado) ? $dataInformacion[0]->estado : '---',
+                    "telefono" => !empty($dataInformacion[0]->telefono) ? $dataInformacion[0]->telefono : '---',
+                    "celular" => !empty($dataInformacion[0]->celular) ? $dataInformacion[0]->celular : '---',
+                    "pais" => $pais,
+                    "isopais" => $isopais
                 );
             } else {
+                // Si no hay información del alumno, usa datos por defecto
                 $dataUpdate = array(
                     "fnacimiento" => '---',
                     "ecivil" => '---',
@@ -1494,6 +1513,8 @@ class AlumnosController extends CI_Controller
                     "isopais" => '---'
                 );
             }
+
+            // Actualiza los datos del alumno en la base de datos
             $this->AlumnosModel->editar_por_id($a->id, $dataUpdate);
         }
     }

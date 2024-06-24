@@ -1,4 +1,24 @@
 $(document).ready(function () {
+	$("#ver_todos").on("click", function () {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = `data_tabla_inicial`;
+
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
+
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	});
+
 	window.consultar = (idmoodle) => {
 		window.open(`detalle-del-alumno/${idmoodle}`, "_blank");
 	};
@@ -13,121 +33,251 @@ $(document).ready(function () {
 	});
 
 	window.probabilidad_baja = (matricula) => {
-		$.ajax({
-			type: "POST",
-			url: `probabilidad_baja/${matricula}`,
-			dataType: "json",
-			success: function (response) {
-				console.log(response);
-				let actividades = "";
-				const icon_financiero =
-					response.financiera.variable_financiera == 0
-						? '<i class="fa-regular fa-circle-check"></i>'
-						: '<i class="fa-solid fa-triangle-exclamation"></i>';
+		$.confirm({
+			title: false,
+			closeIcon: true,
+			columnClass: "col-md-8 col-md-offset-2",
+			type: "blue",
+			theme: "Modern",
+			buttons: {
+				ok: {
+					text: "Aceptar",
+					btnClass: "btn btn-info btn-modal",
+					action: function () {},
+				},
+			},
+			content: function () {
+				var self = this;
+				return $.ajax({
+					url: `probabilidad_baja/${matricula}`, // Reemplaza con la URL de tu JSON
+					dataType: "json",
+					method: "POST",
+				})
+				.done(function (response) {
+					console.log(response);
+					let actividades = "";
+					const icon_financiero =
+						response.financiera.variable_financiera == 0
+							? '<i class="fa-regular fa-circle-check"></i>'
+							: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-				const clase_card_financiero =
-					response.financiera.variable_financiera == 0
-						? "bg-success text-white"
-						: "bg-danger text-white";
-				$.each(response.academica.materia[0].actividades, function (i, a) {
-					if (a.opcional == 1) {
-						icon = '<i class="fa-regular fa-star"></i>';
-						fecha_establecida = "";
-					} else {
-						icon =
-							a.notificacion == 0
-								? '<i class="fa-regular fa-circle-check"></i>'
-								: '<i class="fa-solid fa-triangle-exclamation"></i>';
+					console.log(
+						"La variable financiera es " +
+							response.financiera.variable_financiera
+					);
 
-						fecha_establecida = `(${a.finalizacion})`;
-					}
-					actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
-				});
+					console.log(
+						"La variable academica es " + response.academica.variable_academica
+					);
 
-				let body = `
-                <div class="container-fluid">
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header text-start">
-                                    <i class="fa-solid fa-graduation-cap"></i> Historial Académico
-                                </div>
-                                <div class="card-body text-start">
-                                    <p>Materia: ${response.academica.materia[0].fullname}</p>
-                                    <p>
-                                    <ul>
-                                        ${actividades}
-                                    </ul>
-                                    </p>
-                                    <div class="container">
-                                        <div class="row justify-content-center">
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-star"></i>
-                                                <span>Actividad Optativa</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-circle-check"></i>
-                                                <span>Actividad Completada</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                                <span>Actividad Incompleta</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header text-start ${clase_card_financiero}">
-                                    <i class="fa-solid fa-wallet"></i> Información Financiera
-                                </div>
-                                <div class="card-body text-start">
-                                    <p>${response.financiera.message}</p>
-                                    <p>
-                                    <ul>
-                                        <li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
-                                    </ul>
-                                    </p>
-                                    <div class="container">
-                                        <div class="row justify-content-center">
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-circle-check"></i>
-                                                <span>Pago al día</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                                <span>Retraso en pago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+					const clase_card_financiero =
+						response.financiera.variable_financiera == "0"
+							? "modal-success"
+							: "modal-danger";
+					const clase_card_academica =
+						response.academica.variable_academica == "0"
+							? "modal-success"
+							: "modal-danger";
+					$.each(response.academica.materia[0].actividades, function (i, a) {
+						if (a.opcional == 1) {
+							icon = '<i class="fa-regular fa-star"></i>';
+							fecha_establecida = "";
+						} else {
+							icon =
+								a.notificacion == 0
+									? '<i class="fa-regular fa-circle-check"></i>'
+									: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
+							fecha_establecida = `(${a.finalizacion})`;
+						}
+						actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
+					});
 
-                    </div>
-                </div>`;
-
-				$.alert({
-					title: false,
-					closeIcon: true,
-					columnClass: "col-md-8 col-md-offset-2",
-					content: body,
-					type: "blue",
-					theme: "Modern",
-
-					buttons: {
-						ok: {
-							text: "Aceptar",
-							btnClass: "btn btn-info btn-modal",
-							action: function () {},
-						},
-					},
+					let body = `
+						<div class="container-fluid">
+							<div class="row g-3">
+								<div class="col-md-12">
+									<div class="card">
+										<div class="card-header text-start ${clase_card_academica}">
+											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
+										</div>
+										<div class="card-body text-start">
+											<p>Materia: ${response.academica.materia[0].fullname}</p>
+											<p>
+											<ul>
+												${actividades}
+											</ul>
+											</p>
+											<div class="container">
+												<div class="row justify-content-center">
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-star"></i>
+														<span>Actividad Optativa</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-circle-check"></i>
+														<span>Actividad Completada</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-solid fa-triangle-exclamation"></i>
+														<span>Actividad Incompleta</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="card">
+										<div class="card-header text-start ${clase_card_financiero}">
+											<i class="fa-solid fa-wallet"></i> Información Financiera
+										</div>
+										<div class="card-body text-start">
+											<p>${response.financiera.message}</p>
+											<p>
+											<ul>
+												<li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
+											</ul>
+											</p>
+											<div class="container">
+												<div class="row justify-content-center">
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-circle-check"></i>
+														<span>Pago al día</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-solid fa-triangle-exclamation"></i>
+														<span>Retraso en pago</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>`;
+					self.setContent(body);
+				})
+				.fail(function () {
+					self.setContent("Error al cargar los datos.");
 				});
 			},
 		});
+
+		// $.ajax({
+		// 	type: "POST",
+		// 	url: `probabilidad_baja/${matricula}`,
+		// 	dataType: "json",
+		// 	success: function (response) {
+		// 		console.log(response);
+		// 		let actividades = "";
+		// 		const icon_financiero =
+		// 			response.financiera.variable_financiera == 0
+		// 				? '<i class="fa-regular fa-circle-check"></i>'
+		// 				: '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+		// 		const clase_card_financiero =
+		// 			response.financiera.variable_financiera == 0
+		// 				? "bg-success text-white"
+		// 				: "bg-danger text-white";
+		// 		$.each(response.academica.materia[0].actividades, function (i, a) {
+		// 			if (a.opcional == 1) {
+		// 				icon = '<i class="fa-regular fa-star"></i>';
+		// 				fecha_establecida = "";
+		// 			} else {
+		// 				icon =
+		// 					a.notificacion == 0
+		// 						? '<i class="fa-regular fa-circle-check"></i>'
+		// 						: '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+		// 				fecha_establecida = `(${a.finalizacion})`;
+		// 			}
+		// 			actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
+		// 		});
+
+		// 		let body = `
+		//         <div class="container-fluid">
+		//             <div class="row g-3">
+		//                 <div class="col-md-12">
+		//                     <div class="card">
+		//                         <div class="card-header text-start">
+		//                             <i class="fa-solid fa-graduation-cap"></i> Historial Académico
+		//                         </div>
+		//                         <div class="card-body text-start">
+		//                             <p>Materia: ${response.academica.materia[0].fullname}</p>
+		//                             <p>
+		//                             <ul>
+		//                                 ${actividades}
+		//                             </ul>
+		//                             </p>
+		//                             <div class="container">
+		//                                 <div class="row justify-content-center">
+		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+		//                                         <i class="fa-regular fa-star"></i>
+		//                                         <span>Actividad Optativa</span>
+		//                                     </div>
+		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+		//                                         <i class="fa-regular fa-circle-check"></i>
+		//                                         <span>Actividad Completada</span>
+		//                                     </div>
+		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+		//                                         <i class="fa-solid fa-triangle-exclamation"></i>
+		//                                         <span>Actividad Incompleta</span>
+		//                                     </div>
+		//                                 </div>
+		//                             </div>
+		//                         </div>
+		//                     </div>
+		//                 </div>
+		//                 <div class="col-md-12">
+		//                     <div class="card">
+		//                         <div class="card-header text-start ${clase_card_financiero}">
+		//                             <i class="fa-solid fa-wallet"></i> Información Financiera
+		//                         </div>
+		//                         <div class="card-body text-start">
+		//                             <p>${response.financiera.message}</p>
+		//                             <p>
+		//                             <ul>
+		//                                 <li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
+		//                             </ul>
+		//                             </p>
+		//                             <div class="container">
+		//                                 <div class="row justify-content-center">
+		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+		//                                         <i class="fa-regular fa-circle-check"></i>
+		//                                         <span>Pago al día</span>
+		//                                     </div>
+		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+		//                                         <i class="fa-solid fa-triangle-exclamation"></i>
+		//                                         <span>Retraso en pago</span>
+		//                                     </div>
+		//                                 </div>
+		//                             </div>
+		//                         </div>
+		//                     </div>
+		//                 </div>
+
+		//             </div>
+		//         </div>`;
+
+		// 		$.alert({
+		// 			title: false,
+		// 			closeIcon: true,
+		// 			columnClass: "col-md-8 col-md-offset-2",
+		// 			content: body,
+		// 			type: "blue",
+		// 			theme: "Modern",
+
+		// 			buttons: {
+		// 				ok: {
+		// 					text: "Aceptar",
+		// 					btnClass: "btn btn-info btn-modal",
+		// 					action: function () {},
+		// 				},
+		// 			},
+		// 		});
+		// 	},
+		// });
 	};
 
 	window.buscar_seguimiento = function (tipo) {
@@ -526,41 +676,61 @@ $(document).ready(function () {
 			pagingType: "simple_numbers",
 			ajax: ajaxConfig,
 			columns: [
-				{ data: "nombre", searchable: true },
+				{
+					data: "nombre",
+					searchable: true,
+					render: function (data, type, row) {
+						return capitalizeFirstLetters(data);
+					},
+				},
 				{ data: "periodo", searchable: true },
 				{ data: "programa", searchable: true },
 				{ data: "periodo_mensual", searchable: true },
 				{ data: "matricula", searchable: true },
 				{ data: "correo", searchable: true },
+				{ data: "telefono", searchable: true },
+				{
+					data: "ultimo_acceso",
+					render: function (data, type, row) {
+						let tiempo = calcularTiempoRelativo(data);
+						return tiempo;
+					},
+				},
 				{
 					data: "probabilidad_baja",
 					render: function (data, type, row) {
 						let badgeClass = "bg-secondary";
+						let estatus = "";
 						if (data === "Alta R1") {
 							badgeClass = "bg-danger";
+							estatus = "Baja R1";
 						} else if (data === "Media R2") {
 							badgeClass = "bg-warning text-dark";
+							estatus = "Baja R2";
 						} else if (data === "Baja R3") {
 							badgeClass = "bg-success";
+							estatus = "Baja R3";
 						}
-						return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
+						return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${estatus}</span></div>`;
 					},
 					searchable: true,
 				},
 				{
 					data: "estatus_plataforma",
 					render: function (data, type, row) {
-						let btnClass = "";
+						let badgeClass = "";
 						if (data === "Bloqueado") {
-							btnClass = "btn-outline-warning";
+							badgeClass = "bg-warning text-dark";
 						} else if (data === "Desbloqueado") {
-							btnClass = "btn-outline-success";
+							badgeClass = "bg-success";
 						} else if (data === "Baja temporal" || data === "Baja definitiva") {
-							btnClass = "btn-outline-danger";
+							badgeClass = "bg-danger";
 						} else if (data === "Activo") {
-							btnClass = "btn-outline-secondary";
+							badgeClass = "bg-info text-white";
+						} else {
+							badgeClass = "bg-secondary";
 						}
-						return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
+						return `<div class="text-center"><span class="badge ${badgeClass} status_plataforma">${data}</span></div>`;
 					},
 					searchable: true,
 				},
@@ -568,9 +738,9 @@ $(document).ready(function () {
 					data: "nombre_consejera",
 					render: function (data, type, row) {
 						if (!data) {
-							return `<td class="text-center"><span class="badge bg-warning text-dark warning">Sin consejera asignada</span></td>`;
+							return `Sin asignación`;
 						} else {
-							return `<div class="text-center">${data}</div>`;
+							return data;
 						}
 					},
 					searchable: true,
@@ -579,9 +749,9 @@ $(document).ready(function () {
 					data: "nombre_financiero",
 					render: function (data, type, row) {
 						if (!data) {
-							return `<td class="text-center"><span class="badge sin_asignacion">Sin asignación</span></td>`;
+							return `Sin asignación`;
 						} else {
-							return `<div class="text-center"><span class="badge financiera">${data}</span></div>`;
+							return data;
 						}
 					},
 					searchable: true,
@@ -595,6 +765,9 @@ $(document).ready(function () {
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gears"></i> Acciones
                                 </button>
+								<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+    								<span class="visually-hidden">New alerts</span>
+  								</span>
                                 <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
                                     <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
                                     <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
@@ -637,6 +810,35 @@ $(document).ready(function () {
 	}
 
 	configurarTablaAlumnos();
+	function capitalizeFirstLetters(str) {
+		return str
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+		.join(" ");
+	}
+	window.calcularTiempoRelativo = (timestamp) => {
+		const ahora = new Date();
+		const fecha = new Date(timestamp * 1000);
+		const diferencia = ahora.getTime() - fecha.getTime();
+		const segundos = Math.floor(diferencia / 1000);
+
+		let tiempoRelativo = "";
+
+		if (segundos < 60) {
+			tiempoRelativo = `Hace ${segundos} segundos`;
+		} else if (segundos < 3600) {
+			const minutos = Math.floor(segundos / 60);
+			tiempoRelativo = `Hace ${minutos} minutos`;
+		} else if (segundos < 86400) {
+			const horas = Math.floor(segundos / 3600);
+			tiempoRelativo = `Hace ${horas} horas`;
+		} else {
+			const dias = Math.floor(segundos / 86400);
+			tiempoRelativo = `Hace ${dias} días`;
+		}
+
+		return tiempoRelativo;
+	};
 	window.bloqueados = function () {
 		// Destruir la tabla DataTable actual si ya existe
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
@@ -694,7 +896,7 @@ $(document).ready(function () {
 		var periodoMensual = $("#periodos_mensuales").val();
 		var estatusPlataforma = $("#estatus-plataforma").val();
 		var consejera = $("#consejera").val();
-		var financiero = $("#consejera").val(); // Asegúrate de usar un id único para este campo
+		var financiero = $("#financiero").val(); // Asegúrate de usar un id único para este campo
 
 		if (
 			nombre === "" &&

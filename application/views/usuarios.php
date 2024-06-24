@@ -3,7 +3,7 @@
 
 <body>
     <!-- Navbar -->
-    <div class="container mt-5">
+    <div class="container-fluid mt-3 ps-2 pe-2">
         <div class="accordion" id="accordionForm">
             <div class="card">
                 <div class="card-header" id="advancedSearchHeader">
@@ -66,36 +66,48 @@
             </div>
         </div>
     </div>
-
-
-    <div class="container mt-5">
-        <section class="rounded-section" id="section_table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">No.</th>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Usuario</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Rol(es)</th>
-                        <th scope="col"></th> <!-- Columna vacía -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($usuarios as &$usuarios) { ?>
-                        <tr>
-                            <td>1</td>
-                            <td><?php echo $usuarios->nombre . " " . $usuarios->apellidos; ?></td>
-                            <td><?php echo $usuarios->correo; ?></td>
-                            <td><?php echo $usuarios->estatus; ?></td>
-                            <td><?php echo $usuarios->badge; ?></td>
-                            <td><?php echo $usuarios->acciones; ?></td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </section>
+    <div class="container-fluid mt-3 ps-2 pe-2">
+        <div class="accordion" id="accordionForm">
+            <div class="card">
+                <div class="card-header" id="advancedSearchHeader">
+                    <h6 class="mb-0">
+                        <i class="fa-solid fa-list"></i> Lista de usuarios
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="contenedor_tabla_alumnos" class="mt-4">
+                        <table class="table table-striped" id="tbl_usuarios">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">No.</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Usuario</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Rol(es)</th>
+                                    <th scope="col"></th> <!-- Columna vacía -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $i = 1;
+                                foreach ($usuarios as &$usuarios) { ?>
+                                    <tr>
+                                        <td><?php echo $i; ?></td>
+                                        <td><?php echo $usuarios->nombre . " " . $usuarios->apellidos; ?></td>
+                                        <td><?php echo $usuarios->correo; ?></td>
+                                        <td><?php echo $usuarios->estatus; ?></td>
+                                        <td><?php echo $usuarios->badge; ?></td>
+                                        <td><?php echo $usuarios->acciones; ?></td>
+                                    </tr>
+                                <?php $i++;
+                                } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div class="toast-container">
         <div id="response-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">

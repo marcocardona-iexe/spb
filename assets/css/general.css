@@ -1,158 +1,203 @@
 html,
 body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    /*overflow: hidden; /* Para evitar el desplazamiento vertical */
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	/*overflow: hidden; /* Para evitar el desplazamiento vertical */
 }
 
 body {
-    font-family: "Nunito", sans-serif;
-    background: #f4f4f4;
+	font-family: "Nunito", sans-serif;
+	background: #f4f4f4;
 }
 
 #content {
-    height: 100%; /* Ocupar todo el espacio disponible */
-    overflow-y: auto; /* Agregar barra de desplazamiento vertical si es necesario */
+	height: 100%; /* Ocupar todo el espacio disponible */
+	overflow-y: auto; /* Agregar barra de desplazamiento vertical si es necesario */
 }
 
 .header-title {
-    background-color: #00ffe8;
-    color: #08384d;
-    padding: 3px;
-    text-align: center;
+	background-color: #00ffe8;
+	color: #08384d;
+	padding: 3px;
+	text-align: center;
 }
 
 .header-title h5 {
-    padding: 3px;
+	padding: 3px;
 }
 
 .navbar-custom {
-    background-color: #222e3c;
-    border-bottom: 2px solid #00ffe8;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    font-size: 9px;
+	background-color: #222e3c;
+	border-bottom: 2px solid #00ffe8;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	font-size: 9px;
 }
 
 .navbar-custom .nav-link {
-    color: white;
+	color: white;
 }
 
 .navbar-custom .nav-link:hover {
-    color: #00ffe8;
+	color: #00ffe8;
 }
 
 .navbar-custom .dropdown-menu {
-    background-color: #08384d;
+	background-color: #08384d;
 }
 
 .navbar-custom .dropdown-item {
-    color: white;
+	color: white;
+	font-size: 12px;
 }
 
 .navbar-custom .dropdown-item:hover {
-    background-color: #00ffe8;
-    color: #08384d;
+	background-color: #00ffe8;
+	color: #08384d;
+	font-size: 12px;
+}
+
+.navbar-nav .nav-link.show {
+	color: #00ffe8;
 }
 
 #navbarNavDropdown {
-    font-size: 12px;
+	font-size: 12px;
 }
 
 .notification-badge {
-    color: white;
-    background-color: red;
-    /* Cambiar color a rojo */
-    border-radius: 4px;
-    /* Forma cuadrada */
-    padding: 4px;
-    /* Espaciado interno */
-    font-size: 0.8rem;
-    /* Tamaño de fuente */
+	color: white;
+	background-color: red;
+	/* Cambiar color a rojo */
+	border-radius: 4px;
+	/* Forma cuadrada */
+	padding: 4px;
+	/* Espaciado interno */
+	font-size: 0.8rem;
+	/* Tamaño de fuente */
 }
 
 .btn:hover .notification-badge {
-    animation: shake 0.3s ease;
-    /* Animación de vibración al pasar el cursor sobre el botón */
+	animation: shake 0.3s ease;
+	/* Animación de vibración al pasar el cursor sobre el botón */
 }
 
 @keyframes shake {
-    0% {
-        transform: translateX(0);
-    }
+	0% {
+		transform: translateX(0);
+	}
 
-    25% {
-        transform: translateX(2px) rotate(2deg);
-    }
+	25% {
+		transform: translateX(2px) rotate(2deg);
+	}
 
-    50% {
-        transform: translateX(0);
-    }
+	50% {
+		transform: translateX(0);
+	}
 
-    75% {
-        transform: translateX(-2px) rotate(-2deg);
-    }
+	75% {
+		transform: translateX(-2px) rotate(-2deg);
+	}
 
-    100% {
-        transform: translateX(0);
-    }
+	100% {
+		transform: translateX(0);
+	}
 }
 
 .button-list .btn {
-    margin-right: 10px;
+	margin-right: 10px;
 }
 
 .button-list .btn:last-child {
-    margin-right: 0;
+	margin-right: 0;
 }
 
-.status_probabilidad {
-    display: inline-block;
-    width: 100px;
-    /* Ajusta el ancho según sea necesario */
-    text-align: center;
-    cursor: pointer;
-    font-size: 10px;
+.status_probabilidad,
+.status_plataforma,
+.status_usuarios,
+.tipo_usuario {
+	display: inline-block;
+	width: 100px;
+	/* Ajusta el ancho según sea necesario */
+	text-align: center;
+	cursor: pointer;
+	font-size: 10px;
 }
-.badge.bg-success.status_probabilidad {
-    background: #20a33c !important;
+.badge.bg-success.status_probabilidad,
+.badge.bg-success.status_usuarios {
+	background: #33b78f !important;
 }
 
-.badge.bg-warning.status_probabilidad {
-    background: #edca2f !important;
-}
 .badge.bg-danger.status_probabilidad {
-    background: #f45e30 !important;
+	background: #d9534f !important;
+}
+
+.badge.bg-info.status_plataforma,
+.badge.bg-info.tipo_usuario {
+	background: #337ab7 !important;
+}
+
+.badge.bg-academico.tipo_usuario {
+	background: #ff670f !important;
+}
+
+.badge.bg-success.status_plataforma {
+	background: #33b78f !important;
+}
+
+.cabecera_table,
+#tbl_usuarios thead tr th,
+#tbl_asignaciones thead tr th {
+	background: #337ab7 !important;
+	color: white !important;
+	font-size: 9px;
+}
+
+div#toast-body {
+	background: white;
+}
+
+#tbl_usuarios thead tr th {
+	font-size: 14px;
 }
 
 /* Fuente y tamaño para el encabezado de la tabla */
 table thead th {
-    font-size: 12px;
+	font-size: 12px;
 }
 
 /* Fuente y tamaño para el contenido de la tabla */
 table tbody td {
-    font-size: 10px;
+	font-size: 10px;
 }
 
 /* Estilo minimalista para los botones de paginación */
 .pagination .page-link {
-    background-color: transparent;
-    border: none;
-    color: #007bff;
+	background-color: transparent;
+	border: none;
+	color: #007bff;
 }
 
 .pagination .page-link:hover {
-    background-color: transparent;
-    border: none;
-    color: #0056b3;
+	background-color: transparent;
+	border: none;
+	color: #0056b3;
 }
 
 .pagination .page-item.active .page-link {
-    background-color: transparent;
-    border: none;
-    color: #0056b3;
+	background-color: transparent;
+	border: none;
+	color: #0056b3;
+}
+
+.card-header {
+	background: #222e3c !important;
+	color: white !important;
+}
+
+h6 {
+	font-size: 12px;
 }
 
 /* Estilo minimalista para el formulario */
@@ -160,7 +205,7 @@ table tbody td {
 .card-body #formulario_busqueda_avanzada .form-control,
 .card-body #formulario_busqueda_avanzada .form-select,
 .card-body #formulario_busqueda_avanzada .btn-primary {
-    font-size: 10px;
+	font-size: 10px;
 }
 
 .card-body .formularios_gral .form-label,
@@ -168,148 +213,200 @@ table tbody td {
 .card-body .formularios_gral .form-select,
 .card-body .formularios_gral .btn-primary,
 .card-body .formularios_gral .form-check-label {
-    font-size: 10px;
+	font-size: 10px;
 }
 
 footer {
-    background-color: #222e3c;
-    border-top: 4px solid #00ffe8;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
+	background-color: #222e3c;
+	border-top: 4px solid #00ffe8;
+	color: white;
+	padding: 20px 0;
+	text-align: center;
 }
 
 .rounded-section {
-    background-color: #f8f9fa;
-    /* Fondo claro */
-    border-radius: 15px;
-    /* Bordes redondeados */
-    padding: 20px;
-    /* Espaciado interno */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* Sombra suave */
+	background-color: #f8f9fa;
+	/* Fondo claro */
+	border-radius: 15px;
+	/* Bordes redondeados */
+	padding: 20px;
+	/* Espaciado interno */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Sombra suave */
 }
 
 .dropdown-item {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 #logo {
-    width: 75%;
+	width: 75%;
 }
 
 #section_table {
-    /*height: 950px;*/
-    margin-bottom: 25px;
+	/*height: 950px;*/
+	margin-bottom: 25px;
 }
 
 .jconfirm.jconfirm-white .jconfirm-box .jconfirm-buttons,
 .jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons {
-    float: right;
+	float: right;
 }
 
 .btn-modal {
-    background: #222e3c;
-    color: white;
-    font-size: 10px !important;
+	background: #222e3c;
+	color: white;
+	font-size: 10px !important;
+}
+.btn-modal:hover {
+	background: #00ffe8 !important;
+	color: black !important;
+	font-size: 10px !important;
 }
 
 #element_acciones {
-    font-size: 12px;
+	font-size: 12px;
 }
 
 #tabla_historial_seguimientos {
-    font-size: 12px;
+	font-size: 12px;
 }
 
 #tabla_historial_seguimientos > thead {
-    background: #08384d !important;
-    color: white !important;
+	background: #08384d !important;
+	color: white !important;
+}
+
+#tabla_historial_seguimientos > thead {
+	background: #08384d !important;
+	color: white !important;
 }
 
 .fa-star {
-    color: #ff920a;
+	color: #ff920a;
 }
 .fa-circle-check {
-    color: green;
+	color: green;
 }
 
 .fa-triangle-exclamation {
-    color: red;
+	color: red;
 }
 
 .btn-estatus {
-    font-size: 11px !important;
-    width: 100%;
+	font-size: 11px !important;
+	width: 100%;
 }
 
 /* Estilo para el overlay de carga */
 .dataTables_wrapper .dataTables_processing {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 4px;
+	background: rgba(255, 255, 255, 0.8);
+	border-radius: 4px;
 }
 
 /* Personalización del texto de carga */
 .loading-message {
-    font-size: 16px;
-    font-weight: bold;
-    color: #007bff;
+	font-size: 16px;
+	font-weight: bold;
+	color: #007bff;
 }
 
 /* Spinner CSS */
 .spinner {
-    margin: 20px auto;
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #007bff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+	margin: 20px auto;
+	width: 50px;
+	height: 50px;
+	border: 5px solid rgba(0, 0, 0, 0.1);
+	border-top-color: #007bff;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1050;
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 1050;
 }
 
 .form-alert2-container {
-    font-size: 10px;
+	font-size: 10px;
 }
 
 .consejera {
-    background: #258dc8;
-    color: white;
-    display: inline-block;
-    width: 100px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 10px;
+	background: #258dc8;
+	color: white;
+	display: inline-block;
+	width: 100px;
+	text-align: center;
+	cursor: pointer;
+	font-size: 10px;
 }
 
 .financiera {
-    background: #9e1f69;
-    color: white;
-    display: inline-block;
-    width: 100px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 10px;
+	background: #9e1f69;
+	color: white;
+	display: inline-block;
+	width: 100px;
+	text-align: center;
+	cursor: pointer;
+	font-size: 10px;
 }
 
 .sin_asignacion {
-    background: #f2522e;
-    color: white;
-    display: inline-block;
-    width: 100px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 9px;
+	background: #f2522e;
+	color: white;
+	display: inline-block;
+	width: 100px;
+	text-align: center;
+	cursor: pointer;
+	font-size: 9px;
+}
+
+#advancedSearchHeader {
+	background: white !important;
+}
+
+.modal-success {
+	background: #33b78f !important;
+}
+
+.modal-danger {
+	background: #d9534f !important;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.content {
+	flex: 1;
+}
+
+.btn-success {
+	background: #33b78f;
+	border-color: #33b78f;
+}
+
+.btn-danger {
+	background: #d9534f;
+	border-color: #d9534f;
+}
+
+.btn-info {
+	background: #337ab7;
+	border-color: #337ab7;
+	color: white;
 }

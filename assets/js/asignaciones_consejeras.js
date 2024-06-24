@@ -1,4 +1,9 @@
 $(document).ready(function () {
+
+
+	$("#tbl_asignaciones").DataTable();
+
+
     $("#programas").on("change", function () {
         const programa = $(this).val();
         if (programa != "0") {

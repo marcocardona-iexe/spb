@@ -74,7 +74,7 @@ class UsuariosModel extends CI_Model
     public function get_usuario_by_rol($rol_id)
     {
         // Selecciona el ID de usuario y concatena el nombre y los apellidos como 'nombre'
-        $this->db->select('usuarios.id, CONCAT(usuarios.nombre, usuarios.apellidos) AS nombre');
+        $this->db->select('usuarios.id, CONCAT(usuarios.nombre," ", usuarios.apellidos) AS nombre');
         // Desde la tabla usuarios
         $this->db->from('usuarios');
         // Realiza una unión interna con la tabla usuario_roles utilizando el ID del usuario
@@ -91,5 +91,20 @@ class UsuariosModel extends CI_Model
 
         // Devuelve el arreglo de objetos de usuarios asociados al rol especificado
         return $resultado;
+    }
+    public function get_usuarios_financieros_alumnos_total()
+    {
+        // Construir la consulta
+        $this->db->select('u.id AS usuario_id, u.nombre AS nombre_usuario, COUNT(a.id) AS cantidad_alumnos');
+        $this->db->from('usuarios u');
+        $this->db->join('alumnos a', 'u.id = a.financiero', 'left');
+        $this->db->join('usuario_roles ur', 'u.id = ur.idusuario', 'inner');
+        $this->db->where('ur.idrol', 3);
+        $this->db->group_by('u.id, u.nombre');
+        $this->db->order_by('cantidad_alumnos', 'DESC');
+
+        // Ejecutar la consulta y obtener los resultados
+        $query = $this->db->get();
+        return $query->result();
     }
 }
