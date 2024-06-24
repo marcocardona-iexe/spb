@@ -676,14 +676,69 @@ class AlumnosController extends CI_Controller
 
         $this->load->view('head', array("css" => "assets/css/dashboard.css"));
         $this->load->view('menu', $dataMenu);
-        $this->load->view('asignaciones');
+        $this->load->view('dashboard');
         $this->load->view('footer', array("js" => "assets/js/dashboard.js"));
     }
 
     public function obtener_datos_alumnos_ajax_dashboard()
     {
-        $dataAlumnos = $this->AlumnosModel->get_count_alumnos_por_programa();
-        echo json_encode($dataAlumnos);
+
+
+
+        $mapp = $this->AlumnosModel->get_count_alumnos_por_programa('mapp');
+        $mepp = $this->AlumnosModel->get_count_alumnos_por_programa('mepp');
+        $mspp = $this->AlumnosModel->get_count_alumnos_por_programa('mspp');
+        $dpp = $this->AlumnosModel->get_count_alumnos_por_programa('dpp');
+        $dsp = $this->AlumnosModel->get_count_alumnos_por_programa('dsp');
+        $lae = $this->AlumnosModel->get_count_alumnos_por_programa('lae');
+        $lce = $this->AlumnosModel->get_count_alumnos_por_programa('lce');
+        $lcpap = $this->AlumnosModel->get_count_alumnos_por_programa('lcpap');
+        $ld = $this->AlumnosModel->get_count_alumnos_por_programa('ld');
+        $lsp = $this->AlumnosModel->get_count_alumnos_por_programa('lsp');
+        $madis = $this->AlumnosModel->get_count_alumnos_por_programa('mais');
+        $mag = $this->AlumnosModel->get_count_alumnos_por_programa('mag');
+        $man = $this->AlumnosModel->get_count_alumnos_por_programa('man');
+
+        $dataGrafica = [
+            ['programa' => 'DPP', 'val' => $dpp],
+            ['programa' => 'DSP', 'val' => $dsp],
+            ['programa' => 'LAE', 'val' => $lae],
+            ['programa' => 'LCE', 'val' => $lce],
+            ['programa' => 'LD', 'val' => $ld],
+            ['programa' => 'LSP', 'val' => $lsp],
+            ['programa' => 'LCPAP', 'val' => $lcpap],
+            ['programa' => 'MAPP', 'val' => $mapp],
+            ['programa' => 'MEPP', 'val' => $mepp],
+            ['programa' => 'MSPP', 'val' => $mspp],
+            ['programa' => 'MAIS', 'val' => $madis],
+            ['programa' => 'MAG', 'val' => $mag],
+            ['programa' => 'MAN', 'val' => $man],
+
+        ];
+
+        $dataTable = [
+            ['programa' => 'Doctorado en Políticas Públicas', 'matricula' => 'DPP', 'val' => $dpp],
+            ['programa' => 'Doctorado en Seguridad Pública', 'matricula' => 'DSP', 'val' => $dsp],
+            ['programa' => 'Licenciatura en Administración de Empresas', 'matricula' => 'LAE', 'val' => $lae],
+            ['programa' => 'Licenciatura en Ciencias de la Educación', 'matricula' => 'LCE', 'val' => $lce],
+            ['programa' => 'Licenciatura en Derecho', 'matricula' => 'LD', 'val' => $ld],
+            ['programa' => 'Licenciatura en Seguridad Pública', 'matricula' => 'LSP', 'val' => $lsp],
+            ['programa' => 'Licenciatura en Ciencias Políticas y Administración Pública', 'matricula' => 'LCPAP', 'val' => $lcpap],
+            ['programa' => 'Maestría en Administración y Políticas Públicas', 'matricula' => 'MAPP', 'val' => $mapp],
+            ['programa' => 'Maestría en Evaluación de Políticas Públicas', 'matricula' => 'MEPP', 'val' => $mepp],
+            ['programa' => 'Maestría en Administración y Políticas Públicas', 'matricula' => 'MAPP', 'val' => $mapp],
+            ['programa' => 'Maestría en Seguridad Pública y Políticas Públicas', 'matricula' => 'MSPP', 'val' => $mspp],
+            ['programa' => 'Maestría en Instituciones de Salud', 'matricula' => 'MADIS', 'val' => $madis],
+            ['programa' => 'Maestría en Auditoría Gubernamental', 'matricula' => 'MAG', 'val' => $mag],
+            ['programa' => 'Maestría en Administración de Negocios', 'matricula' => 'MAN', 'val' => $man],
+
+        ];
+
+        $data = array(
+            "grafica" => $dataGrafica,
+            "tabla" => $dataTable
+        );
+        echo json_encode($data);
     }
 
 
@@ -1333,7 +1388,7 @@ class AlumnosController extends CI_Controller
     public function descarga_excel()
     {
         // Obtener los datos de los alumnos
-        $dataAlumnos = $this->AlumnosModel->get_todos_alumnos();
+        $dataAlumnos = $this->AlumnosModel->reporte_excel_todos();
 
         // Convertir los objetos a arrays
         $dataAlumnos = json_decode(json_encode($dataAlumnos), true);
@@ -1348,26 +1403,31 @@ class AlumnosController extends CI_Controller
         $customColumnNames = [
             'nombre' => 'ALUMNO',
             'matricula' => 'MATRICULA',
+            'probabilidad_baja' => 'PROBABILIDAD DE BAJA',
+            'estatus_plataforma' => 'ESTATUS EN PLATAFORMA',
             'correo' => 'CORREO ELECTRONICO',
             'programa' => 'PROGRAMA',
             'periodo_mensual' => 'TRIMESTRE/CUATRIMESTRE',
-            'estatus_plataforma' => 'ESTATUS EN PLATAFORMA',
-            'probabilidad_baja' => 'PROBABILIDAD DE BAJA',
             'nombre_consejera' => 'CONSEJERA',
-            'nombre_financiero' => 'ASESOR FINANCIERO'
+            'nombre_financiero' => 'ASESOR FINANCIERO',
+            'variable_academica' => 'VARIABLE ACADEMICA',
+            'variable_financiera' => 'VARIABLE FINANCIERA'
         ];
 
         // Crear un nuevo objeto Spreadsheet
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-
+        // Definir estilo para la cabecera
         $headerStyle = [
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '3366FF']],
+            'font' => ['bold' => false, 'color' => ['rgb' => 'FFFFFF']], // Cambiar bold a false
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '337ab7']],
             'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
-
+            'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER]
         ];
+
+        // Ajustar altura de la fila para simular padding
+        $sheet->getRowDimension(1)->setRowHeight(30);
 
         // Añadir encabezados personalizados
         $columnLetter = 'A';
@@ -1386,30 +1446,24 @@ class AlumnosController extends CI_Controller
             switch ($row['probabilidad_baja']) {
                 case 'Baja R3':
                     $backgroundStyle = [
-                        'font' => ['bold' => false, 'color' => ['rgb' => '000000']],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '6FE29D']],
+                        'font' => ['bold' => false, 'color' => ['rgb' => 'ffffff']],
+                        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '33b78f']],
                         'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
-
                     ];
-                    //$backgroundStyle = ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FF0000']];
                     break;
-                case 'Media R2':
+                case 'Baja R2':
                     $backgroundStyle = [
                         'font' => ['bold' => false, 'color' => ['rgb' => '000000']],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E0EA75']],
+                        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E0EA75']],
                         'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
-
                     ];
-                    //$backgroundStyle = ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFF00']];
                     break;
-                case 'Alta R1':
+                case 'Baja R1':
                     $backgroundStyle = [
-                        'font' => ['bold' => false, 'color' => ['rgb' => '000000']],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F98989']],
+                        'font' => ['bold' => false, 'color' => ['rgb' => 'ffffff']],
+                        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'd9534f']],
                         'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
-
                     ];
-                    //$backgroundStyle = ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D16060']];
                     break;
                 default:
                     $backgroundStyle = null;
@@ -1418,7 +1472,7 @@ class AlumnosController extends CI_Controller
 
             // Aplicar estilo de fondo condicional a toda la fila
             if ($backgroundStyle) {
-                $sheet->getStyle('A' . $rowNumber . ':I' . $rowNumber)->applyFromArray($backgroundStyle);
+                $sheet->getStyle('C' . $rowNumber)->applyFromArray($backgroundStyle);
             }
 
             $columnLetter = 'A';
@@ -1431,12 +1485,13 @@ class AlumnosController extends CI_Controller
 
         // Configurar el tipo de respuesta HTTP y enviar el archivo
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="alumnos_data.xlsx"');
+        header('Content-Disposition: attachment;filename="Excel alumnos-' . date("Y-m-d H:i") . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
     }
+
 
 
 

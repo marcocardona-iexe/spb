@@ -349,6 +349,11 @@ $(document).ready(function () {
 		});
 	};
 
+	window.cambiarVerde = (id) => {
+		$("#" + id).removeClass("is-invalid");
+		$("#" + id).addClass("is-valid");
+	};
+
 	const primerConfirm = (idseguimento, id, periodo, historial) => {
 		let formulario_registro = `
                     <div class="container-fluid">

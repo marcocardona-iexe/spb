@@ -14,6 +14,7 @@ class SeguimientosController extends CI_Controller
         $this->load->model('SeguimientosModel');
         $this->load->model("HistorialSeguimientosModel");
         $this->load->helper('url');
+        $this->load->library('session');
     }
 
     public function verificar_seguimientos($idalumno)
@@ -43,6 +44,9 @@ class SeguimientosController extends CI_Controller
 
     public function guardar_seguimiento($idseguimiento, $tipo)
     {
+        $sesion = $this->session->userdata('seguimiento_iexe');
+
+
         $dataSeguimiento = $this->input->post();
         if ($tipo == 'activo') {
             if ($idseguimiento == 0) {
@@ -59,7 +63,7 @@ class SeguimientosController extends CI_Controller
                     unset($dataSeguimiento['periodo']);
 
                     $dataSeguimiento['idseguimiento'] = $response;
-                    $dataSeguimiento['asesor'] = 1;
+                    $dataSeguimiento['asesor'] = $sesion['idusuario'];
 
                     $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
                     echo ($response != 0) ?
@@ -71,7 +75,7 @@ class SeguimientosController extends CI_Controller
                 unset($dataSeguimiento['periodo']);
 
                 $dataSeguimiento['idseguimiento'] = $idseguimiento;
-                $dataSeguimiento['asesor'] = 1;
+                $dataSeguimiento['asesor'] = $sesion['idusuario'];
 
                 $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
                 echo ($response != 0) ?
@@ -80,7 +84,7 @@ class SeguimientosController extends CI_Controller
             }
         } else if ($tipo == 'cerrado') {
             $dataUpdate = array(
-                "idusuario_finalizo" => 1,
+                "idusuario_finalizo" => $sesion['idusuario'],
                 "estatus" => "Cerrado"
             );
             $response = $this->SeguimientosModel->update_id($idseguimiento, $dataUpdate);
@@ -89,7 +93,7 @@ class SeguimientosController extends CI_Controller
                 unset($dataSeguimiento['periodo']);
 
                 $dataSeguimiento['idseguimiento'] = $idseguimiento;
-                $dataSeguimiento['asesor'] = 1;
+                $dataSeguimiento['asesor'] = $sesion['idusuario'];
 
                 $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
                 echo ($response != 0) ?

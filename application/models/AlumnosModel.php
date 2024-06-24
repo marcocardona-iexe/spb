@@ -499,28 +499,8 @@ class AlumnosModel extends CI_Model
 
     public function get_todos_alumnos()
     {
-        $this->db->select('
-            alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
-            alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
-            CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
-                WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
-                WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
-                ELSE "Desconocida"
-            END AS probabilidad_baja,
-            CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
-            CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
-        ', FALSE);
-        $this->db->from($this->table);
-        $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
-        $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->query_base();
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
         $this->filtro_rol();
         $query = $this->db->get();
         return $query->result();
@@ -535,19 +515,21 @@ class AlumnosModel extends CI_Model
         $this->db->select('
             alumnos.id,
             CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
-            alumnos.periodo,
-            alumnos.programa,
-            alumnos.periodo_mensual,
             alumnos.matricula,
-            alumnos.correo,
-            alumnos.estatus_plataforma,
             CASE
-                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
-                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
+                WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Baja R1"
+                WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Baja R2"
                 WHEN variable_academica = 1 AND variable_financiera = 0 THEN "Baja R3"
                 WHEN variable_academica = 0 AND variable_financiera = 0 THEN "Baja R3"
                 ELSE "Desconocida"
             END AS probabilidad_baja,
+            alumnos.periodo,
+            alumnos.programa,
+            alumnos.periodo_mensual,
+            alumnos.correo,
+            alumnos.estatus_plataforma,
+            alumnos.variable_academica,
+            alumnos.variable_financiera,
             CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
             CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
         ', FALSE);
@@ -738,42 +720,11 @@ class AlumnosModel extends CI_Model
     }
 
 
-    public function get_count_alumnos_por_programa()
+    public function get_count_alumnos_por_programa($programa)
     {
-        $query = $this->db->query("
-            SELECT 
-                CASE 
-                    WHEN matricula LIKE 'MGPM%' THEN 'Maestría en Gestión Pública Municipal'
-                    WHEN matricula LIKE 'MFP%' THEN 'Maestría en Finanzas Públicas'
-                    WHEN matricula LIKE 'DPP%' THEN 'Doctorado en Políticas Públicas'
-                    WHEN matricula LIKE 'MEPP%' THEN 'Maestría en Evaluación de Políticas Públicas'
-                    WHEN matricula LIKE 'MCD%' OR matricula LIKE 'MCDIA%' THEN 'Maestría en Ciencias de Datos'
-                    WHEN matricula LIKE 'MAN%' THEN 'Maestría en Administración de Negocios'
-                    WHEN matricula LIKE 'MAPP%' THEN 'Maestría en Administración y Políticas Públicas'
-                    WHEN matricula LIKE 'MAG%' THEN 'Maestría en Auditoría Gubernamental'
-                    WHEN matricula LIKE 'MAIS%' THEN 'Maestría en Instituciones de Salud'
-                    WHEN matricula LIKE 'LSP%' THEN 'Licenciatura en Seguridad Pública'
-                    WHEN matricula LIKE 'LD%' THEN 'Licenciatura en Derecho'
-                    WHEN matricula LIKE 'LCPAP%' THEN 'Licenciatura en Ciencias Políticas y Administración Pública'
-                    WHEN matricula LIKE 'LCE%' THEN 'Licenciatura en Ciencias de la Educación'
-                    WHEN matricula LIKE 'LAE%' THEN 'Licenciatura en Administración de Empresas'
-                    WHEN matricula LIKE 'DSP%' THEN 'Doctorado en Seguridad Pública'
-                    WHEN matricula LIKE 'MIGE%' THEN 'Maestría en Innovación y Gestión Educativa'
-                    WHEN matricula LIKE 'MITI%' THEN 'Maestría en Innovación y Gestión Educativa'
-                    WHEN matricula LIKE 'MMPOP%' THEN 'Maestría en Marketing Político y Opinión Pública'
-                    WHEN matricula LIKE 'MSPAJO%' THEN 'Maestría en Sistema Penal Acusatorio y Juicio Oral'
-                    WHEN matricula LIKE 'MSPP%' THEN 'Maestría en Seguridad Pública y Políticas Públicas'
-                    ELSE 'Otro Programa'
-                END AS nombre_programa,
-                COUNT(*) AS cantidad_alumnos
-            FROM 
-                alumnos
-            WHERE 
-                is_active = 1
-            GROUP BY 
-                nombre_programa;
-        ");
-        return $query->result();
+        $this->db->like('matricula', $programa, 'after');
+        $this->db->from('alumnos');
+        return $this->db->count_all_results();
     }
 
 
