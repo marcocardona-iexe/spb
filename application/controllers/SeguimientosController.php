@@ -52,7 +52,7 @@ class SeguimientosController extends CI_Controller
             if ($idseguimiento == 0) {
                 #Seguimiento abierto
                 $dataInsert = array(
-                    "idusuario_inicio" => 1,
+                    "idusuario_inicio" => $sesion['idusuario'],
                     "idalumno" => $dataSeguimiento['idalumno'],
                     "periodo" => $dataSeguimiento['periodo'],
                     "estatus" => "Abierto"
