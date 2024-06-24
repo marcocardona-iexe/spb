@@ -738,7 +738,6 @@ class AlumnosController extends CI_Controller
             ['programa' => 'Licenciatura en Derecho', 'matricula' => 'LD', 'val' => $ld],
             ['programa' => 'Licenciatura en Seguridad Pública', 'matricula' => 'LSP', 'val' => $lsp],
             ['programa' => 'Licenciatura en Ciencias Políticas y Administración Pública', 'matricula' => 'LCPAP', 'val' => $lcpap],
-            ['programa' => 'Maestría en Administración y Políticas Públicas', 'matricula' => 'MAPP', 'val' => $mapp],
             ['programa' => 'Maestría en Evaluación de Políticas Públicas', 'matricula' => 'MEPP', 'val' => $mepp],
             ['programa' => 'Maestría en Administración y Políticas Públicas', 'matricula' => 'MAPP', 'val' => $mapp],
             ['programa' => 'Maestría en Seguridad Pública y Políticas Públicas', 'matricula' => 'MSPP', 'val' => $mspp],
