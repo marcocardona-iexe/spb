@@ -5,6 +5,7 @@ $(function () {
 		dataType: "json",
 		success: function (data) {
 			let fila = "";
+			let total = 0;
 			$.each(data.tabla, function (i, t) {
 				fila += `
                  <tr>
@@ -12,8 +13,13 @@ $(function () {
                     <td>${t.matricula}</td>
                     <td>${t.val}</td>
                  </tr>`;
+				total += t.val;
 			});
+
 			$("#programas").append(fila);
+			$("#programas").append(
+				`<tr><td colspan=2>Total: </td><td>${total}</td></tr>`
+			);
 
 			$("#pieChart").dxPieChart({
 				type: "doughnut",
