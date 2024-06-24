@@ -723,6 +723,7 @@ class AlumnosModel extends CI_Model
     public function get_count_alumnos_por_programa($programa)
     {
         $this->db->like('matricula', $programa, 'after');
+        $this->db->where('is_active', 1);
         $this->db->from('alumnos');
         return $this->db->count_all_results();
     }
