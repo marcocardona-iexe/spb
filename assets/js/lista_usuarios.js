@@ -1,6 +1,30 @@
 $(document).ready(function () {
 	// Ejemplo de JavaScript para habilitar la validación Bootstrap personalizada
 
+	window.editar_usuario = (idusuario) => {
+		$(".checksboxeses").prop("checked", false);
+		$.ajax({
+			type: "POST",
+			url: `get_usuario/${idusuario}`,
+			dataType: "json",
+			success: function (response) {
+				let usuario = response;
+				$("#nombre").val(usuario.nombre);
+				$("#apellidos").val(usuario.apellidos);
+				$("#correo").val(usuario.correo);
+
+				usuario.roles.forEach(function (role) {
+					// Obtener el idrol del objeto
+					var roleId = role.idrol;
+					// Crear un selector para el checkbox correspondiente
+					var checkboxSelector =
+						"input.form-check-input[value='" + roleId + "']";
+					// Marcar el checkbox si existe
+					$(checkboxSelector).prop("checked", true);
+				});
+			},
+		});
+	};
 	$("#tbl_usuarios").DataTable();
 
 	(function () {

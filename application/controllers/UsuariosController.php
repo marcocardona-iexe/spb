@@ -34,6 +34,15 @@ class UsuariosController extends CI_Controller
         }
     }
 
+    public function get_usuario($id)
+    {
+        $dataUsuario = $this->UsuariosModel->get_usuario_where(array("id" => $id));
+        $roles = $this->UsuariosRolesModel->obtener_roles_usuario($dataUsuario->id);
+        $dataUsuario->roles = $roles;
+
+        echo json_encode($dataUsuario);
+    }
+
 
     public function usuarios()
     {
@@ -62,7 +71,7 @@ class UsuariosController extends CI_Controller
                             $admin = 1;
                             break;
                         case 2:
-                            $badge .= ' <span class="badge bg-academico tipo_usuario">Asesor académico</span>';
+                            $badge .= ' <span class="badge bg-academico tipo_usuario">Consejera</span>';
                             $academico = 1;
                             break;
                         case 3:

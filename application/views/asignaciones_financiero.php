@@ -88,6 +88,8 @@
                             <th class="text-center">No. de alumnos asignados</th>
                         </tr>
                     </thead>
+                    <tbody>
+                    </tbody>
                 </table>
             </div>
         </div>

@@ -45,21 +45,22 @@
                                 <div class="row mb-3">
                                     <div class="col">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="admin" name="rol[]" value="1">
+                                            <input class="form-check-input checksboxeses" type="checkbox" id="admin" name="rol[]" value="1">
                                             <label class="form-check-label" for="admin">Administrador</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="asesor_academico" name="rol[]" value="2">
+                                            <input class="form-check-input checksboxeses" type="checkbox" id="asesor_academico" name="rol[]" value="2">
                                             <label class="form-check-label" for="asesor_academico">Consejera</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="asesor_financiero" name="rol[]" value="3">
+                                            <input class="form-check-input checksboxeses" type="checkbox" id="asesor_financiero" name="rol[]" value="3">
                                             <label class="form-check-label" for="asesor_financiero">Asesor Financiero</label>
                                         </div>
                                         <div id="rol-feedback" class="invalid-feedback d-none">Por favor, seleccione al menos un rol.</div>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-modal"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                                <button type="submit" class="btn btn-modal"><i class="fa-solid fa-floppy-disk"></i> Editar</button>
                             </form>
                             <div id="form-alert" class="alert d-none mt-3"></div>
                         </div>

@@ -56,6 +56,7 @@ $route['alumnos-bloqueados'] = 'AlumnosController/alumnos_bloqueados';
 $route['alumnos_probabilidad_baja/(:any)'] = 'AlumnosController/alumnos_probabilidad_baja/$1';
 $route['alumnos_buscar_seguimientos/(:any)'] = 'AlumnosController/alumnos_buscar_seguimientos/$1';
 
+$route['get_usuario/(:any)'] = 'UsuariosController/get_usuario/$1';
 
 
 
