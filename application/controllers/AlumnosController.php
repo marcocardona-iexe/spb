@@ -684,6 +684,7 @@ class AlumnosController extends CI_Controller
     public function consejera_masiva()
     {
 
+        var_dump($_FILES);
         // if (!isset($_FILES['file'])) {
         //     $response = [
         //         'status' => 'error',
