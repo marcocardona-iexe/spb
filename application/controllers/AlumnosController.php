@@ -609,14 +609,14 @@ class AlumnosController extends CI_Controller
     public function financiero_masivo()
     {
 
-        // if (!isset($_FILES['file'])) {
-        //     $response = [
-        //         'status' => 'error',
-        //         'message' => 'No se ha enviado ningún archivo'
-        //     ];
-        //     echo json_encode($response);
-        //     return;
-        // }
+        if (!isset($_FILES['file'])) {
+            $response = [
+                'status' => 'error',
+                'message' => 'No se ha enviado ningún archivo'
+            ];
+            echo json_encode($response);
+            return;
+        }
 
         $filePath = $_FILES['file']['tmp_name'];
 
@@ -681,7 +681,80 @@ class AlumnosController extends CI_Controller
         echo json_encode($response);
     }
 
-    
+    public function consejera_masiva()
+    {
+
+        // if (!isset($_FILES['file'])) {
+        //     $response = [
+        //         'status' => 'error',
+        //         'message' => 'No se ha enviado ningún archivo'
+        //     ];
+        //     echo json_encode($response);
+        //     return;
+        // }
+
+        $filePath = $_FILES['file']['tmp_name'];
+
+
+        try {
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray();
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Error al cargar el archivo Excel: ' . $e->getMessage()
+            ];
+            echo json_encode($response);
+            return;
+        }
+
+        $errors = [];
+        $this->db->trans_start();
+        for ($i = 1; $i < count($data); $i++) {
+            $matricula = $data[$i][0];
+            $consejera_fila = $data[$i][1];
+
+            // Validar si la matrícula existe
+            $alumno = $this->AlumnosModel->get_alumnos_where(array("matricula" => $matricula));
+            if (!$alumno) {
+                $errors[] = "Error en la Fila $i (La matrícula $matricula no existe).";
+                continue;
+            }
+
+            // Validar si el asesor financiero existe
+            $consejera = $this->UsuariosModel->get_usuario_where(array("correo" => $consejera_fila));
+            if (!is_object($consejera)) {
+                $errors[] = "Error en la Fila $i (La consejera $consejera_fila no existe).";
+                continue;
+            }
+
+            // Actualizar el registro del alumno
+            $updateData = [
+                'consejera' => $consejera->id
+            ];
+
+            if (!$this->AlumnosModel->update_by_matricula($matricula, $updateData)) {
+                $errors[] = "Fila $i: Error al actualizar la matrícula $matricula.";
+            }
+        }
+        $this->db->trans_complete();
+
+        if (count($errors) > 0) {
+            $response = [
+                'status' => 'error',
+                'errors' => $errors,
+                'message' => "Solo se actualizaron algunas matriculas, la carga del archivo muestra los siguientes errores:"
+            ];
+        } else {
+            $response = [
+                'status' => 'success',
+                'message' => 'Archivo procesado exitosamente.'
+            ];
+        }
+
+        echo json_encode($response);
+    }
 
 
 
