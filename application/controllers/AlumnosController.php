@@ -684,15 +684,14 @@ class AlumnosController extends CI_Controller
     public function consejera_masiva()
     {
 
-        var_dump($_FILES);
-        // if (!isset($_FILES['file'])) {
-        //     $response = [
-        //         'status' => 'error',
-        //         'message' => 'No se ha enviado ningún archivo'
-        //     ];
-        //     echo json_encode($response);
-        //     return;
-        // }
+        if (!isset($_FILES['file'])) {
+            $response = [
+                'status' => 'error',
+                'message' => 'No se ha enviado ningún archivo'
+            ];
+            echo json_encode($response);
+            return;
+        }
 
         $filePath = $_FILES['file']['tmp_name'];
 
