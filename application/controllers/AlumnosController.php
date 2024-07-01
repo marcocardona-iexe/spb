@@ -69,6 +69,98 @@ class AlumnosController extends CI_Controller
         );
     }
 
+    public function testeo()
+    {
+        $data = $this->PlataformasModel->local_materias_activas();
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+
+    public function ingresa_alumnos_activos()
+    {
+
+        // Obtener todos los alumnos de las plataformas externas
+        $alumnos_plataformas = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
+
+        // Obtener todos los alumnos de la base de datos local
+        $alumnos_prediccion  = $this->AlumnosModel->obtener_todos_alumnos_in_array();
+
+        // Arreglo para almacenar los IDs de los alumnos de las plataformas externas
+        $array_in = array();
+
+        // Arreglo para almacenar los datos de los alumnos nuevos y actualizados
+        $dataInsert = $dataUpdate = array();
+
+        // Iterar sobre los alumnos de las plataformas externas
+        foreach ($alumnos_plataformas as $ap) {
+            // Crear un ID único para cada alumno basado en su programa y moodleid
+            $creacion_id = $ap->programa . $ap->moodleid;
+
+            // Agregar el ID a $array_in
+            $array_in[] = $creacion_id;
+
+            // Verificar si el ID existe en la lista de alumnos de la base de datos local
+            if (in_array($creacion_id, $alumnos_prediccion)) {
+                // Si el ID existe, actualizar los datos del alumno
+                $dataUpdate[] = array(
+                    "id" => $creacion_id,
+                    "moodleid" => $ap->moodleid,
+                    "plataforma" => $ap->plataforma,
+                    "programa" => $ap->programa,
+                    "matricula" => $ap->username,
+                    "nombre" => $ap->firstname,
+                    "apellidos" => $ap->lastname,
+                    "sexo" => $ap->sexo,
+                    "mes" => $ap->mes,
+                    "correo" => $ap->email,
+                    "primer_Acceso" => $ap->firstaccess,
+                    "ultimo_Acceso" => $ap->lastaccess,
+                    "estatus_plataforma" => $ap->estatus_plataforma,
+                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
+                    "periodo" => $ap->periodo,
+                    "is_active" => 1
+                );
+            } else {
+                // Si el ID no existe, agregar los datos del alumno como nuevo
+                $dataInsert[] = array(
+                    "id" => $creacion_id,
+                    "moodleid" => $ap->moodleid,
+                    "plataforma" => $ap->plataforma,
+                    "programa" => $ap->programa,
+                    "matricula" => $ap->username,
+                    "nombre" => $ap->firstname,
+                    "apellidos" => $ap->lastname,
+                    "sexo" => $ap->sexo,
+                    "mes" => $ap->mes,
+                    "correo" => $ap->email,
+                    "primer_Acceso" => $ap->firstaccess,
+                    "ultimo_Acceso" => $ap->lastaccess,
+                    "estatus_plataforma" => $ap->estatus_plataforma,
+                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
+                    "periodo" => $ap->periodo,
+                    "is_active" => 1,
+                    "variable_academica" => 0,
+                    "variable_financiera" => 0
+                );
+            }
+        }
+
+        // Desactivar alumnos que no están presentes en las plataformas externas
+        if (!empty($array_in)) {
+            $this->AlumnosModel->desactivar_batch($array_in);
+        }
+        // Insertar datos de los nuevos alumnos
+        if (!empty($dataInsert)) {
+            $this->AlumnosModel->insert_batch($dataInsert);
+        }
+
+        // Actualizar datos de los alumnos existentes
+        if (!empty($dataUpdate)) {
+            $this->AlumnosModel->update_batch($dataUpdate);
+        }
+    }
+
 
     // Función principal que pinta la vista de todo el módulo
     public function index()
@@ -790,11 +882,6 @@ class AlumnosController extends CI_Controller
     }
 
 
-
-
-
-
-
     public function busuqeda_avanzada()
     {
 
@@ -845,124 +932,9 @@ class AlumnosController extends CI_Controller
 
 
         $this->response_to_datatable('AlumnosModel', 'busuqeda_avanzada', 'total_busuqeda_avanzada', $where, true);
-
-
-
-
-        // $order_column = 0;
-        // $order_dir = "asc";
-
-        // if (!empty($order)) {
-        //     $order_column = $order[0]['column'];
-        //     $order_dir = $order[0]['dir'];
-        // }
-        // $alumnos = $this->AlumnosModel->busuqeda_avanzada($where, $start, $length, $order_column, $order_dir);
-        // $alumnos_total = $this->AlumnosModel->total_busuqeda_avanzada($where);
-
-
-        // // Devolver los resultados en el formato esperado por DataTable
-        // $response = array(
-        //     'draw' => $draw,
-        //     'recordsTotal' => count($alumnos_total),
-        //     'recordsFiltered' => count($alumnos_total),
-        //     'data' => $alumnos // Datos de los alumnos paginados
-        // );
-
-        // // Devolver los datos como JSON
-        // echo json_encode($response);
     }
 
 
-
-
-
-
-
-
-    public function ingresa_alumnos_activos()
-    {
-
-        // Obtener todos los alumnos de las plataformas externas
-        $alumnos_plataformas = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
-
-        // Obtener todos los alumnos de la base de datos local
-        $alumnos_prediccion  = $this->AlumnosModel->obtener_todos_alumnos_in_array();
-
-        // Arreglo para almacenar los IDs de los alumnos de las plataformas externas
-        $array_in = array();
-
-        // Arreglo para almacenar los datos de los alumnos nuevos y actualizados
-        $dataInsert = $dataUpdate = array();
-
-        // Iterar sobre los alumnos de las plataformas externas
-        foreach ($alumnos_plataformas as $ap) {
-            // Crear un ID único para cada alumno basado en su programa y moodleid
-            $creacion_id = $ap->programa . $ap->moodleid;
-
-            // Agregar el ID a $array_in
-            $array_in[] = $creacion_id;
-
-            // Verificar si el ID existe en la lista de alumnos de la base de datos local
-            if (in_array($creacion_id, $alumnos_prediccion)) {
-                // Si el ID existe, actualizar los datos del alumno
-                $dataUpdate[] = array(
-                    "id" => $creacion_id,
-                    "moodleid" => $ap->moodleid,
-                    "plataforma" => $ap->plataforma,
-                    "programa" => $ap->programa,
-                    "matricula" => $ap->username,
-                    "nombre" => $ap->firstname,
-                    "apellidos" => $ap->lastname,
-                    "sexo" => $ap->sexo,
-                    "mes" => $ap->mes,
-                    "correo" => $ap->email,
-                    "primer_Acceso" => $ap->firstaccess,
-                    "ultimo_Acceso" => $ap->lastaccess,
-                    "estatus_plataforma" => $ap->estatus_plataforma,
-                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
-                    "periodo" => $ap->periodo,
-                    "is_active" => 1
-                );
-            } else {
-                // Si el ID no existe, agregar los datos del alumno como nuevo
-                $dataInsert[] = array(
-                    "id" => $creacion_id,
-                    "moodleid" => $ap->moodleid,
-                    "plataforma" => $ap->plataforma,
-                    "programa" => $ap->programa,
-                    "matricula" => $ap->username,
-                    "nombre" => $ap->firstname,
-                    "apellidos" => $ap->lastname,
-                    "sexo" => $ap->sexo,
-                    "mes" => $ap->mes,
-                    "correo" => $ap->email,
-                    "primer_Acceso" => $ap->firstaccess,
-                    "ultimo_Acceso" => $ap->lastaccess,
-                    "estatus_plataforma" => $ap->estatus_plataforma,
-                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
-                    "periodo" => $ap->periodo,
-                    "is_active" => 1,
-                    "variable_academica" => 0,
-                    "variable_financiera" => 0
-                );
-            }
-        }
-
-        // Insertar datos de los nuevos alumnos
-        if (!empty($dataInsert)) {
-            $this->AlumnosModel->insert_batch($dataInsert);
-        }
-
-        // Actualizar datos de los alumnos existentes
-        if (!empty($dataUpdate)) {
-            $this->AlumnosModel->update_batch($dataUpdate);
-        }
-
-        // Desactivar alumnos que no están presentes en las plataformas externas
-        if (!empty($array_in)) {
-            $this->AlumnosModel->desactivar_batch($array_in);
-        }
-    }
 
 
 
