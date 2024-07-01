@@ -122,7 +122,6 @@ $(document).ready(function () {
 				data: formData,
 				processData: false,
 				contentType: false,
-				dataType: "json",
 				success: function (response) {
 					$("#subir_archivo").html(
 						`<i class="fa-solid fa-upload"></i> Subir archivo`
