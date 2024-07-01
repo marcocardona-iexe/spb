@@ -27,7 +27,7 @@ class UsuariosController extends CI_Controller
         // Verificar si la sesión está activa
         if ($this->session->userdata('seguimiento_iexe')) {
             // La sesión está activa, redirigir al usuario a la página deseada
-            redirect('lista-alumnos');
+            redirect(base_url() . 'lista-alumnos');
         } else {
             // La sesión no está activa, cargar la vista de login
             $this->load->view("login");
