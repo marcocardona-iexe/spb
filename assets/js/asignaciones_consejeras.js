@@ -99,18 +99,18 @@ $(document).ready(function () {
 		// Validar que se haya seleccionado un archivo
 		if (inputFile) {
 			// Validar el tamaño del archivo (en bytes)
-			var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
-			if (inputFile.size > maxSize) {
-				var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                <strong>Error:</strong> El archivo seleccionado supera el tamaño máximo permitido de 2 MB.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`;
-				$("#form-alert2-container").html(alertHtml);
-				$("#subir_archivo").html(
-					`<i class="fa-solid fa-upload"></i> Subir archivo`
-				);
-				return; // Detener el proceso si el archivo es demasiado grande
-			}
+			// var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
+			// if (inputFile.size > maxSize) {
+			// 	var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+            //                     <strong>Error:</strong> El archivo seleccionado supera el tamaño máximo permitido de 2 MB.
+            //                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            //                 </div>`;
+			// 	$("#form-alert2-container").html(alertHtml);
+			// 	$("#subir_archivo").html(
+			// 		`<i class="fa-solid fa-upload"></i> Subir archivo`
+			// 	);
+			// 	return; // Detener el proceso si el archivo es demasiado grande
+			// }
 
 			var formData = new FormData();
 			formData.append("file", inputFile);
