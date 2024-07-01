@@ -12,7 +12,7 @@
                         <div class="card">
                             <div class="card-header" id="">
                                 <h6 class="mb-0">
-                                    <i class="fa-solid fa-upload"></i> Carga masiva de asesores financieros
+                                    <i class="fa-solid fa-upload"></i> Carga masiva de consejeras
                                 </h6>
                             </div>
                             <div class="card-body">
