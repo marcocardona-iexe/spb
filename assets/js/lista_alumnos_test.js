@@ -665,7 +665,7 @@ $(document).ready(function () {
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gears"></i> Acciones	
                                 </button>
-								${tiene_seguimiento}
+								
                                 <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
                                     <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
                                     <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
