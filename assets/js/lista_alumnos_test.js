@@ -657,8 +657,8 @@ $(document).ready(function () {
 				{
 					data: null,
 					render: function (data, type, row) {
-						let tiene_seguimiento = '';
-						tiene_seguimiento = verifica_seguimiento_abierto();
+						let tiene_seguimiento = "";
+						tiene_seguimiento = verifica_seguimiento_abierto(row.id);
 						return `
                         <div class="text-center">
                             <div class="dropdown">
