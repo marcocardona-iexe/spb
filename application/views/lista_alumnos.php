@@ -115,15 +115,12 @@ foreach ($sesion['roles'] as $rol) {
                                     </div>
                                     <div class="col">
                                         <label for="periodo" class="form-label">Periodo</label>
-                                        <select class="form-select" id="periodos">
-                                            <option value="0">Selecciona primero un programa</option>
-                                        </select>
+                                        <input type="text" class="form-control" id="periodos" placeholder="Periodo">
+
                                     </div>
                                     <div class="col">
                                         <label for="periodo-mensual" class="form-label">Trimestre / Cuatrimestre</label>
-                                        <select class="form-select" id="periodos_mensuales">
-                                            <option value="0">Seleccione primero un periodo</option>
-                                        </select>
+                                        <input type="text" class="form-control" id="periodos_mensuales" placeholder="Trimestre/Cuatrimestre">
                                     </div>
                                     <div class="col">
                                         <label for="estatus-plataforma" class="form-label">Estatus de Plataforma</label>
