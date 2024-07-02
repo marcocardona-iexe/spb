@@ -58,6 +58,9 @@ $route['alumnos_buscar_seguimientos/(:any)'] = 'AlumnosController/alumnos_buscar
 
 $route['get_usuario/(:any)'] = 'UsuariosController/get_usuario/$1';
 
+$route['exist_seuimiento_abierto_por_alumno/(:any)'] = 'SeguimientosController/exist_seuimiento_abierto_por_alumno/$1';
+
+
 
 
 $route['ingresa_alumnos_activos'] = 'AlumnosController/ingresa_alumnos_activos';

@@ -42,6 +42,12 @@ class SeguimientosController extends CI_Controller
         echo json_encode($response);
     }
 
+    public function exist_seuimiento_abierto_por_alumno($idalumno)
+    {
+        $dataSeguimiento = $this->SeguimientosModel->verificar_seguimientos_abiertos($idalumno);
+        echo json_encode(array("count" => count($dataSeguimiento)));
+    }
+
     public function guardar_seguimiento($idseguimiento, $tipo)
     {
         $sesion = $this->session->userdata('seguimiento_iexe');

@@ -1,4 +1,12 @@
 $(document).ready(function () {
+	$(
+		"#nombre, #apellidos, #correo, #matricula, #programas, #periodos, #periodos_mensuales, #estatus-plataforma, #consejera, #financiero"
+	).on("keypress", function (e) {
+		if (e.which === 13) {
+			// 13 es el código de la tecla Enter
+			window.busqueda_avanzada();
+		}
+	});
 	$("#ver_todos").on("click", function () {
 		$("#loading").show();
 		$("#contenedor_tabla_alumnos").hide();
@@ -163,121 +171,6 @@ $(document).ready(function () {
 				});
 			},
 		});
-
-		// $.ajax({
-		// 	type: "POST",
-		// 	url: `probabilidad_baja/${matricula}`,
-		// 	dataType: "json",
-		// 	success: function (response) {
-		// 		console.log(response);
-		// 		let actividades = "";
-		// 		const icon_financiero =
-		// 			response.financiera.variable_financiera == 0
-		// 				? '<i class="fa-regular fa-circle-check"></i>'
-		// 				: '<i class="fa-solid fa-triangle-exclamation"></i>';
-
-		// 		const clase_card_financiero =
-		// 			response.financiera.variable_financiera == 0
-		// 				? "bg-success text-white"
-		// 				: "bg-danger text-white";
-		// 		$.each(response.academica.materia[0].actividades, function (i, a) {
-		// 			if (a.opcional == 1) {
-		// 				icon = '<i class="fa-regular fa-star"></i>';
-		// 				fecha_establecida = "";
-		// 			} else {
-		// 				icon =
-		// 					a.notificacion == 0
-		// 						? '<i class="fa-regular fa-circle-check"></i>'
-		// 						: '<i class="fa-solid fa-triangle-exclamation"></i>';
-
-		// 				fecha_establecida = `(${a.finalizacion})`;
-		// 			}
-		// 			actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
-		// 		});
-
-		// 		let body = `
-		//         <div class="container-fluid">
-		//             <div class="row g-3">
-		//                 <div class="col-md-12">
-		//                     <div class="card">
-		//                         <div class="card-header text-start">
-		//                             <i class="fa-solid fa-graduation-cap"></i> Historial Académico
-		//                         </div>
-		//                         <div class="card-body text-start">
-		//                             <p>Materia: ${response.academica.materia[0].fullname}</p>
-		//                             <p>
-		//                             <ul>
-		//                                 ${actividades}
-		//                             </ul>
-		//                             </p>
-		//                             <div class="container">
-		//                                 <div class="row justify-content-center">
-		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-		//                                         <i class="fa-regular fa-star"></i>
-		//                                         <span>Actividad Optativa</span>
-		//                                     </div>
-		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-		//                                         <i class="fa-regular fa-circle-check"></i>
-		//                                         <span>Actividad Completada</span>
-		//                                     </div>
-		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-		//                                         <i class="fa-solid fa-triangle-exclamation"></i>
-		//                                         <span>Actividad Incompleta</span>
-		//                                     </div>
-		//                                 </div>
-		//                             </div>
-		//                         </div>
-		//                     </div>
-		//                 </div>
-		//                 <div class="col-md-12">
-		//                     <div class="card">
-		//                         <div class="card-header text-start ${clase_card_financiero}">
-		//                             <i class="fa-solid fa-wallet"></i> Información Financiera
-		//                         </div>
-		//                         <div class="card-body text-start">
-		//                             <p>${response.financiera.message}</p>
-		//                             <p>
-		//                             <ul>
-		//                                 <li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
-		//                             </ul>
-		//                             </p>
-		//                             <div class="container">
-		//                                 <div class="row justify-content-center">
-		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-		//                                         <i class="fa-regular fa-circle-check"></i>
-		//                                         <span>Pago al día</span>
-		//                                     </div>
-		//                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-		//                                         <i class="fa-solid fa-triangle-exclamation"></i>
-		//                                         <span>Retraso en pago</span>
-		//                                     </div>
-		//                                 </div>
-		//                             </div>
-		//                         </div>
-		//                     </div>
-		//                 </div>
-
-		//             </div>
-		//         </div>`;
-
-		// 		$.alert({
-		// 			title: false,
-		// 			closeIcon: true,
-		// 			columnClass: "col-md-8 col-md-offset-2",
-		// 			content: body,
-		// 			type: "blue",
-		// 			theme: "Modern",
-
-		// 			buttons: {
-		// 				ok: {
-		// 					text: "Aceptar",
-		// 					btnClass: "btn btn-info btn-modal",
-		// 					action: function () {},
-		// 				},
-		// 			},
-		// 		});
-		// 	},
-		// });
 	};
 
 	window.buscar_seguimiento = function (tipo) {
@@ -764,15 +657,14 @@ $(document).ready(function () {
 				{
 					data: null,
 					render: function (data, type, row) {
+						let tiene_seguimiento = verifica_seguimiento_abierto();
 						return `
                         <div class="text-center">
                             <div class="dropdown">
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-gears"></i> Acciones
+                                    <i class="fa-solid fa-gears"></i> Acciones	
                                 </button>
-								<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-    								<span class="visually-hidden">New alerts</span>
-  								</span>
+								${tiene_seguimiento}
                                 <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
                                     <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
                                     <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
@@ -947,5 +839,22 @@ $(document).ready(function () {
 				$("#contenedor_tabla_alumnos").show();
 			});
 		}
+	};
+
+	window.verifica_seguimiento_abierto = (idAlumno) => {
+		$.ajax({
+			type: "POST",
+			url: "exist_seuimiento_abierto_por_alumno/" + idAlumno,
+			dataType: "json",
+			success: function (response) {
+				let noti = "";
+				return response.count
+					? `
+					<span class="position-absolute top-0 translate-middle p-2 bg-danger border border-light rounded-circle">
+    					<span class="visually-hidden">New alerts</span>
+  					</span>`
+					: noti;
+			},
+		});
 	};
 });
