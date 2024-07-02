@@ -1177,7 +1177,7 @@ class AlumnosController extends CI_Controller
 
         if (
             $matricula == 'MAPP'  || $matricula == 'MEPP'  || $matricula == 'MSPPP' || $matricula == 'MFP'   || $matricula == 'MAIS' ||
-            $matricula == 'MBA'   || $matricula == 'MIGE'  || $matricula == 'MMPOP' || $matricula == 'MADIS' ||
+            $matricula == 'MBA'   || $matricula == 'MIGE'  || $matricula == 'MMPOP' || $matricula == 'MADIS' || $matricula == 'MSPP' ||
             $matricula == 'MAG'   || $matricula == 'MGPM'  || $matricula == 'MSPJO' || $matricula == 'MCDA'  || $matricula == 'MCDIA'  ||
             $matricula == 'MCDIA' || $matricula == 'MITI'  || $matricula == 'MAN'   || $matricula == 'MSPAJO'
         ) {
