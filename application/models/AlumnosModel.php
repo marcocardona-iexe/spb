@@ -607,7 +607,7 @@ class AlumnosModel extends CI_Model
         $this->db->select('periodo');
         $this->db->from($this->table);
         $this->db->where('programa', $programa);
-        $this->db->where('consejera IS NULL', NULL, FALSE); // Para manejar IS NULL
+        //$this->db->where('consejera IS NULL', NULL, FALSE); // Para manejar IS NULL
         $this->db->order_by('periodo');
         $query = $this->db->get();
         return $query->result_array();
@@ -770,7 +770,6 @@ class AlumnosModel extends CI_Model
                 alumnos a
             LEFT JOIN
                 usuarios u ON a.consejera = u.id
-                AND alumnos.is_active=1
         ");
         return $query->result();
     }
