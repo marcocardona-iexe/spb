@@ -1572,8 +1572,14 @@ class AlumnosController extends CI_Controller
         if ($plataforma[0] == 'm') {
             $minima = 7;
             $prom = 7.5;
+        } elseif ($plataforma[0] == 'l') {
+            $minima = 6;
+            $prom = 6.5;
+        } elseif ($plataforma[0] == 'd') {
+            $minima = 8;
+            $prom = 8.5;
         }
-        $dataAlumnos = $this->AlumnosModel->get_alumnos_where(array('plataforma' => $plataforma));
+        $dataAlumnos = $this->AlumnosModel->get_alumnos_where(array('plataforma' => $plataforma, "is_active" => 1));
         foreach ($dataAlumnos as $a) {
             $dataKardex = $this->PlataformasModel->get_kardex($plataforma, $a->matricula, $minima);
             foreach ($dataKardex as $k) {
@@ -1592,9 +1598,8 @@ class AlumnosController extends CI_Controller
                         }
                     }
                 }
-                echo $a->id;
 
-                $dataInsert[] = array(
+                $dataInsert = array(
                     "idAlumnos" => $a->id,
                     "materiaClave" => $k->materia_clave,
                     "MateriNombre" => $k->fullname,
