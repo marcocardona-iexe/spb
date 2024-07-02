@@ -857,4 +857,51 @@ ORDER BY
         $query = $registro->select('*')->where("usuario", $matricula)->get('registro');
         return $query->result();
     }
+
+    public function get_kardex($plataforma, $matricula, $calificacion)
+    {
+        $DB = $this->load->database($plataforma, TRUE); // Carga la base de datos especificada
+        $sql = '
+        SELECT
+	SUBSTRING_INDEX( c.fullname, " - ", 1 ) AS materia_clave,
+	c.fullname,
+		gg.finalgrade ,
+	DATE (
+	FROM_UNIXTIME( c.enddate )) calificacionFecha
+FROM
+	mdl_user_enrolments ue
+	LEFT JOIN mdl_enrol e ON ue.enrolid = e.id
+	LEFT JOIN mdl_user u ON u.id = ue.userid
+	LEFT JOIN mdl_course c ON e.courseid = c.id
+	LEFT JOIN mdl_course_categories cat ON c.category = cat.id
+	LEFT JOIN mdl_grade_items gi ON c.id = gi.courseid 
+	AND gi.itemtype = "course"
+	LEFT JOIN mdl_grade_grades gg ON gi.id = gg.itemid 
+	AND gg.userid = ue.userid 
+WHERE
+	username = "' . $matricula . '"
+	AND c.fullname NOT LIKE "%inducción%" 
+	AND c.fullname NOT LIKE "%Extraordinario%" 
+	AND c.fullname NOT LIKE "%Seminario%" 
+	AND c.fullname NOT LIKE "%Ordinario%" 
+	AND c.fullname NOT LIKE "%Título de suficiencia%" 
+	AND cat.NAME NOT LIKE "%gratuitos%" 
+	AND cat.NAME NOT LIKE "%Propedéutico%" 
+	AND cat.NAME NOT LIKE "%Prórroga%" 
+	AND cat.NAME NOT LIKE "%Curso%" 
+	AND gg.finalgrade >= "' . $calificacion . '" 
+ORDER BY
+	c.fullname ASC';
+
+        // Ejecutar la consulta con los parámetros proporcionados
+        $query =  $DB->query($sql);
+
+        // Devolver los resultados como un array
+        return $query->result();
+    }
+
+    public function insert_data_kardex($data)
+    {
+        return $this->db->insert_batch('kardex', $data);
+    }
 }

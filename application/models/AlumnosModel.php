@@ -84,7 +84,6 @@ class AlumnosModel extends CI_Model
     }
 
 
-
     private function ordenamiento($order_column, $order_dir)
     {
         // Lista de columnas válidas para ordenar

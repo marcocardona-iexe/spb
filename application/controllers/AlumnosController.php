@@ -1565,4 +1565,52 @@ class AlumnosController extends CI_Controller
             $this->AlumnosModel->editar_por_id($a->id, $dataUpdate);
         }
     }
+
+
+    public function cardex($plataforma)
+    {
+        if ($plataforma[0] == 'm') {
+            $minima = 7;
+            $prom = 7.5;
+        }
+        $dataAlumnos = $this->AlumnosModel->get_alumnos_where(array('plataforma' => $plataforma));
+        foreach ($dataAlumnos as $a) {
+            $dataKardex = $this->PlataformasModel->get_kardex($plataforma, $a->matricula, $minima);
+            foreach ($dataKardex as $k) {
+                $calificacion_moodle = $this->truncarnumero($k->finalgrade, 1); //calificación original de moodle
+                //inicia proceso para redondear a las reglas de iexe la calificación del alumno.
+                if (is_nan($calificacion_moodle) || $calificacion_moodle === NULL) {
+                    $calificacion = "--";
+                } else {
+                    if ($calificacion_moodle <= $prom) {
+                        $calificacion = floor($calificacion_moodle);
+                    } else {
+                        if (round($calificacion_moodle - floor($calificacion_moodle), 1) < 0.6) {
+                            $calificacion = floor($calificacion_moodle);
+                        } else {
+                            $calificacion = ceil($calificacion_moodle);
+                        }
+                    }
+                }
+                echo $a->id;
+
+                $dataInsert[] = array(
+                    "idAlumnos" => $a->id,
+                    "materiaClave" => $k->materia_clave,
+                    "MateriNombre" => $k->fullname,
+                    "calificacion" => $calificacion,
+                    "CalificacionFecha" => $k->calificacionFecha
+                );
+                $this->PlataformasModel->insert_data_kardex($dataInsert);
+            }
+        }
+    }
+
+    function truncarnumero($number, $precision = 2)
+    {
+        $negative = $number / abs($number);
+        $number = abs($number);
+        $precision = pow(10, $precision);
+        return floor($number * $precision) / $precision * $negative;
+    }
 }
