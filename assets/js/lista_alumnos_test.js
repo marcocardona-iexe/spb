@@ -659,6 +659,7 @@ $(document).ready(function () {
 					render: function (data, type, row) {
 						let tiene_seguimiento = "";
 						tiene_seguimiento = verifica_seguimiento_abierto(row.id);
+						console.log(tiene_seguimiento);
 						return `
                         <div class="text-center">
                             <div class="dropdown">
