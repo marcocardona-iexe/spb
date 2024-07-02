@@ -1569,7 +1569,7 @@ class AlumnosController extends CI_Controller
 
     public function cardex($plataforma)
     {
-        if ($plataforma[0] == 'm') {
+        if ($plataforma[0] == 'm' || $plataforma[0] == 'i') {
             $minima = 7;
             $prom = 7.5;
         } elseif ($plataforma[0] == 'l') {
