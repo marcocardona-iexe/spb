@@ -1599,16 +1599,16 @@ class AlumnosController extends CI_Controller
                     }
                 }
 
-                $dataInsert = array(
+                $dataInsert[] = array(
                     "idAlumnos" => $a->id,
                     "materiaClave" => $k->materia_clave,
                     "MateriNombre" => $k->fullname,
                     "calificacion" => $calificacion,
                     "CalificacionFecha" => $k->calificacionFecha
                 );
-                $this->PlataformasModel->insert_data_kardex($dataInsert);
             }
         }
+        $this->PlataformasModel->insert_data_kardex($dataInsert);
     }
 
     function truncarnumero($number, $precision = 2)
