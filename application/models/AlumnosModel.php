@@ -770,7 +770,8 @@ class AlumnosModel extends CI_Model
                 alumnos a
             LEFT JOIN
                 usuarios u ON a.consejera = u.id
-                AND alumnos.is_active=1
+             WHERE
+    a.is_active = 1
         ");
         return $query->result();
     }
