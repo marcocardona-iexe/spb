@@ -848,7 +848,7 @@ $(document).ready(function () {
 			url: "exist_seuimiento_abierto_por_alumno/" + idAlumno,
 			dataType: "json",
 			success: function (response) {
-				console.log(response);
+				console.log(response.count);
 				let noti = "";
 				return response.count > 0
 					? `
