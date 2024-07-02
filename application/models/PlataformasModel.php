@@ -902,6 +902,6 @@ ORDER BY
 
     public function insert_data_kardex($data)
     {
-        return $this->db->insert_batch('kardex', $data);
+        return $this->db->insert('kardex', $data);
     }
 }
