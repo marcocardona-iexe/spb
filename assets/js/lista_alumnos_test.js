@@ -657,22 +657,36 @@ $(document).ready(function () {
 				{
 					data: null,
 					render: function (data, type, row) {
-						let tiene_seguimiento = "";
-						tiene_seguimiento = verifica_seguimiento_abierto(row.id);
-						console.log(tiene_seguimiento);
-						return `
+						$.ajax({
+							type: "POST",
+							url: "exist_seuimiento_abierto_por_alumno/" + row.id,
+							dataType: "json",
+							success: function (response) {
+								console.log(response.count);
+								let noti = "";
+								noti =
+									response.count > 0
+										? `
+									<span class="position-absolute top-0 translate-middle p-2 bg-danger border border-light rounded-circle">
+										<span class="visually-hidden">New alerts</span>
+									</span>`
+										: noti;
+								return `
                         <div class="text-center">
                             <div class="dropdown">
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gears"></i> Acciones	
                                 </button>
-								${tiene_seguimiento}
+								${noti}
                                 <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
                                     <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
                                     <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
                                 </ul>
                             </div>
                         </div>`;
+							},
+						});
+						console.log(tiene_seguimiento);
 					},
 					searchable: true,
 				},
