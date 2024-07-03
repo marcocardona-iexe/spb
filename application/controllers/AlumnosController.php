@@ -840,7 +840,7 @@ class AlumnosController extends CI_Controller
             ['programa' => 'Maestría en Finanzas Públicas', 'matricula' => 'MFP', 'val' => $mfp],
             ['programa' => 'Maestría en Gestión Pública Municipal', 'matricula' => 'MGPM', 'val' => $mgpm],
             ['programa' => 'Maestría en Innovación y Gestión Educativa', 'matricula' => 'MIGE', 'val' => $mige],
-            ['programa' => 'Innovación y Gestión Educativa', 'matricula' => 'MITI', 'val' => $miti],
+            ['programa' => 'Maestría en Ingeniería en Tecnologias de la Información y la Comunicación', 'matricula' => 'MITI', 'val' => $miti],
             ['programa' => 'Maestría en Marketing Político y Opinión Pública', 'matricula' => 'MMPOP', 'val' => $mmpop],
             ['programa' => 'Maestría en Sistema Penal Acusatorio y Juicio Oral', 'matricula' => 'MSPAJO', 'val' => $mspajo],
 
