@@ -172,6 +172,7 @@ class AlumnosModel extends CI_Model
         $this->db->from($this->table);
         $this->db->join('usuarios AS consejera', 'alumnos.consejera = consejera.id', 'left');
         $this->db->join('usuarios AS financiero', 'alumnos.financiero = financiero.id', 'left');
+        $this->db->where('is_active', 1);
     }
 
     public function no_alumnos_bloqueados()
