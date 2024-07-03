@@ -759,7 +759,7 @@ class AlumnosModel extends CI_Model
                     WHEN matricula LIKE 'LAE%' THEN 'Licenciatura en Administración de Empresas'
                     WHEN matricula LIKE 'DSP%' THEN 'Doctorado en Seguridad Pública'
                     WHEN matricula LIKE 'MIGE%' THEN 'Maestría en Innovación y Gestión Educativa'
-                    WHEN matricula LIKE 'MITI%' THEN 'Maestría en Innovación y Gestión Educativa'
+                    WHEN matricula LIKE 'MITI%' THEN 'Maestría en Innovación y Tecnologías de la Información' 
                     WHEN matricula LIKE 'MMPOP%' THEN 'Maestría en Marketing Político y Opinión Pública'
                     WHEN matricula LIKE 'MSPAJO%' THEN 'Maestría en Sistema Penal Acusatorio y Juicio Oral'
                     WHEN matricula LIKE 'MSPP%' THEN 'Maestría en Seguridad Pública y Políticas Públicas'
