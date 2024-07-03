@@ -771,7 +771,7 @@ class AlumnosModel extends CI_Model
                 alumnos a
             LEFT JOIN
                 usuarios u ON a.consejera = u.id
-             WHERE a.is_active = 1 AND a.matricula!='miti099mx' OR a.matricula!='miti099us'
+             WHERE a.is_active = 1 AND (a.matricula!='miti099mx' OR a.matricula!='miti099us')
         ");
         return $query->result();
     }
