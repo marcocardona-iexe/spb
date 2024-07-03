@@ -607,6 +607,7 @@ class AlumnosModel extends CI_Model
         $this->db->select('periodo');
         $this->db->from($this->table);
         $this->db->where('programa', $programa);
+        $this->db->where('is_active', 1);
         //$this->db->where('consejera IS NULL', NULL, FALSE); // Para manejar IS NULL
         $this->db->order_by('periodo');
         $query = $this->db->get();
