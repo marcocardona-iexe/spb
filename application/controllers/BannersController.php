@@ -24,6 +24,7 @@ class BannersController extends CI_Controller
 
     public function insert_banner()
     {
+        phpinfo();
         echo "<pre>";
         print_r($this->input->post());
         echo "</pre>";
