@@ -593,7 +593,7 @@ $(document).ready(function () {
 					data: "ultimo_acceso",
 					render: function (data, type, row) {
 						let tiempo = calcularTiempoRelativo(data);
-						return tiempo;
+						return `${data}/${tiempo}`;
 					},
 				},
 				{
@@ -659,15 +659,27 @@ $(document).ready(function () {
 				{
 					data: null,
 					render: function (data, type, row) {
-						let tiene_seguimiento = "";
-						tiene_seguimiento = verifica_seguimiento_abierto(row.id);
+						const notiId = `noti_${row.id}`;
+
+						//tiene_seguimiento = verifica_seguimiento_abierto(row.id);
+						// Render inicial con un marcador de posición
+						setTimeout(() => {
+							verifica_seguimiento_abierto(row.id)
+							.then((noti) => {
+								// Actualizar el contenido del dropdown basado en la respuesta AJAX
+								document.getElementById(notiId).innerHTML = noti;
+							})
+							.catch((error) => {
+								console.error("Error verificando seguimiento:", error);
+							});
+						}, 0);
 						return `
                         <div class="text-center">
                             <div class="dropdown">
                                 <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gears"></i> Acciones	
                                 </button>
-								
+								<div class="text-end" id="${notiId}"></div>
                                 <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
                                     <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
                                     <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
@@ -845,20 +857,25 @@ $(document).ready(function () {
 	};
 
 	window.verifica_seguimiento_abierto = (idAlumno) => {
-		$.ajax({
-			type: "POST",
-			url: "exist_seuimiento_abierto_por_alumno/" + idAlumno,
-			dataType: "json",
-			success: function (response) {
-				console.log(response.count);
-				let noti = "";
-				return response.count > 0
-					? `
-					<span class="position-absolute top-0 translate-middle p-2 bg-danger border border-light rounded-circle">
-    					<span class="visually-hidden">New alerts</span>
-  					</span>`
-					: noti;
-			},
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				type: "POST",
+				url: "exist_seuimiento_abierto_por_alumno/" + idAlumno,
+				dataType: "json",
+				success: function (response) {
+					let noti = "";
+					if (response.count > 0) {
+						noti = `
+                    <span class="position-absolute top-0 translate-middle p-2 bg-danger border border-light rounded-circle">
+                        <span class="visually-hidden">New alerts</span>
+                    </span>`;
+					}
+					resolve(noti);
+				},
+				error: function (error) {
+					reject(error);
+				},
+			});
 		});
 	};
 });
