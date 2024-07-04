@@ -456,7 +456,8 @@ $(document).ready(function () {
 								estatus_acuerdo,
 								comentarios,
 								id,
-								idseguimento
+								idseguimento,
+								periodo
 							);
 						}
 					},
@@ -509,6 +510,7 @@ $(document).ready(function () {
 								estatus_acuerdo: estatus_acuerdo,
 								comentarios: comentarios,
 								idalumno: id,
+								periodo: periodo,
 							},
 							dataType: "json",
 							success: function (response) {
