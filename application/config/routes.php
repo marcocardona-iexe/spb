@@ -51,6 +51,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 */
 $route['default_controller'] = 'UsuariosController/index';
 
+$route['banners'] = 'BannersController';
+$route['insert_banner'] = 'BannersController/insert_banner';
+
+
+
+
+
 $route['actualiza_alumnos_registro'] = 'AlumnosController/actualiza_alumnos_registro';
 $route['alumnos-bloqueados'] = 'AlumnosController/alumnos_bloqueados';
 $route['alumnos_probabilidad_baja/(:any)'] = 'AlumnosController/alumnos_probabilidad_baja/$1';
