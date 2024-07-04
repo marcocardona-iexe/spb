@@ -593,7 +593,8 @@ $(document).ready(function () {
 					data: "ultimo_acceso",
 					render: function (data, type, row) {
 						let tiempo = calcularTiempoRelativo(data);
-						return `${data}/${tiempo}`;
+						let fecha = unixToDate(data);
+						return `${fecha} <b>(${tiempo})</b>`;
 					},
 				},
 				{
@@ -750,6 +751,14 @@ $(document).ready(function () {
 		}
 
 		return tiempoRelativo;
+	};
+
+	window.unixToDate = (unixTimestamp) => {
+		const date = new Date(unixTimestamp * 1000); // Convertir el timestamp de segundos a milisegundos
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses son 0-11, por lo que sumamos 1
+		const day = String(date.getDate()).padStart(2, "0");
+		return `${year}-${month}-${day}`;
 	};
 	window.bloqueados = function () {
 		// Destruir la tabla DataTable actual si ya existe
