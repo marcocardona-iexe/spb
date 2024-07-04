@@ -530,6 +530,11 @@ class AlumnosModel extends CI_Model
             alumnos.estatus_plataforma,
             alumnos.variable_academica,
             alumnos.variable_financiera,
+            alumnos.sexo,
+            alumnos.mes,
+            alumnos.periodo,
+            DATE(FROM_UNIXTIME(alumnos.ultimo_acceso)) AS ultimoacceso,
+            alumnos.telefono,
             CONCAT(consejera.nombre, " ", consejera.apellidos) AS nombre_consejera,
             CONCAT(financiero.nombre, " ", financiero.apellidos) AS nombre_financiero
         ', FALSE);
