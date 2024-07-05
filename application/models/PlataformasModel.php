@@ -919,7 +919,7 @@ ORDER BY
         $data = [];
 
         foreach ($result as $row) {
-            $data[$row['matricula']] = $row['recomendarias_iexe'];
+            $data[strtoupper($row['matricula'])] = strtoupper($row['recomendarias_iexe']);
         }
 
         return $data;
