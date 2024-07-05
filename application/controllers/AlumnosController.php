@@ -1395,19 +1395,21 @@ class AlumnosController extends CI_Controller
         // Definir nombres personalizados para las columnas
         $customColumnNames = [
             'nombre' => 'ALUMNO',
+            'apellidos' => 'APELLIDOS',
             'matricula' => 'MATRICULA',
-            'probabilidad_baja' => 'PROBABILIDAD DE BAJA',
-            'estatus_plataforma' => 'ESTATUS EN PLATAFORMA',
             'correo' => 'CORREO ELECTRONICO',
             'telefono' => 'TELEFONO',
             'sexo' => 'SEXO',
             'mes' => 'MES',
-            'programa' => 'PROGRAMA',
-            'periodo' => 'PERIODO',
-            'ultimoacceso' => 'ÚLTIMO ACCESO',
-            'periodo_mensual' => 'TRIMESTRE/CUATRIMESTRE',
             'nombre_consejera' => 'CONSEJERA',
             'nombre_financiero' => 'ASESOR FINANCIERO',
+            'periodo' => 'PERIODO',
+            'periodo_mensual' => 'TRIMESTRE/CUATRIMESTRE',
+            'complemento' => 'REGISTRO COMPLETO',
+            'ultimoacceso' => 'ÚLTIMO ACCESO',
+            'probabilidad_baja' => 'PROBABILIDAD DE BAJA',
+            'estatus_plataforma' => 'ESTATUS EN PLATAFORMA',
+            'programa' => 'PROGRAMA',
             'variable_academica' => 'VARIABLE ACADEMICA',
             'variable_financiera' => 'VARIABLE FINANCIERA'
         ];
@@ -1471,6 +1473,7 @@ class AlumnosController extends CI_Controller
             // Aplicar estilo de fondo condicional a toda la fila
             if ($backgroundStyle) {
                 $sheet->getStyle('C' . $rowNumber)->applyFromArray($backgroundStyle);
+                $sheet->getStyle('N' . $rowNumber)->applyFromArray($backgroundStyle);
             }
 
             $columnLetter = 'A';

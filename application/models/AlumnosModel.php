@@ -514,8 +514,10 @@ class AlumnosModel extends CI_Model
     {
         $this->db->select('
             alumnos.id,
-            CONCAT(alumnos.nombre, " ", alumnos.apellidos) AS nombre,
+            alumnos.nombre,
+            alumnos.apellidos,
             alumnos.matricula,
+            alumnos.complemento,
             CASE
                 WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Baja R1"
                 WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Baja R2"
