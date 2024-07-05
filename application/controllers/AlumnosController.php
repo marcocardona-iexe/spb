@@ -1643,6 +1643,11 @@ class AlumnosController extends CI_Controller
                     'matricula' => $a->matricula,
                     'complemento' => $data_encuestas[strtoupper($a->matricula)]
                 ];
+            } else {
+                $data_to_update[] = [
+                    'matricula' => $a->matricula,
+                    'complemento' => 'NO'
+                ];
             }
         }
         // Enviar los datos a AlumnosModel para hacer el update_batch
