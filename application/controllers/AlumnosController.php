@@ -6,6 +6,7 @@ include 'materiasactivas.class.php';
 
 require_once APPPATH . 'third_party/phpspreadsheet/vendor/autoload.php';
 
+use PhpOffice\PhpSpreadsheet\Calculation\Statistical\Counts;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 
@@ -1622,5 +1623,28 @@ class AlumnosController extends CI_Controller
         $number = abs($number);
         $precision = pow(10, $precision);
         return floor($number * $precision) / $precision * $negative;
+    }
+
+    public function asigna_complemento()
+    {
+        $alumnos = $this->AlumnosModel->get_all_alumnos();
+        $data_to_update = [];
+
+        // Obtener todas las encuestas
+        $data_encuestas = $this->PlataformasModel->data_encuesta();
+
+        // Preparar los datos para update_batch
+        foreach ($alumnos as $a) {
+            if (isset($data_encuestas[strtoupper($a->matricula)])) {
+                $data_to_update[] = [
+                    'matricula' => $a->matricula,
+                    'complemento' => $data_encuestas[strtoupper($a->matricula)]
+                ];
+            }
+        }
+        // Enviar los datos a AlumnosModel para hacer el update_batch
+        if (!empty($data_to_update)) {
+            $this->AlumnosModel->update_batch_data($data_to_update);
+        }
     }
 }

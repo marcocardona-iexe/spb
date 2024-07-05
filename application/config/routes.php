@@ -111,6 +111,7 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['agregar_usuario'] = 'UsuariosController/agregar_usuario';
 
+$route['asigna_complemento'] = 'AlumnosController/asigna_complemento';
 
 
 // $route['default_controller'] = 'UsuariosController/index';

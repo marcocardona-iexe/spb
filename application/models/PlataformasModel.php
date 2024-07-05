@@ -904,4 +904,24 @@ ORDER BY
     {
         return $this->db->insert('kardex', $data);
     }
+
+
+    public function data_encuesta()
+    {
+        // Cargar la base de datos 'registro'
+        $DBREGISTRO = $this->load->database('registro', TRUE);
+
+        // Ejecutar la consulta SQL directamente
+        $sql = $DBREGISTRO->query("SELECT matricula, COALESCE(recomendarias_iexe, 'No') AS recomendarias_iexe FROM registro WHERE matricula != '' AND matricula NOT LIKE '%inactivo%'");
+
+        // Convertir el resultado en un array con 'matricula' como índice
+        $result = $sql->result_array();
+        $data = [];
+
+        foreach ($result as $row) {
+            $data[$row['matricula']] = $row['recomendarias_iexe'];
+        }
+
+        return $data;
+    }
 }

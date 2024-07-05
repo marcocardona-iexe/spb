@@ -781,4 +781,10 @@ class AlumnosModel extends CI_Model
         ");
         return $query->result();
     }
+
+    // Método para hacer update_batch
+    public function update_batch_data($data)
+    {
+        $this->db->update_batch($this->table, $data, 'matricula');
+    }
 }
