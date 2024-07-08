@@ -40,7 +40,7 @@ $(document).ready(function () {
 						`<i class="fa-solid fa-upload"></i> Subir archivo`
 					);
 					// Manejar la respuesta del servidor
-					var responseObject = JSON.parse(response);
+					var responseObject = response;
 					console.log(responseObject);
 					if (responseObject.status === "error") {
 						var errors = responseObject.errors

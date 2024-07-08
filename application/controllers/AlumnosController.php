@@ -442,7 +442,7 @@ class AlumnosController extends CI_Controller
 
         // Iterar sobre cada alumno activo
         $secciones = array();
-
+ 
         foreach ($infoalumno as $a) {
             $materias_enroladas  = $this->PlataformasModel->get_materia_activas($a->moodleid, strtolower($a->plataforma));
             foreach ($materias_enroladas as $m) {
