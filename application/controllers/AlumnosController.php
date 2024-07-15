@@ -1380,6 +1380,7 @@ class AlumnosController extends CI_Controller
 
     public function descarga_excel()
     {
+        
         // Obtener los datos de los alumnos
         $dataAlumnos = $this->AlumnosModel->reporte_excel_todos();
 

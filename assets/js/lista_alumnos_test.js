@@ -34,8 +34,9 @@ $(document).ready(function () {
 	$("#descargar_seguimientos").on("click", function () {
 		let f_inicial = $("#fecha_inicial").val();
 		let f_final = $("#fecha_final").val();
+		
 		window.open(
-			`https://archivo.iexe.edu.mx/asesores/reporte?fecha_inicial=${f_inicial}&fecha_final=${f_final}`,
+			`seguimiento_excel/${f_inicial}/${f_final}`,
 			"_blank"
 		);
 	});

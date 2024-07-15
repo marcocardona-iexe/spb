@@ -3,6 +3,19 @@
 date_default_timezone_set('America/Mexico_City');
 defined('BASEPATH') or exit('No direct script access allowed');
 
+
+require_once APPPATH . 'third_party/phpspreadsheet/vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Calculation\Statistical\Counts;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+
+
 class SeguimientosController extends CI_Controller
 {
 
@@ -134,5 +147,73 @@ class SeguimientosController extends CI_Controller
                 }
             }
         }
+    }
+
+    public function descarga_segumientos($finicial, $ffinal)
+    {
+
+
+        $dataSeguimientos = $this->HistorialSeguimientosModel->get_historial_fecha($finicial, $ffinal);
+
+
+        $customColumnNames = [
+            'nombre' => 'NOMBRE',
+            'apellidos' => 'APELLIDOS',
+            'correo' => 'CORREO ELECTRONICO',
+            'metodo_contacto' => 'METODO DE CONTACTO',
+            'estatus_seguimiento' => 'ESTATUS DEL SEGUIMIENTO',
+            'estatus_acuerdo' => 'ESTATUS DEL ACUERDO',
+            'comentarios' => 'COMENTARIOS',
+            'matricula' => 'MATRICULA',
+            'insert_date' => 'FECHA'
+        ];
+
+
+        // Crear un nuevo objeto Spreadsheet
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Definir estilo para la cabecera
+        $headerStyle = [
+            'font' => ['bold' => false, 'color' => ['rgb' => 'FFFFFF']], // Cambiar bold a false
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '337ab7']],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
+            'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER]
+        ];
+
+        // Ajustar altura de la fila para simular padding
+        $sheet->getRowDimension(1)->setRowHeight(30);
+
+        // Añadir encabezados personalizados
+        $columnLetter = 'A';
+        foreach ($customColumnNames as $originalName => $customName) {
+            $sheet->setCellValue($columnLetter . '1', $customName);
+            $sheet->getStyle($columnLetter . '1')->applyFromArray($headerStyle);
+            $sheet->getColumnDimension($columnLetter)->setAutoSize(true); // Ajustar el ancho automáticamente
+
+            $columnLetter++;
+        }
+
+
+        $rowNumber = 2;
+
+        foreach ($dataSeguimientos as $row) {
+
+
+            $columnLetter = 'A';
+            foreach ($customColumnNames as $originalName => $customName) {
+                $sheet->setCellValue($columnLetter . $rowNumber, $row->$originalName);
+                $columnLetter++;
+            }
+            $rowNumber++;
+        }
+
+        // Configurar el tipo de respuesta HTTP y enviar el archivo
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Seguimientos-' . date("Y-m-d H:i") . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
     }
 }

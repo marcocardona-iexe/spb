@@ -113,6 +113,7 @@ $route['agregar_usuario'] = 'UsuariosController/agregar_usuario';
 
 $route['asigna_complemento'] = 'AlumnosController/asigna_complemento';
 
+$route['seguimiento_excel/(:any)/(:any)'] = 'SeguimientosController/descarga_segumientos/$1/$2';
 
 // $route['default_controller'] = 'UsuariosController/index';
 // $route['validar_usuario'] = 'UsuariosController/validar_usuario';
