@@ -257,7 +257,23 @@ class AlumnosModel extends CI_Model
 
         $this->db->limit($length, $start);
         $query = $this->db->get();
-        //echo $this->db->last_query();
+        return $query->result();
+    }
+
+
+    public function get_por_probabilidad_baja_total($where)
+    {
+
+        // Llama a la función query_base() para establecer la base de la consulta.
+        $this->query_base();
+
+        // Llama a la función filtro_rol() para aplicar filtros basados en el rol del usuario.
+        $this->filtro_rol();
+
+        $this->db->where($where);
+
+
+        $query = $this->db->get();
         return $query->result();
     }
 
@@ -434,6 +450,7 @@ class AlumnosModel extends CI_Model
         $this->db->from('alumnos');
         // Aplica filtros de rol según la función definida (asumiendo que la función filtro_rol() agrega condiciones adicionales)
         $this->filtro_rol();
+        $this->db->where('is_active', 1);
 
         // Verifica el valor de $probabilidad_baja y aplica las condiciones correspondientes
         if ($probabilidad_baja == 'r1') {

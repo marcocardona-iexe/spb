@@ -34,11 +34,8 @@ $(document).ready(function () {
 	$("#descargar_seguimientos").on("click", function () {
 		let f_inicial = $("#fecha_inicial").val();
 		let f_final = $("#fecha_final").val();
-		
-		window.open(
-			`seguimiento_excel/${f_inicial}/${f_final}`,
-			"_blank"
-		);
+
+		window.open(`seguimiento_excel/${f_inicial}/${f_final}`, "_blank");
 	});
 
 	window.probabilidad_baja = (matricula) => {
@@ -888,4 +885,38 @@ $(document).ready(function () {
 			});
 		});
 	};
+
+	$("#asignacion_consejeras").on("click", function () {
+		$.confirm({
+			title: false,
+			closeIcon: true,
+			type: "blue",
+			content: `
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="formularios_gral needs-validation" novalidate="">
+								<!-- Primera fila -->
+								<div class="row mb-3">
+									<div class="col">
+										<label for="fileInput" class="form-label">Archivo excel</label>
+										<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
+										<div class="invalid-feedback">Por favor, seleccione un archivo Excel válido.</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>`,
+			type: "red",
+			typeAnimated: true,
+			buttons: {
+				tryAgain: {
+					text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
+					btnClass: "btn btn-modal",
+					action: function () {},
+				},
+			},
+		});
+	});
 });

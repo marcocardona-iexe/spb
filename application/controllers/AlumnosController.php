@@ -263,7 +263,7 @@ class AlumnosController extends CI_Controller
             default:
                 return;
         }
-        $this->response_to_datatable('AlumnosModel', 'get_por_probabilidad_baja', 'get_alumnos_where', $where, true);
+        $this->response_to_datatable('AlumnosModel', 'get_por_probabilidad_baja', 'get_por_probabilidad_baja_total', $where, true);
     }
 
 
