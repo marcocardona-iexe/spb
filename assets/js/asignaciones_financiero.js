@@ -91,7 +91,7 @@ $(document).ready(function () {
 			`<div class="spinner-border spinner-border-sm text-light" role="status"></div> Procesando archivo`
 		);
 
-		var inputFile = $("#excel_consejera")[0].files[0];
+		var inputFile = $("#excel_financiero")[0].files[0];
 
 		// Validar que se haya seleccionado un archivo
 		if (inputFile) {
