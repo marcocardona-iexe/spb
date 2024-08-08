@@ -293,7 +293,6 @@ $(document).ready(function () {
                         </div>
                         <div id="error_message" class="text-danger mt-3" style="display: none;">Todos los campos son obligatorios.</div>
                     </div>`;
-
 		$.confirm({
 			title: false,
 
@@ -460,6 +459,27 @@ $(document).ready(function () {
 						}
 					},
 				},
+			},
+			onContentReady: function () {
+				$("#estatus_acuerdo").empty();
+				$("#estatus_acuerdo").append(
+					`<option value="1">Seleccione una opcion</option>`
+				);
+				$.ajax({
+					url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
+					type: "GET", // Método HTTP GET
+					dataType: "json",
+
+					success: function (response) {
+						console.log(response);
+						$.each(response, function (i, e) {
+							$("#estatus_acuerdo").append(
+								`<option value="${e.acuerdo}">${e.acuerdo}</option>`
+							);
+						});
+					},
+					error: function (xhr, status, error) {},
+				});
 			},
 		});
 	};
