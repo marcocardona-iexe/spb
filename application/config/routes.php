@@ -141,3 +141,4 @@ $route['seguimiento_excel/(:any)/(:any)'] = 'SeguimientosController/descarga_seg
 // $route['verificar_seguimientos/(:any)'] = 'SeguimientosController/verificar_seguimientos/$1';
 // $route['guardar_seguimiento/(:any)/(:any)'] = 'SeguimientosController/guardar_seguimiento/$1/$2';
 $route['obtener_acuerdos'] = 'EstatusAcuerdoController/obtener_acuerdos';
+$route['actualiza-promotor'] = "AlumnosController/actualiza_promotor";

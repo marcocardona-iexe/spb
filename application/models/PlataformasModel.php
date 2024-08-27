@@ -465,7 +465,15 @@ class PlataformasModel extends CI_Model
         $materias_activas = $this->db->get("materias_activas")->result();
         ///colocar en la variable $arrconexiones todas las conexiones de las plataformas/////
         $arrconexiones   = array(
-            "mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters"
+            "mapp",
+            "mepp",
+            "mspp",
+            "lic",
+            "maestria",
+            "doctorado",
+            "mige",
+            "iexetec",
+            "masters"
         );
 
         $arr_resultado = array();
@@ -923,5 +931,37 @@ ORDER BY
         }
 
         return $data;
+    }
+
+    public function get_promotores_crm($matriculas)
+    {
+        // Cargar la base de datos "pagos"
+        $dbpagos = $this->load->database("pagos", true);
+
+        $result = [];
+        $chunkSize = 1000; // Tamaño del fragmento
+        $chunks = array_chunk($matriculas, $chunkSize); // Divide el array en fragmentos de tamaño $chunkSize
+
+        foreach ($chunks as $chunk) {
+            // Selecciona los campos necesarios
+            $dbpagos->select('a.idUsuario, CONCAT(a.nombre, " ", a.apellidoPaterno, " ", a.apellidoMaterno) AS promotor, a.correo, c.matricula');
+            $dbpagos->from('usuarios a');
+            $dbpagos->join('clientes b', 'a.idUsuario = b.idPromotor');
+            $dbpagos->join('clientes_academicos c', 'b.idCliente = c.idCliente');
+
+            // Usa where_in para filtrar por las matrículas en el fragmento actual
+            $dbpagos->where_in('c.matricula', $chunk);
+
+            // Ejecuta la consulta
+            $query = $dbpagos->get();
+            $rows = $query->result_array(); // Obtiene los resultados como array asociativo
+
+            // Agrega los resultados al array result usando la matrícula como índice
+            foreach ($rows as $row) {
+                $result[$row['matricula']] = $row;
+            }
+        }
+
+        return $result;
     }
 }

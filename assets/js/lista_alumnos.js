@@ -1,724 +1,252 @@
 $(document).ready(function () {
-    window.consultar = (idmoodle) => {
-        window.open(`detalle-del-alumno/${idmoodle}`, "_blank");
-    };
+	$(
+		"#nombre, #apellidos, #correo, #matricula, #programas, #periodos, #periodos_mensuales, #estatus-plataforma, #consejera, #financiero"
+	).on("keypress", function (e) {
+		if (e.which === 13) {
+			// 13 es el código de la tecla Enter
+			window.busqueda_avanzada();
+		}
+	});
+	$("#ver_todos").on("click", function () {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = `data_tabla_inicial`;
 
-    $("#tbl_alumnos").DataTable({
-        processing: true,
-        serverSide: true,
-        searching: false,
-        pagingType: "simple_numbers",
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
 
-        ajax: {
-            url: "ajax_lista_alumnos",
-            type: "POST",
-        },
-        columns: [
-            {
-                data: "nombre",
-                searchable: true,
-            },
-            {
-                data: "periodo",
-                searchable: true,
-            },
-            {
-                data: "programa",
-                searchable: true,
-            },
-            {
-                data: "periodo_mensual",
-                searchable: true,
-            },
-            {
-                data: "matricula",
-                searchable: true,
-            },
-            {
-                data: "correo",
-                searchable: true,
-            },
-            {
-                data: "probabilidad_baja",
-                render: function (data, type, row) {
-                    let badgeClass = "bg-secondary";
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
 
-                    if (data === "Alta R1") {
-                        badgeClass = "bg-danger";
-                    } else if (data === "Media R2") {
-                        badgeClass = "bg-warning text-dark";
-                    } else if (data === "Baja R3") {
-                        badgeClass = "bg-success";
-                    }
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	});
 
-                    return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
-                },
-                searchable: true, // Habilitar búsqueda para esta columna
-            },
-            {
-                data: "estatus_plataforma",
-                render: function (data, type, row) {
-                    let btnClass = "";
+	window.consultar = (idmoodle) => {
+		window.open(`detalle-del-alumno/${idmoodle}`, "_blank");
+	};
 
-                    if (data === "Bloqueado") {
-                        btnClass = "btn-outline-warning";
-                    } else if (data === "Desbloqueado") {
-                        btnClass = "btn-outline-success";
-                    } else if (data === "Baja temporal") {
-                        btnClass = "btn-outline-danger";
-                    } else if (data === "Baja definitiva") {
-                        btnClass = "btn-outline-danger";
-                    } else if (data === "Activo") {
-                        btnClass = "btn-outline-secondary";
-                    }
+	$("#descargar_seguimientos").on("click", function () {
+		let f_inicial = $("#fecha_inicial").val();
+		let f_final = $("#fecha_final").val();
 
-                    return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
-                },
-                searchable: true, // Habilitar búsqueda para esta columna
-            },
-            {
-                data: "nombre_consejera",
-                render: function (data, type, row) {
-                    console.log(row);
-                    if (row.nombre_consejera == null) {
-                        return `<td class="text-center"><span class="badge sin_asignacion">Sin asignación</span></td>`;
-                    } else {
-                        return `<div class="text-center"><span class="badge consejera">${row.nombre_consejera}</div></div>`;
-                    }
-                },
-                searchable: true, // Habilitar búsqueda para esta columna
-            },
-            {
-                data: "nombre_financiero",
-                render: function (data, type, row) {
-                    console.log(row);
-                    if (row.nombre_consejera === null || row.nombre_consejera === undefined) {
-                        return `<td class="text-center"><span class="badge sin_asignacion">Sin asignación</span></td>`;
-                    } else {
-                        return `<div class="text-center"><span class="badge financiera">${row.nombre_financiero}</div></div>`;
-                    }
-                },
-                searchable: true, // Habilitar búsqueda para esta columna
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    return `
-                    <div class="text-center">
-                        <div class="dropdown">
-                            <button class="btn btn-modal btn-sm dropdown-toggle "  type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-gears"></i> Acciones
-                            </button>
-                            <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
-                                <li><a class="dropdown-item" onclick="consultar('${row.id}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
-                                <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
-                            </ul>
-                        </div>
-                    </div>`;
-                },
-                searchable: true, // Habilitar búsqueda para esta columna
-            },
-        ],
-        order: [[0, "asc"]], // Orden inicial por la primera columna
-        responsive: true,
-        paging: true,
-        pageLength: 10,
-        language: {
-            decimal: ",",
-            emptyTable: "No hay datos disponibles en la tabla",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Mostrando 0 a 0 de 0 registros",
-            infoFiltered: "(filtrado de _MAX_ registros totales)",
-            infoPostFix: "",
-            thousands: ".",
-            lengthMenu: "Mostrar _MENU_ registros por página",
-            loadingRecords: "Cargando...",
-            processing: "Procesando...",
-            search: "Buscar:",
-            zeroRecords: "No se encontraron registros",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior",
-            },
-            aria: {
-                sortAscending: ": activar para ordenar la columna ascendente",
-                sortDescending: ": activar para ordenar la columna descendente",
-            },
-        },
-    });
+		window.open(`seguimiento_excel/${f_inicial}/${f_final}`, "_blank");
+	});
 
-    window.probabilidad_baja = (matricula) => {
-        $.ajax({
-            type: "POST",
-            url: `probabilidad_baja/${matricula}`,
-            dataType: "json",
-            success: function (response) {
-                console.log(response);
-                let actividades = "";
-                const icon_financiero =
-                    response.financiera.variable_financiera == 0
-                        ? '<i class="fa-regular fa-circle-check"></i>'
-                        : '<i class="fa-solid fa-triangle-exclamation"></i>';
+	window.probabilidad_baja = (matricula) => {
+		$.confirm({
+			title: false,
+			closeIcon: true,
+			columnClass: "col-md-8 col-md-offset-2",
+			type: "blue",
+			theme: "Modern",
+			buttons: {
+				ok: {
+					text: "Aceptar",
+					btnClass: "btn btn-info btn-modal",
+					action: function () {},
+				},
+			},
+			content: function () {
+				var self = this;
+				return $.ajax({
+					url: `probabilidad_baja/${matricula}`, // Reemplaza con la URL de tu JSON
+					dataType: "json",
+					method: "POST",
+				})
+				.done(function (response) {
+					console.log(response);
+					let actividades = "";
+					const icon_financiero =
+						response.financiera.variable_financiera == 0
+							? '<i class="fa-regular fa-circle-check"></i>'
+							: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-                const clase_card_financiero =
-                    response.financiera.variable_financiera == 0 ? "bg-success text-white" : "bg-danger text-white";
-                $.each(response.academica.materia[0].actividades, function (i, a) {
-                    if (a.opcional == 1) {
-                        icon = '<i class="fa-regular fa-star"></i>';
-                        fecha_establecida = "";
-                    } else {
-                        icon =
-                            a.notificacion == 0
-                                ? '<i class="fa-regular fa-circle-check"></i>'
-                                : '<i class="fa-solid fa-triangle-exclamation"></i>';
+					console.log(
+						"La variable financiera es " +
+							response.financiera.variable_financiera
+					);
 
-                        fecha_establecida = `(${a.finalizacion})`;
-                    }
-                    actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
-                });
+					console.log(
+						"La variable academica es " + response.academica.variable_academica
+					);
 
-                let body = `
-                <div class="container-fluid">
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header text-start">
-                                    <i class="fa-solid fa-graduation-cap"></i> Historial Académico
-                                </div>
-                                <div class="card-body text-start">
-                                    <p>Materia: ${response.academica.materia[0].fullname}</p>
-                                    <p>
-                                    <ul>
-                                        ${actividades}
-                                    </ul>
-                                    </p>
-                                    <div class="container">
-                                        <div class="row justify-content-center">
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-star"></i>
-                                                <span>Actividad Optativa</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-circle-check"></i>
-                                                <span>Actividad Completada</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                                <span>Actividad Incompleta</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header text-start ${clase_card_financiero}">
-                                    <i class="fa-solid fa-wallet"></i> Información Financiera
-                                </div>
-                                <div class="card-body text-start">
-                                    <p>${response.financiera.message}</p>
-                                    <p>
-                                    <ul>
-                                        <li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
-                                    </ul>
-                                    </p>
-                                    <div class="container">
-                                        <div class="row justify-content-center">
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-regular fa-circle-check"></i>
-                                                <span>Pago al día</span>
-                                            </div>
-                                            <div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
-                                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                                <span>Retraso en pago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+					const clase_card_financiero =
+						response.financiera.variable_financiera == "0"
+							? "modal-success"
+							: "modal-danger";
+					const clase_card_academica =
+						response.academica.variable_academica == "0"
+							? "modal-success"
+							: "modal-danger";
+					$.each(response.academica.materia[0].actividades, function (i, a) {
+						if (a.opcional == 1) {
+							icon = '<i class="fa-regular fa-star"></i>';
+							fecha_establecida = "";
+						} else {
+							icon =
+								a.notificacion == 0
+									? '<i class="fa-regular fa-circle-check"></i>'
+									: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
+							fecha_establecida = `(${a.finalizacion})`;
+						}
+						actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
+					});
 
-                    </div>
-                </div>`;
+					let body = `
+						<div class="container-fluid">
+							<div class="row g-3">
+								<div class="col-md-12">
+									<div class="card">
+										<div class="card-header text-start ${clase_card_academica}">
+											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
+										</div>
+										<div class="card-body text-start">
+											<p>Materia: ${response.academica.materia[0].fullname}</p>
+											<p>
+											<ul>
+												${actividades}
+											</ul>
+											</p>
+											<div class="container">
+												<div class="row justify-content-center">
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-star"></i>
+														<span>Actividad Optativa</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-circle-check"></i>
+														<span>Actividad Completada</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-solid fa-triangle-exclamation"></i>
+														<span>Actividad Incompleta</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="card">
+										<div class="card-header text-start ${clase_card_financiero}">
+											<i class="fa-solid fa-wallet"></i> Información Financiera
+										</div>
+										<div class="card-body text-start">
+											<p>${response.financiera.message}</p>
+											<p>
+											<ul>
+												<li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
+											</ul>
+											</p>
+											<div class="container">
+												<div class="row justify-content-center">
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-regular fa-circle-check"></i>
+														<span>Pago al día</span>
+													</div>
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
+														<i class="fa-solid fa-triangle-exclamation"></i>
+														<span>Retraso en pago</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>`;
+					self.setContent(body);
+				})
+				.fail(function () {
+					self.setContent("Error al cargar los datos.");
+				});
+			},
+		});
+	};
 
-                $.alert({
-                    title: false,
-                    closeIcon: true,
-                    columnClass: "col-md-8 col-md-offset-2",
-                    content: body,
-                    type: "blue",
-                    theme: "Modern",
+	window.buscar_seguimiento = function (tipo) {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = `alumnos_buscar_seguimientos/${tipo}`;
 
-                    buttons: {
-                        ok: {
-                            text: "Aceptar",
-                            btnClass: "btn btn-info btn-modal",
-                            action: function () {},
-                        },
-                    },
-                });
-            },
-        });
-    };
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
 
-    window.buscar_baja = function (probabilidad) {
-        // Mostrar el loading
-        $("#loading").show();
-        $("#contenedor_tabla_alumnos").hide();
-        let URL = ""; // Declarar la variable URL fuera del condicional
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
 
-        // Establecer la URL en función del parámetro de probabilidad
-        if (probabilidad === "r3") {
-            URL = "alumnos_probabilidad_baja/r3";
-        } else if (probabilidad === "r2") {
-            URL = "alumnos_probabilidad_baja/r2";
-        } else if (probabilidad === "r1") {
-            URL = "alumnos_probabilidad_baja/r1";
-        } else {
-            // Manejar caso de probabilidad no válida
-            console.error("Nivel de probabilidad no válido");
-            return;
-        }
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
 
-        // Destruir la tabla DataTable actual
-        $("#tbl_alumnos").DataTable().destroy();
+	window.seguimiento = function (id, periodo) {
+		$.ajax({
+			type: "POST",
+			url: `verificar_seguimientos/${id}`,
+			dataType: "json",
+			success: function (response) {
+				let fila = "";
+				let idseguimento = 0;
+				let historial = "";
+				if (response.status == "active") {
+					console.log(response.seguimiento[0]);
+					idseguimento = response.seguimiento[0]["idseguimiento"];
 
-        // Crear una nueva tabla DataTable con la URL actualizada
-        const table = $("#tbl_alumnos").DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            ajax: {
-                url: URL,
-                type: "GET",
-            },
-            columns: [
-                {
-                    data: "nombre",
-                },
-                {
-                    data: "periodo",
-                },
-                {
-                    data: "programa",
-                },
-                {
-                    data: "periodo_mensual",
-                },
-                {
-                    data: "matricula",
-                },
-                {
-                    data: "correo",
-                },
-                {
-                    data: "probabilidad_baja",
-                    render: function (data, type, row) {
-                        let badgeClass = "bg-secondary";
+					$.each(response.historial, function (i, h) {
+						fila += `
+                        <tr>
+                        <td>${i + 1}</td>
+                        <td>${h.metodo_contacto}</td>
+                        <td>${h.estatus_seguimiento}</td>
+                        <td>${h.estatus_acuerdo}</td>
+                        <td>${h.comentarios}</td>
+                        <td>${h.insert_date}</td>
+                        <td>${h.asesor}</td>
+                        </tr>`;
+					});
+					historial = `
+                    <h6>HISTORIAL DE SEGUIMIENTOS</h6>
+                    <table class="table table-striped table-hover table-bordered table-sm" id="tabla_historial_seguimientos">
+                        <thead style="background:#08384d; color:white;">
+                            <tr>
+                                <td>No</td>
+                                <td>Metodo de Contacto</td>
+                                <td>Estatus de Seguimiento</td>
+                                <td>Acuerdo de Seguimiento</td>
+                                <td>Comentarios</td>
+                                <td>Fecha</td>
+                                <td>Asesor</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${fila}
+                        </tbody>
+                    </table>`;
+				}
+				primerConfirm(idseguimento, id, periodo, historial);
+			},
+		});
+	};
 
-                        if (data === "Alta R1") {
-                            badgeClass = "bg-danger";
-                        } else if (data === "Media R2") {
-                            badgeClass = "bg-warning text-dark";
-                        } else if (data === "Baja R3") {
-                            badgeClass = "bg-success";
-                        }
+	window.cambiarVerde = (id) => {
+		$("#" + id).removeClass("is-invalid");
+		$("#" + id).addClass("is-valid");
+	};
 
-                        return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
-                    },
-                },
-                {
-                    data: "estatus_plataforma",
-                    render: function (data, type, row) {
-                        let btnClass = "";
-
-                        if (data === "Bloqueado") {
-                            btnClass = "btn-outline-warning";
-                        } else if (data === "Desbloqueado") {
-                            btnClass = "btn-outline-success";
-                        } else if (data === "Baja temporal") {
-                            btnClass = "btn-outline-danger";
-                        } else if (data === "Baja definitiva") {
-                            btnClass = "btn-outline-danger";
-                        } else if (data === "Activo") {
-                            btnClass = "btn-outline-secondary";
-                        }
-
-                        return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
-                    },
-                },
-                {
-                    data: "nombre_consejera",
-                    render: function (data, type, row) {
-                        console.log(row);
-                        if (row.nombre_consejera == null) {
-                            return `<td class="text-center"><span class="badge bg-warning text-dark warning " >Sin consejera asiganada</span></td>`;
-                        } else {
-                            return `<div class="text-center">${row.nombre_consejera}</div>`;
-                        }
-                    },
-                },
-                {
-                    data: "nombre_financiero",
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return `
-                    <div class="text-center">
-                        <div class="dropdown">
-                            <button class="btn btn-modal btn-sm dropdown-toggle "  type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-gears"></i> Acciones
-                            </button>
-                            <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
-                                <li><a class="dropdown-item" onclick="consultar('${row.id}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
-                                <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
-                            </ul>
-                        </div>
-                    </div>`;
-                    },
-                },
-            ],
-            order: [[0, "asc"]], // Orden inicial por la primera columna
-
-            responsive: true,
-
-            pageLength: 10,
-            language: {
-                lengthMenu: "Mostrar _MENU_ alumnos por página",
-                zeroRecords: "No se encontraron resultados",
-                info: "Alumnos del _START_ al _END_ de _TOTAL_ alumnos",
-                infoEmpty: "No hay registros disponibles",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                search: "Buscar:",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior",
-                },
-                processing: '<div class="spinner"></div><div class="loading-message">Cargando datos...</div>',
-            },
-        });
-
-        // Ocultar el loading después de cargar los datos
-        table.on("draw", function () {
-            $("#loading").hide();
-            $("#contenedor_tabla_alumnos").show();
-        });
-    };
-
-    window.buscar_seguimiento = function (tipo) {
-        // Mostrar el loading
-        $("#loading").show();
-        $("#contenedor_tabla_alumnos").hide();
-        let URL = `alumnos_buscar_seguimientos/${tipo}`;
-
-        // Destruir la tabla DataTable actual
-        $("#tbl_alumnos").DataTable().destroy();
-
-        // Crear una nueva tabla DataTable con la URL actualizada
-        const table = $("#tbl_alumnos").DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-
-            ajax: {
-                url: URL,
-                type: "GET",
-            },
-            columns: [
-                {
-                    data: "nombre",
-                },
-                {
-                    data: "periodo",
-                },
-                {
-                    data: "programa",
-                },
-                {
-                    data: "periodo_mensual",
-                },
-                {
-                    data: "matricula",
-                },
-                {
-                    data: "correo",
-                },
-                {
-                    data: "probabilidad_baja",
-                    render: function (data, type, row) {
-                        let badgeClass = "bg-secondary";
-
-                        if (data === "Alta R1") {
-                            badgeClass = "bg-danger";
-                        } else if (data === "Media R2") {
-                            badgeClass = "bg-warning text-dark";
-                        } else if (data === "Baja R3") {
-                            badgeClass = "bg-success";
-                        }
-
-                        return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
-                    },
-                },
-                {
-                    data: "estatus_plataforma",
-                    render: function (data, type, row) {
-                        let btnClass = "";
-
-                        if (data === "Bloqueado") {
-                            btnClass = "btn-outline-warning";
-                        } else if (data === "Desbloqueado") {
-                            btnClass = "btn-outline-success";
-                        } else if (data === "Baja temporal") {
-                            btnClass = "btn-outline-danger";
-                        } else if (data === "Baja definitiva") {
-                            btnClass = "btn-outline-danger";
-                        } else if (data === "Activo") {
-                            btnClass = "btn-outline-secondary";
-                        }
-
-                        return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
-                    },
-                },
-                {
-                    data: "nombre_consejera",
-                    render: function (data, type, row) {
-                        console.log(row);
-                        if (row.nombre_consejera == null) {
-                            return `<td class="text-center"><span class="badge bg-warning text-dark warning">Sin consejera asiganada</span></td>`;
-                        } else {
-                            return `<div class="text-center">${row.nombre_consejera}</div>`;
-                        }
-                    },
-                },
-                {
-                    data: "nombre_financiero",
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return `
-                    <div class="text-center">
-                        <div class="dropdown">
-                            <button class="btn btn-modal btn-sm dropdown-toggle "  type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-gears"></i> Acciones
-                            </button>
-                            <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
-                                <li><a class="dropdown-item" onclick="consultar('${row.id}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
-                                <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
-                            </ul>
-                        </div>
-                    </div>`;
-                    },
-                },
-            ],
-            order: [[0, "asc"]], // Orden inicial por la primera columna
-
-            responsive: true,
-
-            pageLength: 10,
-            language: {
-                lengthMenu: "Mostrar _MENU_ alumnos por página",
-                zeroRecords: "No se encontraron resultados",
-                info: "Alumnos del _START_ al _END_ de _TOTAL_ alumnos",
-                infoEmpty: "No hay registros disponibles",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                search: "Buscar:",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior",
-                },
-                processing: '<div class="spinner"></div><div class="loading-message">Cargando datos...</div>',
-            },
-        });
-
-        // Ocultar el loading después de cargar los datos
-        table.on("draw", function () {
-            $("#loading").hide();
-            $("#contenedor_tabla_alumnos").show();
-        });
-    };
-
-    window.busqueda_avanzada = function () {
-        // Obtener los valores de los campos
-        var nombre = $("#nombre").val().trim();
-        var apellidos = $("#apellidos").val().trim();
-        var correo = $("#correo").val().trim();
-        var matricula = $("#matricula").val().trim();
-        var programa = $("#programas").val();
-        var periodo = $("#periodos").val();
-        var periodoMensual = $("#periodos_mensuales").val();
-        var estatusPlataforma = $("#estatus-plataforma").val();
-        var consejera = $("#consejera").val();
-        var financiero = $("#consejera").val(); // Asegúrate de usar un id único para este campo
-
-        if (
-            nombre === "" &&
-            apellidos === "" &&
-            correo === "" &&
-            matricula === "" &&
-            programa === "0" &&
-            periodo === "0" &&
-            periodoMensual === "0" &&
-            estatusPlataforma === "0" &&
-            consejera === "0" &&
-            financiero === "0"
-        ) {
-            $("#alert-busqueda").show();
-            $("#alert-busqueda").fadeOut(3000);
-        } else {
-            // Crear una nueva tabla DataTable con la URL actualizada
-
-            // Destruir la tabla DataTable actual
-            $("#tbl_alumnos").DataTable().destroy();
-            $("#tbl_alumnos").DataTable({
-                processing: true,
-                serverSide: true,
-                searching: false,
-
-                ajax: {
-                    url: `busuqeda_avanzada`,
-                    type: "POST",
-                    data: {
-                        nombre,
-                        apellidos,
-                        correo,
-                        matricula,
-                        programa,
-                        periodo,
-                        periodoMensual,
-                        estatusPlataforma,
-                        consejera,
-                        financiero,
-                    },
-                },
-                columns: [
-                    {
-                        data: "nombre",
-                    },
-                    {
-                        data: "periodo",
-                    },
-                    {
-                        data: "programa",
-                    },
-                    {
-                        data: "periodo_mensual",
-                    },
-                    {
-                        data: "matricula",
-                    },
-                    {
-                        data: "correo",
-                    },
-                    {
-                        data: "probabilidad_baja",
-                        render: function (data, type, row) {
-                            let badgeClass = "bg-secondary";
-
-                            if (data === "Alta R1") {
-                                badgeClass = "bg-danger";
-                            } else if (data === "Media R2") {
-                                badgeClass = "bg-warning text-dark";
-                            } else if (data === "Baja R3") {
-                                badgeClass = "bg-success";
-                            }
-
-                            return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${data}</span></div>`;
-                        },
-                    },
-                    {
-                        data: "estatus_plataforma",
-                        render: function (data, type, row) {
-                            let btnClass = "";
-
-                            if (data === "Bloqueado") {
-                                btnClass = "btn-outline-warning";
-                            } else if (data === "Desbloqueado") {
-                                btnClass = "btn-outline-success";
-                            } else if (data === "Baja temporal") {
-                                btnClass = "btn-outline-danger";
-                            } else if (data === "Baja definitiva") {
-                                btnClass = "btn-outline-danger";
-                            } else if (data === "Activo") {
-                                btnClass = "btn-outline-secondary";
-                            }
-
-                            return `<div class="text-center"><button type="button" class="btn btn-estatus ${btnClass}">${data}</button></div>`;
-                        },
-                    },
-                    {
-                        data: "nombre_consejera",
-                        render: function (data, type, row) {
-                            console.log(row);
-                            if (row.nombre_consejera == null) {
-                                return `<td class="text-center"><span class="badge bg-warning text-dark warning " >Sin consejera asiganada</span></td>`;
-                            } else {
-                                return `<div class="text-center">${row.nombre_consejera}</div>`;
-                            }
-                        },
-                    },
-                    {
-                        data: "nombre_financiero",
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            return `
-                    <div class="text-center">
-                        <div class="dropdown">
-                            <button class="btn btn-modal btn-sm dropdown-toggle "  type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-gears"></i> Acciones
-                            </button>
-                            <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
-                                <li><a class="dropdown-item" onclick="consultar('${row.id}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
-                                <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
-                            </ul>
-                        </div>
-                    </div>`;
-                        },
-                    },
-                ],
-                order: [[0, "asc"]], // Orden inicial por la primera columna
-
-                responsive: true,
-
-                pageLength: 10,
-                language: {
-                    lengthMenu: "Mostrar _MENU_ alumnos por página",
-                    zeroRecords: "No se encontraron resultados",
-                    info: "Alumnos del _START_ al _END_ de _TOTAL_ alumnos",
-                    infoEmpty: "No hay registros disponibles",
-                    infoFiltered: "(filtrado de _MAX_ registros totales)",
-                    search: "Buscar:",
-                    paginate: {
-                        first: "Primero",
-                        last: "Último",
-                        next: "Siguiente",
-                        previous: "Anterior",
-                    },
-                    processing: '<div class="spinner"></div><div class="loading-message">Cargando datos...</div>',
-                },
-            });
-        }
-    };
-});
-
-const cambiarVerde = (id) => {
-    $("#" + id).removeClass("is-invalid");
-    $("#" + id).addClass("is-valid");
-};
-
-const primerConfirm = (idseguimento, id, periodo, historial) => {
-    let formulario_registro = `
+	const primerConfirm = (idseguimento, id, periodo, historial) => {
+		let formulario_registro = `
                     <div class="container-fluid">
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -765,79 +293,78 @@ const primerConfirm = (idseguimento, id, periodo, historial) => {
                         </div>
                         <div id="error_message" class="text-danger mt-3" style="display: none;">Todos los campos son obligatorios.</div>
                     </div>`;
+		$.confirm({
+			title: false,
 
-    $.confirm({
-        title: false,
+			closeIcon: true, // explicitly show the close icon
+			escapeKey: true,
+			content: formulario_registro,
+			theme: "Modern",
+			columnClass: "col-md-8 col-md-offset-2",
+			type: "blue",
+			buttons: {
+				pendiente: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-clock"></i> Pendiente de contacto',
+					action: function () {
+						// Validar los campos
+						let valid = true;
+						let metodo_contacto = $("#m_contacto").val();
+						let estatus_seguimiento = $("#estatus_seguimiento").val();
+						let estatus_acuerdo = $("#estatus_acuerdo").val();
+						let comentarios = $("#comentarios").val().trim();
 
-        closeIcon: true, // explicitly show the close icon
-        escapeKey: true,
-        content: formulario_registro,
-        theme: "Modern",
-        columnClass: "col-md-8 col-md-offset-2",
-        type: "blue",
-        buttons: {
-            pendiente: {
-                btnClass: "btn btn-sm float-end btn-modal",
-                text: '<i class="fa-solid fa-clock"></i> Pendiente de contacto',
-                action: function () {
-                    // Validar los campos
-                    let valid = true;
-                    let metodo_contacto = $("#m_contacto").val();
-                    let estatus_seguimiento = $("#estatus_seguimiento").val();
-                    let estatus_acuerdo = $("#estatus_acuerdo").val();
-                    let comentarios = $("#comentarios").val().trim();
+						if (metodo_contacto == "1") {
+							$("#m_contacto").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#m_contacto").removeClass("is-invalid");
+						}
 
-                    if (metodo_contacto == "1") {
-                        $("#m_contacto").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#m_contacto").removeClass("is-invalid");
-                    }
+						if (estatus_seguimiento == "1") {
+							$("#estatus_seguimiento").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_seguimiento").removeClass("is-invalid");
+						}
 
-                    if (estatus_seguimiento == "1") {
-                        $("#estatus_seguimiento").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#estatus_seguimiento").removeClass("is-invalid");
-                    }
+						if (estatus_acuerdo == "1") {
+							$("#estatus_acuerdo").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_acuerdo").removeClass("is-invalid");
+						}
 
-                    if (estatus_acuerdo == "1") {
-                        $("#estatus_acuerdo").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#estatus_acuerdo").removeClass("is-invalid");
-                    }
+						if (comentarios == "") {
+							$("#comentarios").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#comentarios").removeClass("is-invalid");
+						}
 
-                    if (comentarios == "") {
-                        $("#comentarios").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#comentarios").removeClass("is-invalid");
-                    }
-
-                    if (!valid) {
-                        $("#error_message").show();
-                        return false;
-                    } else {
-                        $("#error_message").hide();
-                        // Aquí manejamos la acción si la validación es correcta
-                        $.ajax({
-                            type: "POST",
-                            url: `guardar_seguimiento/${idseguimento}/activo`,
-                            data: {
-                                metodo_contacto: metodo_contacto,
-                                estatus_seguimiento: estatus_seguimiento,
-                                estatus_acuerdo: estatus_acuerdo,
-                                comentarios: comentarios,
-                                idalumno: id,
-                                periodo: periodo,
-                            },
-                            dataType: "json",
-                            success: function (response) {
-                                console.log(response.message);
-                                $.confirm({
-                                    title: false,
-                                    content: `
+						if (!valid) {
+							$("#error_message").show();
+							return false;
+						} else {
+							$("#error_message").hide();
+							// Aquí manejamos la acción si la validación es correcta
+							$.ajax({
+								type: "POST",
+								url: `guardar_seguimiento/${idseguimento}/activo`,
+								data: {
+									metodo_contacto: metodo_contacto,
+									estatus_seguimiento: estatus_seguimiento,
+									estatus_acuerdo: estatus_acuerdo,
+									comentarios: comentarios,
+									idalumno: id,
+									periodo: periodo,
+								},
+								dataType: "json",
+								success: function (response) {
+									console.log(response.message);
+									$.confirm({
+										title: false,
+										content: `
                                             <div class="container-fluid">
                                                 <div class="row g-3">
                                                     <div class="col-md-12 text-center">
@@ -846,107 +373,129 @@ const primerConfirm = (idseguimento, id, periodo, historial) => {
                                                     </div>
                                                 </div>
                                             </div>`,
-                                    type: "blue",
-                                    buttons: {
-                                        continuar: {
-                                            text: `<i class="fa-solid fa-check"></i> Continuar`,
-                                            btnClass: "btn btn-modal",
-                                            action: function () {},
-                                        },
-                                    },
-                                });
-                            },
-                            error: function () {
-                                $.confirm({
-                                    title: "Error",
-                                    content: "Error de lado del servidor",
-                                    type: "red",
-                                    buttons: {
-                                        ok: {
-                                            text: "OK",
-                                            btnClass: "btn btn-danger",
-                                            action: function () {},
-                                        },
-                                    },
-                                });
-                            },
-                        });
-                    }
-                },
-            },
-            cerrar: {
-                btnClass: "btn btn-sm float-end btn-modal",
-                text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
-                action: function () {
-                    // Validar los campos
-                    let valid = true;
-                    let metodo_contacto = $("#m_contacto").val();
-                    let estatus_seguimiento = $("#estatus_seguimiento").val();
-                    let estatus_acuerdo = $("#estatus_acuerdo").val();
-                    let comentarios = $("#comentarios").val().trim();
+										type: "blue",
+										buttons: {
+											continuar: {
+												text: `<i class="fa-solid fa-check"></i> Continuar`,
+												btnClass: "btn btn-modal",
+												action: function () {},
+											},
+										},
+									});
+								},
+								error: function () {
+									$.confirm({
+										title: "Error",
+										content: "Error de lado del servidor",
+										type: "red",
+										buttons: {
+											ok: {
+												text: "OK",
+												btnClass: "btn btn-danger",
+												action: function () {},
+											},
+										},
+									});
+								},
+							});
+						}
+					},
+				},
+				cerrar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
+					action: function () {
+						// Validar los campos
+						let valid = true;
+						let metodo_contacto = $("#m_contacto").val();
+						let estatus_seguimiento = $("#estatus_seguimiento").val();
+						let estatus_acuerdo = $("#estatus_acuerdo").val();
+						let comentarios = $("#comentarios").val().trim();
 
-                    if (metodo_contacto == "1") {
-                        $("#m_contacto").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#m_contacto").removeClass("is-invalid");
-                    }
+						if (metodo_contacto == "1") {
+							$("#m_contacto").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#m_contacto").removeClass("is-invalid");
+						}
 
-                    if (estatus_seguimiento == "1") {
-                        $("#estatus_seguimiento").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#estatus_seguimiento").removeClass("is-invalid");
-                    }
+						if (estatus_seguimiento == "1") {
+							$("#estatus_seguimiento").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_seguimiento").removeClass("is-invalid");
+						}
 
-                    if (estatus_acuerdo == "1") {
-                        $("#estatus_acuerdo").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#estatus_acuerdo").removeClass("is-invalid");
-                    }
+						if (estatus_acuerdo == "1") {
+							$("#estatus_acuerdo").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#estatus_acuerdo").removeClass("is-invalid");
+						}
 
-                    if (comentarios == "") {
-                        $("#comentarios").addClass("is-invalid");
-                        valid = false;
-                    } else {
-                        $("#comentarios").removeClass("is-invalid");
-                    }
+						if (comentarios == "") {
+							$("#comentarios").addClass("is-invalid");
+							valid = false;
+						} else {
+							$("#comentarios").removeClass("is-invalid");
+						}
 
-                    if (!valid) {
-                        $("#error_message").show();
-                        return false;
-                    } else {
-                        $("#error_message").hide();
-                        // Aquí manejamos la acción si la validación es correcta
+						if (!valid) {
+							$("#error_message").show();
+							return false;
+						} else {
+							$("#error_message").hide();
+							// Aquí manejamos la acción si la validación es correcta
 
-                        segundoConfirm(
-                            metodo_contacto,
-                            estatus_seguimiento,
-                            estatus_acuerdo,
-                            comentarios,
-                            id,
-                            idseguimento
-                        );
-                    }
-                },
-            },
-        },
-    });
-};
+							segundoConfirm(
+								metodo_contacto,
+								estatus_seguimiento,
+								estatus_acuerdo,
+								comentarios,
+								id,
+								idseguimento,
+								periodo
+							);
+						}
+					},
+				},
+			},
+			onContentReady: function () {
+				$("#estatus_acuerdo").empty();
+				$("#estatus_acuerdo").append(
+					`<option value="1">Seleccione una opcion</option>`
+				);
+				$.ajax({
+					url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
+					type: "GET", // Método HTTP GET
+					dataType: "json",
 
-const segundoConfirm = (
-    metodo_contacto,
-    estatus_seguimiento,
-    estatus_acuerdo,
-    comentarios,
-    id,
-    idseguimento,
-    periodo
-) => {
-    $.confirm({
-        title: false,
-        content: `
+					success: function (response) {
+						console.log(response);
+						$.each(response, function (i, e) {
+							$("#estatus_acuerdo").append(
+								`<option value="${e.acuerdo}">${e.acuerdo}</option>`
+							);
+						});
+					},
+					error: function (xhr, status, error) {},
+				});
+			},
+		});
+	};
+
+	const segundoConfirm = (
+		metodo_contacto,
+		estatus_seguimiento,
+		estatus_acuerdo,
+		comentarios,
+		id,
+		idseguimento,
+		periodo
+	) => {
+		$.confirm({
+			title: false,
+			content: `
         <div class="container-fluid">
             <div class="row g-3">
                 <div class="col-md-12 text-center">
@@ -955,37 +504,38 @@ const segundoConfirm = (
                 </div>
             </div>
         </div>`,
-        type: "blue",
-        theme: "Modern",
-        columnClass: "col-md-4 col-md-offset-4",
-        buttons: {
-            regresar: {
-                btnClass: "btn btn-sm float-end btn-modal",
-                text: '<i class="fa-solid fa-arrow-left"></i> Regresar',
-                action: function () {
-                    seguimiento(id, periodo);
-                },
-            },
-            finalizar: {
-                btnClass: "btn btn-sm float-end btn-modal",
-                text: '<i class="fa-solid fa-check-to-slot"></i> Continuar',
-                action: function () {
-                    $.ajax({
-                        type: "POST",
-                        url: `guardar_seguimiento/${idseguimento}/cerrado`,
-                        data: {
-                            metodo_contacto: metodo_contacto,
-                            estatus_seguimiento: estatus_seguimiento,
-                            estatus_acuerdo: estatus_acuerdo,
-                            comentarios: comentarios,
-                            idalumno: id,
-                        },
-                        dataType: "json",
-                        success: function (response) {
-                            console.log(response.message);
-                            $.confirm({
-                                title: false,
-                                content: `
+			type: "blue",
+			theme: "Modern",
+			columnClass: "col-md-4 col-md-offset-4",
+			buttons: {
+				regresar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-arrow-left"></i> Regresar',
+					action: function () {
+						seguimiento(id, periodo);
+					},
+				},
+				finalizar: {
+					btnClass: "btn btn-sm float-end btn-modal",
+					text: '<i class="fa-solid fa-check-to-slot"></i> Continuar',
+					action: function () {
+						$.ajax({
+							type: "POST",
+							url: `guardar_seguimiento/${idseguimento}/cerrado`,
+							data: {
+								metodo_contacto: metodo_contacto,
+								estatus_seguimiento: estatus_seguimiento,
+								estatus_acuerdo: estatus_acuerdo,
+								comentarios: comentarios,
+								idalumno: id,
+								periodo: periodo,
+							},
+							dataType: "json",
+							success: function (response) {
+								console.log(response.message);
+								$.confirm({
+									title: false,
+									content: `
                                             <div class="container-fluid">
                                                 <div class="row g-3">
                                                     <div class="col-md-12 text-center">
@@ -994,123 +544,410 @@ const segundoConfirm = (
                                                     </div>
                                                 </div>
                                             </div>`,
-                                type: "blue",
-                                buttons: {
-                                    continuar: {
-                                        text: `<i class="fa-solid fa-check"></i> Continuar`,
-                                        btnClass: "btn btn-modal",
-                                        action: function () {},
-                                    },
-                                },
-                            });
-                        },
-                        error: function () {
-                            $.confirm({
-                                title: "Error",
-                                content: "Error de lado del servidor",
-                                type: "red",
-                                buttons: {
-                                    ok: {
-                                        text: "OK",
-                                        btnClass: "btn btn-danger",
-                                        action: function () {},
-                                    },
-                                },
-                            });
-                        },
-                    });
-                },
-            },
-        },
-    });
-};
+									type: "blue",
+									buttons: {
+										continuar: {
+											text: `<i class="fa-solid fa-check"></i> Continuar`,
+											btnClass: "btn btn-modal",
+											action: function () {},
+										},
+									},
+								});
+							},
+							error: function () {
+								$.confirm({
+									title: "Error",
+									content: "Error de lado del servidor",
+									type: "red",
+									buttons: {
+										ok: {
+											text: "OK",
+											btnClass: "btn btn-danger",
+											action: function () {},
+										},
+									},
+								});
+							},
+						});
+					},
+				},
+			},
+		});
+	};
 
-const seguimiento = (id, periodo) => {
-    $.ajax({
-        type: "POST",
-        url: `verificar_seguimientos/${id}`,
-        dataType: "json",
-        success: function (response) {
-            let fila = "";
-            let idseguimento = 0;
-            let historial = "";
-            if (response.status == "active") {
-                console.log(response.seguimiento[0]);
-                idseguimento = response.seguimiento[0]["idseguimiento"];
+	function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
+		let ajaxConfig = {
+			url: url,
+			type: "POST", // o "GET" dependiendo de tu aplicación
+		};
+		if (data !== null) {
+			ajaxConfig = {
+				url: url,
+				type: "POST", // o "GET" dependiendo de tu aplicación
+				data: data,
+			};
+		}
+		return $("#tbl_alumnos").DataTable({
+			processing: true,
+			serverSide: true,
+			searching: false,
+			pagingType: "simple_numbers",
+			ajax: ajaxConfig,
+			columns: [
+				{
+					data: "nombre",
+					searchable: true,
+					render: function (data, type, row) {
+						return capitalizeFirstLetters(data);
+					},
+				},
+				{ data: "periodo", searchable: true },
+				{ data: "programa", searchable: true },
+				{ data: "periodo_mensual", searchable: true },
+				{ data: "matricula", searchable: true },
+				{ data: "correo", searchable: true },
+				{ data: "telefono", searchable: true },
+				{
+					data: "ultimo_acceso",
+					render: function (data, type, row) {
+						let tiempo = calcularTiempoRelativo(data);
+						let fecha = unixToDate(data);
+						return `${fecha} <b>(${tiempo})</b>`;
+					},
+				},
+				{
+					data: "probabilidad_baja",
+					render: function (data, type, row) {
+						let badgeClass = "bg-secondary";
+						let estatus = "";
+						if (data === "Alta R1") {
+							badgeClass = "bg-danger";
+							estatus = "Baja R1";
+						} else if (data === "Media R2") {
+							badgeClass = "bg-warning text-dark";
+							estatus = "Baja R2";
+						} else if (data === "Baja R3") {
+							badgeClass = "bg-success";
+							estatus = "Baja R3";
+						}
+						return `<div class="text-center"><span class="badge ${badgeClass} status_probabilidad" onclick="probabilidad_baja('${row.matricula}')">${estatus}</span></div>`;
+					},
+					searchable: true,
+				},
+				{
+					data: "estatus_plataforma",
+					render: function (data, type, row) {
+						let badgeClass = "";
+						if (data === "Bloqueado") {
+							badgeClass = "bg-warning text-dark";
+						} else if (data === "Desbloqueado") {
+							badgeClass = "bg-success";
+						} else if (data === "Baja temporal" || data === "Baja definitiva") {
+							badgeClass = "bg-danger";
+						} else if (data === "Activo") {
+							badgeClass = "bg-info text-white";
+						} else {
+							badgeClass = "bg-secondary";
+						}
+						return `<div class="text-center"><span class="badge ${badgeClass} status_plataforma">${data}</span></div>`;
+					},
+					searchable: true,
+				},
+				{
+					data: "nombre_consejera",
+					render: function (data, type, row) {
+						if (!data) {
+							return `Sin asignación`;
+						} else {
+							return data;
+						}
+					},
+					searchable: true,
+				},
+				{
+					data: "nombre_financiero",
+					render: function (data, type, row) {
+						if (!data) {
+							return `Sin asignación`;
+						} else {
+							return data;
+						}
+					},
+					searchable: true,
+				},
+				{
+					data: "promotor",
+					render: function (data, type, row) {
+						if (!data) {
+							return `-------`;
+						} else {
+							return data;
+						}
+					},
+					searchable: true,
+				},
+				{
+					data: null,
+					render: function (data, type, row) {
+						const notiId = `noti_${row.id}`;
 
-                $.each(response.historial, function (i, h) {
-                    fila += `
-                        <tr>
-                        <td>${i + 1}</td>
-                        <td>${h.metodo_contacto}</td>
-                        <td>${h.estatus_seguimiento}</td>
-                        <td>${h.estatus_acuerdo}</td>
-                        <td>${h.comentarios}</td>
-                        <td>${h.insert_date}</td>
-                        <td>${h.asesor}</td>
-                        </tr>`;
-                });
-                historial = `
-                    <h6>HISTORIAL DE SEGUIMIENTOS</h6>
-                    <table class="table table-striped table-hover table-bordered table-sm" id="tabla_historial_seguimientos">
-                        <thead style="background:#08384d; color:white;">
-                            <tr>
-                                <td>No</td>
-                                <td>Metodo de Contacto</td>
-                                <td>Estatus de Seguimiento</td>
-                                <td>Acuerdo de Seguimiento</td>
-                                <td>Comentarios</td>
-                                <td>Fecha</td>
-                                <td>Asesor</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${fila}
-                        </tbody>
-                    </table>`;
-            }
-            primerConfirm(idseguimento, id, periodo, historial);
-        },
-    });
-};
+						//tiene_seguimiento = verifica_seguimiento_abierto(row.id);
+						// Render inicial con un marcador de posición
+						setTimeout(() => {
+							verifica_seguimiento_abierto(row.id)
+							.then((noti) => {
+								// Actualizar el contenido del dropdown basado en la respuesta AJAX
+								document.getElementById(notiId).innerHTML = noti;
+							})
+							.catch((error) => {
+								console.error("Error verificando seguimiento:", error);
+							});
+						}, 0);
+						return `
+                        <div class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-modal btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-gears"></i> Acciones	
+                                </button>
+								<div class="text-end" id="${notiId}"></div>
+                                <ul class="dropdown-menu" id="element_acciones" aria-labelledby="dropdownMenuButton${row.id}">
+                                    <li><a class="dropdown-item" onclick="consultar('${row.matricula}')"><i class="fa-solid fa-chalkboard-user"></i> Consultar</a></li>
+                                    <li><a class="dropdown-item" onclick="seguimiento('${row.id}', '${row.periodo}')"><i class="fa-brands fa-rocketchat"></i> Seguimiento</a></li>
+                                </ul>
+                            </div>
+                        </div>`;
+					},
+					searchable: true,
+				},
+			],
+			order: [[0, "asc"]], // Orden inicial por la primera columna
+			responsive: true,
+			paging: true,
+			pageLength: 10,
+			language: {
+				decimal: ",",
+				emptyTable: "No hay datos disponibles en la tabla",
+				info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+				infoEmpty: "Mostrando 0 a 0 de 0 registros",
+				infoFiltered: "(filtrado de _MAX_ registros totales)",
+				infoPostFix: "",
+				thousands: ".",
+				lengthMenu: "Mostrar _MENU_ registros por página",
+				loadingRecords: "Cargando...",
+				processing: "Procesando...",
+				search: "Buscar:",
+				zeroRecords: "No se encontraron registros",
+				paginate: {
+					first: "Primero",
+					last: "Último",
+					next: "Siguiente",
+					previous: "Anterior",
+				},
+				aria: {
+					sortAscending: ": activar para ordenar la columna ascendente",
+					sortDescending: ": activar para ordenar la columna descendente",
+				},
+			},
+		});
+	}
 
+	configurarTablaAlumnos();
+	function capitalizeFirstLetters(str) {
+		return str
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+		.join(" ");
+	}
+	window.calcularTiempoRelativo = (timestamp) => {
+		const ahora = new Date();
+		const fecha = new Date(timestamp * 1000);
+		const diferencia = ahora.getTime() - fecha.getTime();
+		const segundos = Math.floor(diferencia / 1000);
 
+		let tiempoRelativo = "";
 
-$(document).on("change", "#programas", function () {
-    const programa = $(this).val();
+		if (segundos < 60) {
+			tiempoRelativo = `Hace ${segundos} segundos`;
+		} else if (segundos < 3600) {
+			const minutos = Math.floor(segundos / 60);
+			tiempoRelativo = `Hace ${minutos} minutos`;
+		} else if (segundos < 86400) {
+			const horas = Math.floor(segundos / 3600);
+			tiempoRelativo = `Hace ${horas} horas`;
+		} else {
+			const dias = Math.floor(segundos / 86400);
+			tiempoRelativo = `Hace ${dias} días`;
+		}
 
-    $.ajax({
-        type: "POST",
-        url: `obtener_periodos_activos/${programa}`,
-        dataType: "json",
-        success: function (response) {
-            let options = "<option value=0>Seleccione un periodo</option>";
-            console.log(response);
-            $("#periodos").empty();
-            $.each(response, function (i, p) {
-                options += `<option>${p.periodo}</option>`;
-            });
-            $("#periodos").append(options);
-        },
-    });
-});
+		return tiempoRelativo;
+	};
 
-$(document).on("change", "#periodos", function () {
-    const periodo = $(this).val();
-    const programa = $("#programas").val();
+	window.unixToDate = (unixTimestamp) => {
+		const date = new Date(unixTimestamp * 1000); // Convertir el timestamp de segundos a milisegundos
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses son 0-11, por lo que sumamos 1
+		const day = String(date.getDate()).padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
+	window.bloqueados = function () {
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos("alumnos-bloqueados");
 
-    $.ajax({
-        type: "POST",
-        url: `obtener_periodos_mensuales_activos/${programa}/${periodo}`,
-        dataType: "json",
-        success: function (response) {
-            let options = "<option value=0>Seleccione un periodo mensual</option>";
-            console.log(response);
-            $("#periodos_mensuales").empty();
-            $.each(response, function (i, p) {
-                options += `<option>${p.periodo_mensual}</option>`;
-            });
-            $("#periodos_mensuales").append(options);
-        },
-    });
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
+
+	window.buscar_baja = function (probabilidad) {
+		$("#loading").show();
+		$("#contenedor_tabla_alumnos").hide();
+		let URL = "";
+
+		if (probabilidad === "r3") {
+			URL = "alumnos_probabilidad_baja/r3";
+		} else if (probabilidad === "r2") {
+			URL = "alumnos_probabilidad_baja/r2";
+		} else if (probabilidad === "r1") {
+			URL = "alumnos_probabilidad_baja/r1";
+		} else {
+			console.error("Nivel de probabilidad no válido");
+			return;
+		}
+
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos(URL);
+
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
+
+	window.busqueda_avanzada = function () {
+		// Obtener los valores de los campos
+		var nombre = $("#nombre").val().trim();
+		var apellidos = $("#apellidos").val().trim();
+		var correo = $("#correo").val().trim();
+		var matricula = $("#matricula").val().trim();
+		var programa = $("#programas").val();
+		var periodo = $("#periodos").val();
+		var periodoMensual = $("#periodos_mensuales").val();
+		var estatusPlataforma = $("#estatus-plataforma").val();
+		var consejera = $("#consejera").val();
+		var financiero = $("#financiero").val(); // Asegúrate de usar un id único para este campo
+
+		if (
+			nombre === "" &&
+			apellidos === "" &&
+			correo === "" &&
+			matricula === "" &&
+			programa === "0" &&
+			periodo === "0" &&
+			periodoMensual === "0" &&
+			estatusPlataforma === "0" &&
+			consejera === "0" &&
+			financiero === "0"
+		) {
+			$("#alert-busqueda").show();
+			$("#alert-busqueda").fadeOut(3000);
+		} else {
+			$("#loading").show();
+			$("#contenedor_tabla_alumnos").hide();
+
+			// Destruir la tabla DataTable actual si ya existe
+			if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+				$("#tbl_alumnos").DataTable().destroy();
+			}
+
+			// Configurar la tabla con la URL específica
+			let data = {
+				nombre,
+				apellidos,
+				correo,
+				matricula,
+				programa,
+				periodo,
+				periodoMensual,
+				estatusPlataforma,
+				consejera,
+				financiero,
+			};
+			const table = configurarTablaAlumnos("busuqeda_avanzada", data);
+
+			// Mostrar la tabla y ocultar el loading después de cargar los datos
+			table.on("draw", function () {
+				$("#loading").hide();
+				$("#contenedor_tabla_alumnos").show();
+			});
+		}
+	};
+
+	window.verifica_seguimiento_abierto = (idAlumno) => {
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				type: "POST",
+				url: "exist_seuimiento_abierto_por_alumno/" + idAlumno,
+				dataType: "json",
+				success: function (response) {
+					let noti = "";
+					if (response.count > 0) {
+						noti = `
+                    <span class="position-absolute top-0 translate-middle p-2 bg-danger border border-light rounded-circle">
+                        <span class="visually-hidden">New alerts</span>
+                    </span>`;
+					}
+					resolve(noti);
+				},
+				error: function (error) {
+					reject(error);
+				},
+			});
+		});
+	};
+
+	// $("#asignacion_consejeras").on("click", function () {
+	// 	$.confirm({
+	// 		title: false,
+	// 		closeIcon: true,
+	// 		type: "blue",
+	// 		content: `
+	// 			<div class="container-fluid">
+	// 				<div class="row">
+	// 					<div class="col-md-12">
+	// 						<div class="formularios_gral needs-validation" novalidate="">
+	// 							<!-- Primera fila -->
+	// 							<div class="row mb-3">
+	// 								<div class="col">
+	// 									<label for="fileInput" class="form-label">Archivo excel</label>
+	// 									<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
+	// 									<div class="invalid-feedback">Por favor, seleccione un archivo Excel válido.</div>
+	// 								</div>
+	// 							</div>
+	// 						</div>
+	// 					</div>
+	// 				</div>
+	// 			</div>`,
+	// 		type: "red",
+	// 		typeAnimated: true,
+	// 		buttons: {
+	// 			tryAgain: {
+	// 				text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
+	// 				btnClass: "btn btn-modal",
+	// 				action: function () {},
+	// 			},
+	// 		},
+	// 	});
+	// });
 });

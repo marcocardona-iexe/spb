@@ -210,7 +210,7 @@ class AlumnosController extends CI_Controller
         $this->load->view('head', array("css" => "assets/css/lista_usuarios.css"));
         $this->load->view('menu', $dataMenu);
         $this->load->view('lista_alumnos', $data);
-        $this->load->view('footer', array("js" => "assets/js/lista_alumnos_test.js"));
+        $this->load->view('footer', array("js" => "assets/js/lista_alumnos.js"));
     }
 
 
@@ -442,7 +442,7 @@ class AlumnosController extends CI_Controller
 
         // Iterar sobre cada alumno activo
         $secciones = array();
- 
+
         foreach ($infoalumno as $a) {
             $materias_enroladas  = $this->PlataformasModel->get_materia_activas($a->moodleid, strtolower($a->plataforma));
             foreach ($materias_enroladas as $m) {
@@ -1380,7 +1380,7 @@ class AlumnosController extends CI_Controller
 
     public function descarga_excel()
     {
-        
+
         // Obtener los datos de los alumnos
         $dataAlumnos = $this->AlumnosModel->reporte_excel_todos();
 
@@ -1654,6 +1654,46 @@ class AlumnosController extends CI_Controller
         // Enviar los datos a AlumnosModel para hacer el update_batch
         if (!empty($data_to_update)) {
             $this->AlumnosModel->update_batch_data($data_to_update);
+        }
+    }
+
+    public function actualiza_promotor()
+    {
+        $dataAlumnos = $this->AlumnosModel->get_todos_activos();
+        echo "<pre>";
+        print_r($dataAlumnos);
+        echo "</pre>";
+        $matriculas = [];
+
+        $array_update = [];
+        foreach ($dataAlumnos as $a) {
+            $matriculas[] = $a->matricula;
+        }
+
+
+        $dataPromotores = $this->PlataformasModel->get_promotores_crm($matriculas);
+        echo "<pre>";
+        print_r($dataPromotores);
+        echo "</pre>";
+        foreach ($dataAlumnos as $a) {
+            if (isset($dataPromotores[strtoupper($a->matricula)])) {
+                $dataPromotor = $dataPromotores[strtoupper($a->matricula)];
+                // Procesa los datos
+            } elseif (isset($dataPromotores[strtolower($a->matricula)])) {
+                // Maneja el caso cuando la matrícula no está en los resultados
+                $dataPromotor = $dataPromotores[strtolower($a->matricula)];
+            }
+            $array_update[] = array(
+                "id" => $a->id,
+                "promotor" => $dataPromotor['promotor'],
+                "correo_promotor" => $dataPromotor['correo']
+            );
+        }
+        echo "<pre>";
+        print_r($array_update);
+        echo "</pre>";
+        if (!empty($array_update)) {
+            $this->AlumnosModel->update_batch($array_update);
         }
     }
 }

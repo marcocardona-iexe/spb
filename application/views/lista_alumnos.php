@@ -23,10 +23,10 @@ foreach ($sesion['roles'] as $rol) {
                             <span class="badge bg-primary notification-badge"><?php echo $total_r3; ?></span> Baja R3
                         </button>
                         <button type="button" class="btn btn-sm btn-warning" onclick="buscar_baja('r2')">
-                            <span class="badge bg-primary notification-badge"><?php echo $total_r2; ?></span> Baja R2
+                            <span class="badge bg-primary notification-badge"><?php echo $total_r2; ?></span> Media R2
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="buscar_baja('r1')">
-                            <span class="badge bg-primary notification-badge"><?php echo $total_r1; ?></span> Baja R1
+                            <span class="badge bg-primary notification-badge"><?php echo $total_r1; ?></span> Alta R1
                         </button>
                         <button type="button" class="btn btn-sm btn-info" onclick="buscar_seguimiento('Cerrado')">
                             <span class="badge bg-primary notification-badge"><?php echo $total_cerrados; ?></span> Sin Seguimiento
@@ -187,25 +187,15 @@ foreach ($sesion['roles'] as $rol) {
                             </div>
                             <div class="col-auto">
                                 <button class="btn btn-sm btn-modal" onclick="window.location.href='<?php echo base_url('descarga_excel'); ?>'"><i class="fa-regular fa-file-excel"></i> Descargar todos</button>
-                            </div>
-                            <div class="col-auto">
+
                                 <button class="btn btn-sm btn-modal" id="ver_todos"><i class="fa-solid fa-eye"></i> Ver todos</button>
+
+                                <!--<button class="btn btn-sm btn-modal" id="asignacion_consejeras"><i class="fa-solid fa-headset"></i> Asing. Consejeras</button>
+
+                                <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-comments-dollar"></i> Asign. Financiera</button>-->
                             </div>
                         </div>
 
-
-
-                        <!-- <div id="loading" class="text-center" style="display: none;">
-                        <div class="loading-text">Cargando información...</div>
-                        <div class="spinner-grow text-primary" role="status">
-                        </div>
-                        <div class="spinner-grow text-primary" role="status">
-                        </div>
-                        <div class="spinner-grow text-primary" role="status">
-                        </div>
-                        <div class="spinner-grow text-primary" role="status">
-                        </div>
-                    </div> -->
                         <div id="contenedor_tabla_alumnos" class="mt-4">
                             <table id="tbl_alumnos" class="order-column table table-striped table-bordered">
                                 <thead>
@@ -222,11 +212,23 @@ foreach ($sesion['roles'] as $rol) {
                                         <th class="text-center cabecera_table">Estatus Plataforma</th>
                                         <th class="text-center cabecera_table">Consejera</th>
                                         <th class="text-center cabecera_table">Asesor financiero</th>
+                                        <th class="text-center cabecera_table">Promotr</th>
                                         <th class="text-center cabecera_table">Acciones</th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
+                        <div class="container-fluid ps-3 pe-3">
+                            <div class="row mt-3">
+                                <div class="col-auto">
+                                    <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-headset"></i></button>
+
+                                    <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-headset"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
