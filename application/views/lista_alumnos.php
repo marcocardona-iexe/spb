@@ -28,12 +28,6 @@ foreach ($sesion['roles'] as $rol) {
                         <button type="button" class="btn btn-sm btn-danger" onclick="buscar_baja('r1')">
                             <span class="badge bg-primary notification-badge"><?php echo $total_r1; ?></span> Alta R1
                         </button>
-                        <button type="button" class="btn btn-sm btn-info" onclick="buscar_seguimiento('Cerrado')">
-                            <span class="badge bg-primary notification-badge"><?php echo $total_cerrados; ?></span> Sin Seguimiento
-                        </button>
-                        <button type="button" class="btn btn-sm btn-warning" onclick="buscar_seguimiento('Abierto')">
-                            <span class="badge bg-primary notification-badge"><?php echo $total_abiertos; ?></span> Seguimiento Abierto
-                        </button>
                     </div>
                 </div>
             </div>
@@ -212,7 +206,7 @@ foreach ($sesion['roles'] as $rol) {
                                         <th class="text-center cabecera_table">Estatus Plataforma</th>
                                         <th class="text-center cabecera_table">Consejera</th>
                                         <th class="text-center cabecera_table">Asesor financiero</th>
-                                        <th class="text-center cabecera_table">Promotr</th>
+                                        <th class="text-center cabecera_table">Promotor</th>
                                         <th class="text-center cabecera_table">Acciones</th>
                                     </tr>
                                 </thead>

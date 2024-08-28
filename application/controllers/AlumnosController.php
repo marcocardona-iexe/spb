@@ -183,11 +183,6 @@ class AlumnosController extends CI_Controller
         $total_r2 = $this->AlumnosModel->no_alumnos_por_probabilidad("r2");
         $total_r3 = $this->AlumnosModel->no_alumnos_por_probabilidad("r3");
 
-        // Obtener el total de alumnos con seguimiento cerrado
-        $total_cerrados = $this->AlumnosModel->obtener_alumnos_sin_seguimiento_cerrado();
-
-        // Obtener el total de alumnos con seguimiento abierto
-        $total_abiertos = $this->AlumnosModel->obtener_total_alumnos_seguimiento_abierto();
 
         // Obtener listas de consejeras y financieros
         $consejeras = $this->UsuariosModel->get_usuario_by_rol(2);
@@ -199,8 +194,6 @@ class AlumnosController extends CI_Controller
             "total_r2" => $total_r2,
             "total_r3" => $total_r3,
             "ver_select" => $ver_select,
-            "total_cerrados" => $total_cerrados,
-            "total_abiertos" => $total_abiertos,
             "consejeras" => $consejeras,
             "financieros" => $financieros,
             "bloqueados" => $bloqueados

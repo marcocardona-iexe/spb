@@ -191,33 +191,48 @@ $(document).ready(function () {
 		});
 	};
 
-	window.seguimiento = function (id, periodo) {
+	window.seguimiento = function (idalumno, periodo) {
+		let url = `obtener-seguimiento-alumno/${idalumno}`;
 		$.ajax({
 			type: "POST",
-			url: `verificar_seguimientos/${id}`,
+			url: url,
 			dataType: "json",
 			success: function (response) {
+				console.log(response);
 				let fila = "";
 				let idseguimento = 0;
 				let historial = "";
-				if (response.status == "active") {
-					console.log(response.seguimiento[0]);
-					idseguimento = response.seguimiento[0]["idseguimiento"];
 
-					$.each(response.historial, function (i, h) {
-						fila += `
+				$.each(response, function (i, s) {
+					fila += `
                         <tr>
                         <td>${i + 1}</td>
-                        <td>${h.metodo_contacto}</td>
-                        <td>${h.estatus_seguimiento}</td>
-                        <td>${h.estatus_acuerdo}</td>
-                        <td>${h.comentarios}</td>
-                        <td>${h.insert_date}</td>
-                        <td>${h.asesor}</td>
+                        <td>${s.metodo_contacto}</td>
+                        <td>${s.estatus_seguimiento}</td>
+                        <td>${s.estatus_acuerdo}</td>
+                        <td>${s.comentarios}</td>
+                        <td>${s.insert_date}</td>
+                        <td>${s.nombre} ${s.apellidos}</td>
                         </tr>`;
-					});
-					historial = `
+				});
+				historial = `
                     <h6>HISTORIAL DE SEGUIMIENTOS</h6>
+					
+					<div class="row justify-content-end align-items-center pt-2 pb-4">
+						<div class="col-auto">
+							<input type="date" class="form-control form-control-sm text-end" aria-label="First name" id="fecha_seg_inicial">
+						</div>
+						<div class="col-auto">
+							<input type="date" class="form-control form-control-sm text-end" aria-label="Last name" id="fecha_seg_final">
+						</div>
+						<div class="col-auto">
+							<button class="btn btn-sm btn-modal" id="buercar_seguimientos_fecha">
+								<i class="fa-solid fa-magnifying-glass"></i> Buscar
+							</button>
+						</div>
+					</div>
+
+					
                     <table class="table table-striped table-hover table-bordered table-sm" id="tabla_historial_seguimientos">
                         <thead style="background:#08384d; color:white;">
                             <tr>
@@ -230,23 +245,13 @@ $(document).ready(function () {
                                 <td>Asesor</td>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="body_seguimientos">
                             ${fila}
                         </tbody>
                     </table>`;
-				}
-				primerConfirm(idseguimento, id, periodo, historial);
-			},
-		});
-	};
+				//primerConfirm(idseguimento, id, periodo, historial);
 
-	window.cambiarVerde = (id) => {
-		$("#" + id).removeClass("is-invalid");
-		$("#" + id).addClass("is-valid");
-	};
-
-	const primerConfirm = (idseguimento, id, periodo, historial) => {
-		let formulario_registro = `
+				let formulario_registro = `
                     <div class="container-fluid">
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -293,78 +298,78 @@ $(document).ready(function () {
                         </div>
                         <div id="error_message" class="text-danger mt-3" style="display: none;">Todos los campos son obligatorios.</div>
                     </div>`;
-		$.confirm({
-			title: false,
+				$.confirm({
+					title: false,
 
-			closeIcon: true, // explicitly show the close icon
-			escapeKey: true,
-			content: formulario_registro,
-			theme: "Modern",
-			columnClass: "col-md-8 col-md-offset-2",
-			type: "blue",
-			buttons: {
-				pendiente: {
-					btnClass: "btn btn-sm float-end btn-modal",
-					text: '<i class="fa-solid fa-clock"></i> Pendiente de contacto',
-					action: function () {
-						// Validar los campos
-						let valid = true;
-						let metodo_contacto = $("#m_contacto").val();
-						let estatus_seguimiento = $("#estatus_seguimiento").val();
-						let estatus_acuerdo = $("#estatus_acuerdo").val();
-						let comentarios = $("#comentarios").val().trim();
+					closeIcon: true, // explicitly show the close icon
+					escapeKey: true,
+					content: formulario_registro,
+					theme: "modern",
+					columnClass: "col-md-10 col-md-offset-1",
+					type: "blue",
+					buttons: {
+						realizar: {
+							btnClass: "btn btn-sm btn-modal",
+							text: '<i class="fa-regular fa-pen-to-square fa-2x"></i> Realizar seguimiento',
+							action: function () {
+								// Validar los campos
+								let valid = true;
+								let metodo_contacto = $("#m_contacto").val();
+								let estatus_seguimiento = $("#estatus_seguimiento").val();
+								let estatus_acuerdo = $("#estatus_acuerdo").val();
+								let comentarios = $("#comentarios").val().trim();
 
-						if (metodo_contacto == "1") {
-							$("#m_contacto").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#m_contacto").removeClass("is-invalid");
-						}
+								if (metodo_contacto == "1") {
+									$("#m_contacto").addClass("is-invalid");
+									valid = false;
+								} else {
+									$("#m_contacto").removeClass("is-invalid");
+								}
 
-						if (estatus_seguimiento == "1") {
-							$("#estatus_seguimiento").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#estatus_seguimiento").removeClass("is-invalid");
-						}
+								if (estatus_seguimiento == "1") {
+									$("#estatus_seguimiento").addClass("is-invalid");
+									valid = false;
+								} else {
+									$("#estatus_seguimiento").removeClass("is-invalid");
+								}
 
-						if (estatus_acuerdo == "1") {
-							$("#estatus_acuerdo").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#estatus_acuerdo").removeClass("is-invalid");
-						}
+								if (estatus_acuerdo == "1") {
+									$("#estatus_acuerdo").addClass("is-invalid");
+									valid = false;
+								} else {
+									$("#estatus_acuerdo").removeClass("is-invalid");
+								}
 
-						if (comentarios == "") {
-							$("#comentarios").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#comentarios").removeClass("is-invalid");
-						}
+								if (comentarios == "") {
+									$("#comentarios").addClass("is-invalid");
+									valid = false;
+								} else {
+									$("#comentarios").removeClass("is-invalid");
+								}
 
-						if (!valid) {
-							$("#error_message").show();
-							return false;
-						} else {
-							$("#error_message").hide();
-							// Aquí manejamos la acción si la validación es correcta
-							$.ajax({
-								type: "POST",
-								url: `guardar_seguimiento/${idseguimento}/activo`,
-								data: {
-									metodo_contacto: metodo_contacto,
-									estatus_seguimiento: estatus_seguimiento,
-									estatus_acuerdo: estatus_acuerdo,
-									comentarios: comentarios,
-									idalumno: id,
-									periodo: periodo,
-								},
-								dataType: "json",
-								success: function (response) {
-									console.log(response.message);
-									$.confirm({
-										title: false,
-										content: `
+								if (!valid) {
+									$("#error_message").show();
+									return false;
+								} else {
+									$("#error_message").hide();
+									// Aquí manejamos la acción si la validación es correcta
+									$.ajax({
+										type: "POST",
+										url: `guardar-seguimiento`,
+										data: {
+											metodo_contacto: metodo_contacto,
+											estatus_seguimiento: estatus_seguimiento,
+											estatus_acuerdo: estatus_acuerdo,
+											comentarios: comentarios,
+											idalumno: idalumno,
+											periodo: periodo,
+										},
+										dataType: "json",
+										success: function (response) {
+											console.log(response.message);
+											$.confirm({
+												title: false,
+												content: `
                                             <div class="container-fluid">
                                                 <div class="row g-3">
                                                     <div class="col-md-12 text-center">
@@ -373,206 +378,155 @@ $(document).ready(function () {
                                                     </div>
                                                 </div>
                                             </div>`,
-										type: "blue",
-										buttons: {
-											continuar: {
-												text: `<i class="fa-solid fa-check"></i> Continuar`,
-												btnClass: "btn btn-modal",
-												action: function () {},
-											},
+												type: "blue",
+												buttons: {
+													continuar: {
+														text: `<i class="fa-solid fa-check"></i> Continuar`,
+														btnClass: "btn btn-modal",
+														action: function () {},
+													},
+												},
+											});
+										},
+										error: function () {
+											$.confirm({
+												title: "Error",
+												content: "Error de lado del servidor",
+												type: "red",
+												buttons: {
+													ok: {
+														text: "OK",
+														btnClass: "btn btn-danger",
+														action: function () {},
+													},
+												},
+											});
 										},
 									});
+								}
+							},
+						},
+						// cerrar: {
+						// 	btnClass: "btn btn-sm float-end btn-modal",
+						// 	text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
+						// 	action: function () {
+						// 		// Validar los campos
+						// 		let valid = true;
+						// 		let metodo_contacto = $("#m_contacto").val();
+						// 		let estatus_seguimiento = $("#estatus_seguimiento").val();
+						// 		let estatus_acuerdo = $("#estatus_acuerdo").val();
+						// 		let comentarios = $("#comentarios").val().trim();
+
+						// 		if (metodo_contacto == "1") {
+						// 			$("#m_contacto").addClass("is-invalid");
+						// 			valid = false;
+						// 		} else {
+						// 			$("#m_contacto").removeClass("is-invalid");
+						// 		}
+
+						// 		if (estatus_seguimiento == "1") {
+						// 			$("#estatus_seguimiento").addClass("is-invalid");
+						// 			valid = false;
+						// 		} else {
+						// 			$("#estatus_seguimiento").removeClass("is-invalid");
+						// 		}
+
+						// 		if (estatus_acuerdo == "1") {
+						// 			$("#estatus_acuerdo").addClass("is-invalid");
+						// 			valid = false;
+						// 		} else {
+						// 			$("#estatus_acuerdo").removeClass("is-invalid");
+						// 		}
+
+						// 		if (comentarios == "") {
+						// 			$("#comentarios").addClass("is-invalid");
+						// 			valid = false;
+						// 		} else {
+						// 			$("#comentarios").removeClass("is-invalid");
+						// 		}
+
+						// 		if (!valid) {
+						// 			$("#error_message").show();
+						// 			return false;
+						// 		} else {
+						// 			$("#error_message").hide();
+						// 			// Aquí manejamos la acción si la validación es correcta
+
+						// 			segundoConfirm(
+						// 				metodo_contacto,
+						// 				estatus_seguimiento,
+						// 				estatus_acuerdo,
+						// 				comentarios,
+						// 				id,
+						// 				idseguimento,
+						// 				periodo
+						// 			);
+						// 		}
+						// 	},
+						// },
+					},
+					onContentReady: function () {
+						$("#estatus_acuerdo").empty();
+						$("#estatus_acuerdo").append(
+							`<option value="1">Seleccione una opcion</option>`
+						);
+						$.ajax({
+							url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
+							type: "GET", // Método HTTP GET
+							dataType: "json",
+
+							success: function (response) {
+								console.log(response);
+								$.each(response, function (i, e) {
+									$("#estatus_acuerdo").append(
+										`<option value="${e.acuerdo}">${e.acuerdo}</option>`
+									);
+								});
+							},
+							error: function (xhr, status, error) {},
+						});
+
+						$("#buercar_seguimientos_fecha").on("click", function () {
+							let fecha_seg_inicial = $("#fecha_seg_inicial").val();
+							let fecha_seg_final = $("#fecha_seg_final").val();
+							$.ajax({
+								type: "POST",
+								url: "filtrar-seguimientos-fecha",
+								data: {
+									fecha_seg_final,
+									fecha_seg_inicial,
+									idalumno,
 								},
-								error: function () {
-									$.confirm({
-										title: "Error",
-										content: "Error de lado del servidor",
-										type: "red",
-										buttons: {
-											ok: {
-												text: "OK",
-												btnClass: "btn btn-danger",
-												action: function () {},
-											},
-										},
+								dataType: "json",
+								success: function (response) {
+									console.log(response);
+									$("#body_seguimientos").empty();
+									let fila = "";
+									$.each(response, function (i, s) {
+										fila += `
+											<tr>
+											<td>${i + 1}</td>
+											<td>${s.metodo_contacto}</td>
+											<td>${s.estatus_seguimiento}</td>
+											<td>${s.estatus_acuerdo}</td>
+											<td>${s.comentarios}</td>
+											<td>${s.insert_date}</td>
+											<td>${s.nombre} ${s.apellidos}</td>
+											</tr>`;
 									});
+									$("#body_seguimientos").append(fila);
 								},
 							});
-						}
-					},
-				},
-				cerrar: {
-					btnClass: "btn btn-sm float-end btn-modal",
-					text: '<i class="fa-solid fa-check-to-slot"></i> Finalizar seguimiento',
-					action: function () {
-						// Validar los campos
-						let valid = true;
-						let metodo_contacto = $("#m_contacto").val();
-						let estatus_seguimiento = $("#estatus_seguimiento").val();
-						let estatus_acuerdo = $("#estatus_acuerdo").val();
-						let comentarios = $("#comentarios").val().trim();
-
-						if (metodo_contacto == "1") {
-							$("#m_contacto").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#m_contacto").removeClass("is-invalid");
-						}
-
-						if (estatus_seguimiento == "1") {
-							$("#estatus_seguimiento").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#estatus_seguimiento").removeClass("is-invalid");
-						}
-
-						if (estatus_acuerdo == "1") {
-							$("#estatus_acuerdo").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#estatus_acuerdo").removeClass("is-invalid");
-						}
-
-						if (comentarios == "") {
-							$("#comentarios").addClass("is-invalid");
-							valid = false;
-						} else {
-							$("#comentarios").removeClass("is-invalid");
-						}
-
-						if (!valid) {
-							$("#error_message").show();
-							return false;
-						} else {
-							$("#error_message").hide();
-							// Aquí manejamos la acción si la validación es correcta
-
-							segundoConfirm(
-								metodo_contacto,
-								estatus_seguimiento,
-								estatus_acuerdo,
-								comentarios,
-								id,
-								idseguimento,
-								periodo
-							);
-						}
-					},
-				},
-			},
-			onContentReady: function () {
-				$("#estatus_acuerdo").empty();
-				$("#estatus_acuerdo").append(
-					`<option value="1">Seleccione una opcion</option>`
-				);
-				$.ajax({
-					url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
-					type: "GET", // Método HTTP GET
-					dataType: "json",
-
-					success: function (response) {
-						console.log(response);
-						$.each(response, function (i, e) {
-							$("#estatus_acuerdo").append(
-								`<option value="${e.acuerdo}">${e.acuerdo}</option>`
-							);
 						});
 					},
-					error: function (xhr, status, error) {},
 				});
 			},
 		});
 	};
 
-	const segundoConfirm = (
-		metodo_contacto,
-		estatus_seguimiento,
-		estatus_acuerdo,
-		comentarios,
-		id,
-		idseguimento,
-		periodo
-	) => {
-		$.confirm({
-			title: false,
-			content: `
-        <div class="container-fluid">
-            <div class="row g-3">
-                <div class="col-md-12 text-center">
-                    <p><i class="fa-solid fa-2x fa-bell"></i></p>
-                        Estás a punto de finalizar el seguimiento<br>¿Deseas continuar?
-                </div>
-            </div>
-        </div>`,
-			type: "blue",
-			theme: "Modern",
-			columnClass: "col-md-4 col-md-offset-4",
-			buttons: {
-				regresar: {
-					btnClass: "btn btn-sm float-end btn-modal",
-					text: '<i class="fa-solid fa-arrow-left"></i> Regresar',
-					action: function () {
-						seguimiento(id, periodo);
-					},
-				},
-				finalizar: {
-					btnClass: "btn btn-sm float-end btn-modal",
-					text: '<i class="fa-solid fa-check-to-slot"></i> Continuar',
-					action: function () {
-						$.ajax({
-							type: "POST",
-							url: `guardar_seguimiento/${idseguimento}/cerrado`,
-							data: {
-								metodo_contacto: metodo_contacto,
-								estatus_seguimiento: estatus_seguimiento,
-								estatus_acuerdo: estatus_acuerdo,
-								comentarios: comentarios,
-								idalumno: id,
-								periodo: periodo,
-							},
-							dataType: "json",
-							success: function (response) {
-								console.log(response.message);
-								$.confirm({
-									title: false,
-									content: `
-                                            <div class="container-fluid">
-                                                <div class="row g-3">
-                                                    <div class="col-md-12 text-center">
-                                                        <p><i class="fa-regular fa-face-smile fa-2x"></i></p>
-                                                            ${response.message}
-                                                    </div>
-                                                </div>
-                                            </div>`,
-									type: "blue",
-									buttons: {
-										continuar: {
-											text: `<i class="fa-solid fa-check"></i> Continuar`,
-											btnClass: "btn btn-modal",
-											action: function () {},
-										},
-									},
-								});
-							},
-							error: function () {
-								$.confirm({
-									title: "Error",
-									content: "Error de lado del servidor",
-									type: "red",
-									buttons: {
-										ok: {
-											text: "OK",
-											btnClass: "btn btn-danger",
-											action: function () {},
-										},
-									},
-								});
-							},
-						});
-					},
-				},
-			},
-		});
+	window.cambiarVerde = (id) => {
+		$("#" + id).removeClass("is-invalid");
+		$("#" + id).addClass("is-valid");
 	};
 
 	function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
@@ -894,6 +848,7 @@ $(document).ready(function () {
 		}
 	};
 
+	//Esta funcion queda pendiente de analizar
 	window.verifica_seguimiento_abierto = (idAlumno) => {
 		return new Promise((resolve, reject) => {
 			$.ajax({

@@ -25,35 +25,28 @@ class SeguimientosController extends CI_Controller
         parent::__construct();
         $this->load->model('AlumnosModel');
         $this->load->model('SeguimientosModel');
-        $this->load->model("HistorialSeguimientosModel");
         $this->load->helper('url');
         $this->load->library('session');
     }
 
-    public function verificar_seguimientos($idalumno)
+    public function filtrar_seguimientos_fecha()
     {
-        // Llamar al método del modelo para verificar los seguimientos
-        $seguimiento = $this->SeguimientosModel->verificar_seguimientos_abiertos($idalumno);
-
-        // Preparar la respuesta según el resultado
-        if (empty($seguimiento)) {
-            $response = array(
-                'status' => 'clean',
-                'seguimiento' => 0
-            );
-        } else {
-            #Revisamos los seguimientos hijos del seguimiento
-            $historial = $this->HistorialSeguimientosModel->get_por_id($seguimiento[0]['idseguimiento']);
-            $response = array(
-                'status' => 'active',
-                'seguimiento' => $seguimiento,
-                'historial' => $historial
-            );
-        }
-
-        // Devolver la respuesta en formato JSON
-        echo json_encode($response);
+        $fecha_seg_final = $this->input->post('fecha_seg_final');
+        $fecha_seg_inicial = $this->input->post('fecha_seg_inicial');
+        $idalumno = $this->input->post('idalumno');
+        $dataSeguimientos = $this->SeguimientosModel->filtrar_seguimientos_fecha($fecha_seg_inicial, $fecha_seg_final, $idalumno);
+        echo json_encode($dataSeguimientos);
     }
+
+
+    public function obtener_seguimiento_alumno($idalumno)
+    {
+        $hoy = date("Y-m-d");
+        $dataSeguimientos = $this->SeguimientosModel->obtener_por_fecha_idalumno($hoy, $idalumno);
+        echo json_encode($dataSeguimientos);
+    }
+
+
 
     public function exist_seuimiento_abierto_por_alumno($idalumno)
     {
@@ -61,110 +54,38 @@ class SeguimientosController extends CI_Controller
         echo json_encode(array("count" => count($dataSeguimiento)));
     }
 
-    public function guardar_seguimiento($idseguimiento, $tipo)
+    public function guardar_seguimiento()
     {
         $sesion = $this->session->userdata('seguimiento_iexe');
 
         $dataSeguimiento = $this->input->post();
-        if ($tipo == 'activo') {
-            if ($idseguimiento == 0) {
-                #Seguimiento abierto
-                $dataInsert = array(
-                    "idusuario_inicio" => $sesion['idusuario'],
-                    "idalumno" => $dataSeguimiento['idalumno'],
-                    "periodo" => $dataSeguimiento['periodo'],
-                    "estatus" => "Abierto"
-                );
-                $response = $this->SeguimientosModel->insert($dataInsert);
-                if ($response != 0) {
-                    unset($dataSeguimiento['idalumno']);
-                    unset($dataSeguimiento['periodo']);
+        $dataSeguimiento['asesor'] = $sesion['idusuario'];
 
-                    $dataSeguimiento['idseguimiento'] = $response;
-                    $dataSeguimiento['asesor'] = $sesion['idusuario'];
+        $response = $this->SeguimientosModel->insert($dataSeguimiento);
 
-                    $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
-                    echo ($response != 0) ?
-                        json_encode(array("status" => "OK", "message" => "Seguimiento generado correctamente")) :
-                        json_encode(array("status" => "BAD", "message" => "Problemas al guardar el seguimiento."));
-                }
-            } else {
-                unset($dataSeguimiento['idalumno']);
-                unset($dataSeguimiento['periodo']);
-
-                $dataSeguimiento['idseguimiento'] = $idseguimiento;
-                $dataSeguimiento['asesor'] = $sesion['idusuario'];
-
-                $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
-                echo ($response != 0) ?
-                    json_encode(array("status" => "OK", "message" => "Seguimiento generado correctamente")) :
-                    json_encode(array("status" => "BAD", "message" => "Problemas al guardar el seguimiento."));
-            }
-        } else if ($tipo == 'cerrado') {
-            if ($idseguimiento == 0) {
-                $dataInsert = array(
-                    "idusuario_inicio" => $sesion['idusuario'],
-                    "idalumno" => $dataSeguimiento['idalumno'],
-                    "periodo" => $dataSeguimiento['periodo'],
-                    "estatus" => "Cerrado",
-                    "idusuario_finalizo" => $sesion['idusuario'],
-                );
-                $response = $this->SeguimientosModel->insert($dataInsert);
-                if ($response != 0) {
-                    unset($dataSeguimiento['idalumno']);
-                    unset($dataSeguimiento['periodo']);
-
-                    $dataSeguimiento['idseguimiento'] = $response;
-                    $dataSeguimiento['asesor'] = $sesion['idusuario'];
-
-                    $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
-                    echo ($response != 0) ?
-                        json_encode(array("status" => "OK", "message" => "Seguimiento generado correctamente")) :
-                        json_encode(array("status" => "BAD", "message" => "Problemas al guardar el seguimiento."));
-                }
-                $dataUpdate = array(
-                    "idusuario_finalizo" => $sesion['idusuario'],
-                    "estatus" => "Cerrado"
-                );
-                $response = $this->SeguimientosModel->update_id($idseguimiento, $dataUpdate);
-            } else {
-                $dataUpdate = array(
-                    "idusuario_finalizo" => $sesion['idusuario'],
-                    "estatus" => "Cerrado"
-                );
-                $response = $this->SeguimientosModel->update_id($idseguimiento, $dataUpdate);
-                if ($response != 0) {
-                    unset($dataSeguimiento['idalumno']);
-                    unset($dataSeguimiento['periodo']);
-
-                    $dataSeguimiento['idseguimiento'] = $idseguimiento;
-                    $dataSeguimiento['asesor'] = $sesion['idusuario'];
-
-                    $response = $this->HistorialSeguimientosModel->insert($dataSeguimiento);
-                    echo ($response != 0) ?
-                        json_encode(array("status" => "OK", "message" => "Seguimiento cerrado correctamente")) :
-                        json_encode(array("status" => "BAD", "message" => "Problemas al guardar el seguimiento."));
-                }
-            }
-        }
+        echo ($response != 0) ?
+            json_encode(array("status" => "OK", "message" => "Seguimiento generado correctamente")) :
+            json_encode(array("status" => "BAD", "message" => "Problemas al guardar el seguimiento."));
     }
 
     public function descarga_segumientos($finicial, $ffinal)
     {
 
 
-        $dataSeguimientos = $this->HistorialSeguimientosModel->get_historial_fecha($finicial, $ffinal);
+        $dataSeguimientos = $this->SeguimientosModel->reporte_excel($finicial, $ffinal);
 
 
         $customColumnNames = [
-            'nombre' => 'NOMBRE',
-            'apellidos' => 'APELLIDOS',
-            'correo' => 'CORREO ELECTRONICO',
+            'nombre' => 'NOMBRE ALUMNO',
+            'apellidos' => 'APELLIDOS ALUMNO',
+            'matricula' => 'MATRICULA',
+            'periodo' => 'PERIODO DEL SEGUIMIENTO',
             'metodo_contacto' => 'METODO DE CONTACTO',
             'estatus_seguimiento' => 'ESTATUS DEL SEGUIMIENTO',
             'estatus_acuerdo' => 'ESTATUS DEL ACUERDO',
             'comentarios' => 'COMENTARIOS',
-            'matricula' => 'MATRICULA',
+            'nombreusuario' => 'USUARIO DEL SEGUIMIENTO',
+            'correo' =>'CORREO DEL USUARIO',
             'insert_date' => 'FECHA'
         ];
 

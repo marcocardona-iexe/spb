@@ -10,18 +10,7 @@ class SeguimientosModel extends CI_Model
         $this->table = 'seguimientos'; // Nombre de la tabla
     }
 
-    public function verificar_seguimientos_abiertos($idalumno)
-    {
-        // Construir la consulta
-        $this->db->select('*');
-        $this->db->from($this->table);
-        $this->db->where('idalumno', $idalumno);
-        $this->db->where('estatus', 'Abierto');
-        $query = $this->db->get();
 
-        // Retornar el resultado de la consulta
-        return $query->result_array();
-    }
 
     public function insert($data)
     {
@@ -42,5 +31,65 @@ class SeguimientosModel extends CI_Model
         } else {
             return 0;
         }
+    }
+    public function obtener_por_fecha_idalumno($fecha, $idAlumno)
+    {
+        // Construir la consulta
+        $this->db->select('seguimientos.*, usuarios.nombre, usuarios.apellidos, usuarios.correo');
+        $this->db->from('seguimientos');
+        $this->db->join('usuarios', 'seguimientos.asesor = usuarios.id');
+        $this->db->where('DATE(seguimientos.insert_date)', $fecha); // Comparar solo la parte de la fecha
+        $this->db->where('idalumno', $idAlumno);
+
+        // Ejecutar la consulta
+        $query = $this->db->get();
+
+        // Retornar el resultado
+        return $query->result();
+    }
+
+    public function filtrar_seguimientos_fecha($fechaInicio, $fechaFin, $idAlumno)
+    {
+        // Construir la consulta
+        $this->db->select('seguimientos.*, usuarios.nombre, usuarios.apellidos, usuarios.correo');
+        $this->db->from('seguimientos');
+        $this->db->join('usuarios', 'seguimientos.asesor = usuarios.id');
+        $this->db->where('DATE(seguimientos.insert_date) >=', $fechaInicio); // Fecha de inicio
+        $this->db->where('DATE(seguimientos.insert_date) <=', $fechaFin); // Fecha de fin
+        $this->db->where('idalumno', $idAlumno);
+
+        // Ejecutar la consulta
+        $query = $this->db->get();
+        // Retornar el resultado
+        return $query->result();
+    }
+
+    public function reporte_excel($finicial, $ffinal)
+    {
+        $this->db->select('
+            alumnos.nombre,
+            alumnos.apellidos,
+            alumnos.matricula,
+            seguimientos.periodo,
+            seguimientos.metodo_contacto,
+            seguimientos.estatus_seguimiento,
+            seguimientos.estatus_acuerdo,
+            seguimientos.comentarios,
+            CONCAT(usuarios.nombre, " ", usuarios.apellidos) as nombreusuario,
+            usuarios.correo,
+            seguimientos.insert_date
+        ');
+        $this->db->from('seguimientos');
+        $this->db->join('usuarios', 'seguimientos.asesor = usuarios.id');
+        $this->db->join('alumnos', 'seguimientos.idalumno = alumnos.id');
+        $this->db->where('DATE(seguimientos.insert_date) >=', $finicial);
+        $this->db->where('DATE(seguimientos.insert_date) <=', $ffinal);
+        $this->db->where('alumnos.is_active', 1);
+
+        // Ejecutar la consulta
+        $query = $this->db->get();
+
+        // Retornar el resultado
+        return $query->result();
     }
 }

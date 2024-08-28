@@ -86,8 +86,10 @@ $route['busuqeda_avanzada'] = 'AlumnosController/busuqeda_avanzada';
 
 
 #Ruta para verificar los seguimientos que tienen un alumno y usarlos en el modal
-$route['verificar_seguimientos/(:any)'] = 'SeguimientosController/verificar_seguimientos/$1';
-$route['guardar_seguimiento/(:any)/(:any)'] = 'SeguimientosController/guardar_seguimiento/$1/$2';
+$route['obtener-seguimiento-alumno/(:any)'] = 'SeguimientosController/obtener_seguimiento_alumno/$1'; //Actualizadas
+$route['guardar-seguimiento'] = 'SeguimientosController/guardar_seguimiento'; //Actualizadas
+$route['filtrar-seguimientos-fecha'] = 'SeguimientosController/filtrar_seguimientos_fecha'; //Actualizadas
+
 $route['obtener_periodos_activos_consejeras/(:any)'] = 'AlumnosController/obtener_periodos_activos_consejeras/$1';
 $route['obtener_periodos_activos/(:any)'] = 'AlumnosController/obtener_periodos_activos/$1';
 $route['asignar_consejera_masivo'] = 'AlumnosController/asignar_consejera_masivo';
@@ -138,7 +140,6 @@ $route['seguimiento_excel/(:any)/(:any)'] = 'SeguimientosController/descarga_seg
 // $route['variable_academica/(:any)'] = 'AlumnosController/variable_academica/$1';
 // $route['variable_financiera'] = 'AlumnosController/variable_financiera';
 
-// $route['verificar_seguimientos/(:any)'] = 'SeguimientosController/verificar_seguimientos/$1';
 // $route['guardar_seguimiento/(:any)/(:any)'] = 'SeguimientosController/guardar_seguimiento/$1/$2';
 $route['obtener_acuerdos'] = 'EstatusAcuerdoController/obtener_acuerdos';
 $route['actualiza-promotor'] = "AlumnosController/actualiza_promotor";

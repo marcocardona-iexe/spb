@@ -386,61 +386,8 @@ class AlumnosModel extends CI_Model
     }
 
 
-    // Método para contar el total de alumnos con seguimiento cerrado
-    public function obtener_alumnos_sin_seguimiento_cerrado()
-    {
-        // Selecciona el conteo de todos los alumnos como total_alumnos
-        $this->db->select('COUNT(*) AS total_alumnos');
 
-        // Establece la tabla desde la cual se va a realizar la consulta
-        $this->db->from('alumnos');
 
-        // Añade una condición WHERE sin escapar. La condición verifica que:
-        // 1. El id del alumno no está en los seguimientos con estatus "Cerrado"
-        // 2. O que el conteo de seguimientos para un alumno específico es igual a 0 (no hay seguimientos)
-        $this->db->where('(
-        alumnos.id NOT IN (SELECT idalumno FROM seguimientos WHERE estatus = "Cerrado") 
-            OR (SELECT COUNT(*) FROM seguimientos WHERE seguimientos.idalumno = alumnos.id) = 0
-        )', NULL, FALSE);
-
-        // Aplica filtros adicionales según el rol del usuario actual.
-        // Es probable que esta función agregue condiciones WHERE adicionales.
-        $this->filtro_rol();
-
-        // Ejecuta la consulta y obtiene el resultado
-        $query = $this->db->get();
-
-        // Obtiene una sola fila del resultado como un objeto
-        $result = $query->row();
-
-        // Devuelve el total de alumnos sin seguimiento cerrado
-        return $result->total_alumnos;
-    }
-
-    // Método para contar el total de alumnos con seguimiento abierto
-    public function obtener_total_alumnos_seguimiento_abierto()
-    {
-        // Selecciona el conteo de alumnos distintos que tienen seguimientos abiertos
-        $this->db->select('COUNT(DISTINCT alumnos.id) AS total_abiertos');
-
-        // Establece la tabla principal desde la cual se realizará la consulta
-        $this->db->from('alumnos');
-
-        // Realiza una unión izquierda con la tabla 'seguimientos' basada en la igualdad de ids
-        $this->db->join('seguimientos', 'alumnos.id = seguimientos.idalumno', 'left');
-
-        // Agrega una condición WHERE para filtrar los seguimientos que están 'Abiertos'
-        $this->db->where('seguimientos.estatus', 'Abierto');
-
-        // Aplica filtros adicionales basados en el rol actual del usuario
-        $this->filtro_rol();
-
-        // Ejecuta la consulta y obtiene el resultado
-        $query = $this->db->get();
-
-        // Devuelve el valor de 'total_abiertos' obtenido de la fila del resultado
-        return $query->row()->total_abiertos;
-    }
 
     // Método para contar el total de alumnos según el nivel de probabilidad
     public function no_alumnos_por_probabilidad($probabilidad_baja)
