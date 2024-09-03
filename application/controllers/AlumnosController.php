@@ -1437,6 +1437,7 @@ class AlumnosController extends CI_Controller
         $rowNumber = 2;
         foreach ($dataAlumnos as $row) {
             // Aplicar color de fondo según probabilidad_baja
+            $row['programa'] = $row['programa'] == 'MCD' ? 'MCDA' : $row['programa'];
             switch ($row['probabilidad_baja']) {
                 case 'Baja R3':
                     $backgroundStyle = [
