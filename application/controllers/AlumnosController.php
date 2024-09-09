@@ -96,54 +96,57 @@ class AlumnosController extends CI_Controller
         // Iterar sobre los alumnos de las plataformas externas
         foreach ($alumnos_plataformas as $ap) {
             // Crear un ID único para cada alumno basado en su programa y moodleid
-            $creacion_id = $ap->programa . $ap->moodleid;
 
-            // Agregar el ID a $array_in
-            $array_in[] = $creacion_id;
+            if ($ap->username != 'mapp24x001' && $ap->username != 'mige24x001') {
+                $creacion_id = $ap->programa . $ap->moodleid;
 
-            // Verificar si el ID existe en la lista de alumnos de la base de datos local
-            if (in_array($creacion_id, $alumnos_prediccion)) {
-                // Si el ID existe, actualizar los datos del alumno
-                $dataUpdate[] = array(
-                    "id" => $creacion_id,
-                    "moodleid" => $ap->moodleid,
-                    "plataforma" => $ap->plataforma,
-                    "programa" => $ap->programa,
-                    "matricula" => $ap->username,
-                    "nombre" => $ap->firstname,
-                    "apellidos" => $ap->lastname,
-                    "sexo" => $ap->sexo,
-                    "mes" => $ap->mes,
-                    "correo" => $ap->email,
-                    "primer_Acceso" => $ap->firstaccess,
-                    "ultimo_Acceso" => $ap->lastaccess,
-                    "estatus_plataforma" => $ap->estatus_plataforma,
-                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
-                    "periodo" => $ap->periodo,
-                    "is_active" => 1
-                );
-            } else {
-                // Si el ID no existe, agregar los datos del alumno como nuevo
-                $dataInsert[] = array(
-                    "id" => $creacion_id,
-                    "moodleid" => $ap->moodleid,
-                    "plataforma" => $ap->plataforma,
-                    "programa" => $ap->programa,
-                    "matricula" => $ap->username,
-                    "nombre" => $ap->firstname,
-                    "apellidos" => $ap->lastname,
-                    "sexo" => $ap->sexo,
-                    "mes" => $ap->mes,
-                    "correo" => $ap->email,
-                    "primer_Acceso" => $ap->firstaccess,
-                    "ultimo_Acceso" => $ap->lastaccess,
-                    "estatus_plataforma" => $ap->estatus_plataforma,
-                    "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
-                    "periodo" => $ap->periodo,
-                    "is_active" => 1,
-                    "variable_academica" => 0,
-                    "variable_financiera" => 0
-                );
+                // Agregar el ID a $array_in
+                $array_in[] = $creacion_id;
+
+                // Verificar si el ID existe en la lista de alumnos de la base de datos local
+                if (in_array($creacion_id, $alumnos_prediccion)) {
+                    // Si el ID existe, actualizar los datos del alumno
+                    $dataUpdate[] = array(
+                        "id" => $creacion_id,
+                        "moodleid" => $ap->moodleid,
+                        "plataforma" => $ap->plataforma,
+                        "programa" => $ap->programa,
+                        "matricula" => $ap->username,
+                        "nombre" => $ap->firstname,
+                        "apellidos" => $ap->lastname,
+                        "sexo" => $ap->sexo,
+                        "mes" => $ap->mes,
+                        "correo" => $ap->email,
+                        "primer_Acceso" => $ap->firstaccess,
+                        "ultimo_Acceso" => $ap->lastaccess,
+                        "estatus_plataforma" => $ap->estatus_plataforma,
+                        "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
+                        "periodo" => $ap->periodo,
+                        "is_active" => 1
+                    );
+                } else {
+                    // Si el ID no existe, agregar los datos del alumno como nuevo
+                    $dataInsert[] = array(
+                        "id" => $creacion_id,
+                        "moodleid" => $ap->moodleid,
+                        "plataforma" => $ap->plataforma,
+                        "programa" => $ap->programa,
+                        "matricula" => $ap->username,
+                        "nombre" => $ap->firstname,
+                        "apellidos" => $ap->lastname,
+                        "sexo" => $ap->sexo,
+                        "mes" => $ap->mes,
+                        "correo" => $ap->email,
+                        "primer_Acceso" => $ap->firstaccess,
+                        "ultimo_Acceso" => $ap->lastaccess,
+                        "estatus_plataforma" => $ap->estatus_plataforma,
+                        "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
+                        "periodo" => $ap->periodo,
+                        "is_active" => 1,
+                        "variable_academica" => 0,
+                        "variable_financiera" => 0
+                    );
+                }
             }
         }
 

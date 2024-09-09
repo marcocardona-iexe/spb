@@ -444,6 +444,17 @@ class PlataformasModel extends CI_Model
                     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
 					and (c.instanceid in(" . $materias_activas . ")) 
 					and b.roleid = 5");
+                    // echo "
+					// SELECT distinct(a.id) as userid, a.username,a.firstname
+					// from mdl_user a 
+					// inner join mdl_role_assignments b on a.id=b.userid		
+					// inner join mdl_context c on b.contextid=c.id 		
+					// inner join mdl_user_info_data d on d.userid=a.id		
+					// inner join mdl_user_info_field e on  e.id=d.fieldid
+					// where c.contextlevel = 50 
+                    // and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
+					// and (c.instanceid in(" . $materias_activas . ")) 
+					// and b.roleid = 5";
                 ///*AND a.username NOT LIKE 'inactivo%'*/
                 $ids = array();
 
@@ -454,7 +465,7 @@ class PlataformasModel extends CI_Model
                 $resultado_final[$conexion] = $ids;
             }
         }
-
+        //die;
         return $resultado_final;
     }
 
