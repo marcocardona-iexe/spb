@@ -97,10 +97,10 @@ $route['verifica_financiero_alumno'] = 'AlumnosController/verifica_financiero_al
 $route['asignar_financiero_matricula'] = 'AlumnosController/asignar_financiero_matricula';
 $route['obtener_periodos_mensuales_activos/(:any)/(:any)'] = 'AlumnosController/obtener_periodos_mensuales_activos/$1/$2';
 $route['obtener_datos_alumnos_ajax_dashboard'] = 'AlumnosController/obtener_datos_alumnos_ajax_dashboard';
-// $route['asignaciones-financiero'] = 'AlumnosController/asignaciones_financiero';
+$route['asignaciones-financiero'] = 'AlumnosController/asignaciones_financiero';
 $route['financiero_masivo'] = 'AlumnosController/financiero_masivo';
 $route['consejera_masiva'] = 'AlumnosController/consejera_masiva';
-// $route['asignaciones-consejeras'] = 'AlumnosController/asignaciones_consejeras';
+$route['asignaciones-consejeras'] = 'AlumnosController/asignaciones_consejeras';
 
 #Muestra la probabilidad de baja del alumno
 $route['probabilidad_baja/(:any)'] = 'AlumnosController/probabilidad_baja/$1';
