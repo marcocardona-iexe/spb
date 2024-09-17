@@ -100,7 +100,7 @@ $route['obtener_datos_alumnos_ajax_dashboard'] = 'AlumnosController/obtener_dato
  $route['asignaciones-financiero'] = 'AlumnosController/asignaciones_financiero';
 $route['financiero_masivo'] = 'AlumnosController/financiero_masivo';
 $route['consejera_masiva'] = 'AlumnosController/consejera_masiva';
-//$route['asignaciones-consejeras'] = 'AlumnosController/asignaciones_consejeras';
+$route['asignaciones-consejeras'] = 'AlumnosController/asignaciones_consejeras';
 
 #Muestra la probabilidad de baja del alumno
 $route['probabilidad_baja/(:any)'] = 'AlumnosController/probabilidad_baja/$1';
