@@ -1825,7 +1825,7 @@ class AlumnosController extends CI_Controller
             $response = [
                 'matricula' => $matricula,
                 'status_actividad' => $encontroCalificacion,
-                'message' => "No se encuentra la matricula registrada en plataforma",
+                'message' => "Datos enviados correctamente",
                 'status' => 1
             ];
         } else {
