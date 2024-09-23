@@ -277,7 +277,7 @@ class AlumnosController extends CI_Controller
 
         $siglas = (count($programa) > 0) ? $programa[0] : "";
         switch (strtolower($siglas)) {
-                #LICENCIATURAS
+                #lic
             case 'lce':
                 $arr_tipo  = $dataMaterias->lic($matricula);
                 break;
@@ -1692,5 +1692,152 @@ class AlumnosController extends CI_Controller
         if (!empty($array_update)) {
             $this->AlumnosModel->update_batch($array_update);
         }
+    }
+
+
+
+    public function get_status_actividades_realizadas($matricula)
+    {
+        $encontroCalificacion = false;
+        preg_match('/[^0-9]+/', $matricula, $programa);
+        $siglas = (count($programa) > 0) ? $programa[0] : "";
+        $conexionMap = [
+            'lce' => 'lic',
+            'lae' => 'lic',
+            'ld' => 'lic',
+            'lsp' => 'lic',
+            'lcpap' => 'lic',
+            'mapp' => 'mapp',
+            'mepp' => 'mepp',
+            'mspp' => 'mspp',
+            'man' => 'maestria',
+            'mfp' => 'maestria',
+            'mige' => 'mige',
+            'mcda' => 'iexetec',
+            'mcdia' => 'iexetec',
+            'mba' => 'iexetec',
+            'miti' => 'iexetec',
+            'mais' => 'masters',
+            'mgpm' => 'masters',
+            'mspajo' => 'masters',
+            'mmpop' => 'masters',
+            'mag' => 'masters',
+            'dsp' => 'doctorado',
+            'dpp' => 'doctorado'
+        ];
+        $siglasLower = strtolower($siglas);
+        $plataforma = $conexionMap[$siglasLower] ?? 0;
+
+
+        if ($plataforma === 0) {
+            $response = [
+                'matricula' => $matricula,
+                'status_actividad' => $encontroCalificacion,
+                'message' => "Matricula no encontrada",
+                'status' => 0
+            ];
+            // Devolver la respuesta en formato JSON
+            $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(200)
+                ->set_output(json_encode($response));
+            return;
+        }
+        #Obtenemos el programa de la matricula
+        $idMoodle = $this->PlataformasModel->get_moodle_id($matricula, $plataforma);
+        if (!$idMoodle) {
+            $response = [
+                'matricula' => $matricula,
+                'status_actividad' => $encontroCalificacion,
+                'message' => "No se encuentra la matricula registrada en plataforma",
+                'status' => 0
+            ];
+            // Devolver la respuesta en formato JSON
+            $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(200)
+                ->set_output(json_encode($response));
+            return;
+        }
+
+        // Obtener la configuración de las materias activas para el programa dado
+        $materias_activas = $this->MateriasActivasModel->materias_activas_programa(strtoupper($siglas));
+        // Iterar sobre cada alumno activo
+        // Obtener las materias en las que está inscrito el alumno
+        $materias_enroladas  = $this->PlataformasModel->get_materia_activa($idMoodle, strtolower($plataforma), $materias_activas[0]->idsmaterias);
+
+
+        // Bandera para indicar si el alumno ha sido dado de baja académicamente
+
+        // Verificar si el alumno está inscrito en materias
+        if (is_array($materias_enroladas) && !empty($materias_enroladas)) {
+            foreach ($materias_enroladas as $m) {
+
+                // Obtener el código de la materia
+                $array_codigo = explode('-', $m->fullname);
+                $codigo = $array_codigo[0];
+
+                // Obtener la fórmula configurada para la materia
+                $formula_materia = $this->PlataformasModel->formula_materia($m->id, strtolower($plataforma), $codigo);
+
+                // Obtener las actividades de la fórmula
+                preg_match_all("/gi\d+/", $formula_materia->calculation, $actividades);
+                $actividades = str_replace("gi", "", $actividades[0]);
+
+                // Convertir el arreglo de actividades en una cadena separada por comas
+                $string_in = implode(',', $actividades);
+
+                // Obtener información de las actividades
+                $lista_actividades = $this->PlataformasModel->get_info_actividades(strtolower($plataforma), $string_in);
+
+                // Verificar si el alumno ha participado en las actividades
+                foreach ($lista_actividades as  $ac) {
+                    $fechaActividad = new DateTime($ac->finalizacion);
+                    $hoy = new DateTime();
+
+                    $year = $fechaActividad->format('Y');
+
+                    // Verificar si la fecha de la actividad es válida
+                    // if ($year != 1969) {
+                    $dataParticipacion = $this->PlataformasModel->obtiene_participacion(strtolower($plataforma), $ac->grade_item_id, $idMoodle);
+
+                    $ac->opcional = 0;
+                    // Verificar si el alumno no ha participado y la fecha de la actividad ha pasado
+                    if ($dataParticipacion[0]->participation == 0 && $hoy > $fechaActividad) {
+                        $ac->notificacion = 1;
+                    } else {
+                        $ac->notificacion = 0;
+                    }
+                    $ac->calificacion_actividad = isset($dataParticipacion[0]->calificacion) ? $dataParticipacion[0]->calificacion : 0;
+                    // } else {
+                    //     $ac->opcional = 1;
+                    //     $ac->notificacion = 0;
+                    // }
+                }
+                $m->actividades = $lista_actividades;
+            }
+            foreach ($materias_enroladas[0]->actividades as $a) {
+                if ($a->calificacion_actividad != 0) {
+                    $encontroCalificacion = true;
+                    break; // Romper el bucle si se encuentra una calificación != 0
+                }
+            }
+            $response = [
+                'matricula' => $matricula,
+                'status_actividad' => $encontroCalificacion
+            ];
+        } else {
+            $response = [
+                'matricula' => $matricula,
+                'status_actividad' => $encontroCalificacion
+            ];
+        }
+
+
+        // Devolver la respuesta en formato JSON
+        $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode($response));
     }
 }

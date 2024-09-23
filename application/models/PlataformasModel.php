@@ -444,18 +444,7 @@ class PlataformasModel extends CI_Model
                     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
 					and (c.instanceid in(" . $materias_activas . ")) 
 					and b.roleid = 5");
-                    // echo "
-					// SELECT distinct(a.id) as userid, a.username,a.firstname
-					// from mdl_user a 
-					// inner join mdl_role_assignments b on a.id=b.userid		
-					// inner join mdl_context c on b.contextid=c.id 		
-					// inner join mdl_user_info_data d on d.userid=a.id		
-					// inner join mdl_user_info_field e on  e.id=d.fieldid
-					// where c.contextlevel = 50 
-                    // and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
-					// and (c.instanceid in(" . $materias_activas . ")) 
-					// and b.roleid = 5";
-                ///*AND a.username NOT LIKE 'inactivo%'*/
+                /*AND a.username NOT LIKE 'inactivo%'*/
                 $ids = array();
 
                 foreach ($consulta->result() as $key => $row) {
@@ -465,7 +454,7 @@ class PlataformasModel extends CI_Model
                 $resultado_final[$conexion] = $ids;
             }
         }
-        //die;
+        die;
         return $resultado_final;
     }
 
@@ -625,6 +614,8 @@ class PlataformasModel extends CI_Model
 	    	gi.courseid,
 		    gi.itemname,
 		    gi.itemmodule,
+            gg.finalgrade AS calificacion,  -- Calificación obtenida por el alumno
+
 		    CASE
 			    WHEN gi.itemmodule = 'assign' THEN (
 				    SELECT COUNT(*)
@@ -652,6 +643,9 @@ class PlataformasModel extends CI_Model
 		    END AS participation
 	        FROM
 		        mdl_grade_items gi
+                LEFT JOIN
+            mdl_grade_grades gg ON gg.itemid = gi.id AND gg.userid = $idAlumno  -- Unimos con las calificaciones
+    
 	        WHERE
 		        gi.id = " . $idactividad);
         return $query->result();
@@ -974,5 +968,22 @@ ORDER BY
         }
 
         return $result;
+    }
+
+    public function get_moodle_id($username, $plataforma)
+    {
+        $DB = $this->load->database($plataforma, TRUE); // Carga la base de datos especificada
+
+        $DB->select('id');
+        $DB->from('mdl_user');
+        $DB->where('username', $username);
+
+        $query = $DB->get();
+
+        if ($query->num_rows() > 0) {
+            return $query->row()->id;
+        }
+
+        return false; // Retorna null si no se encuentra el usuario
     }
 }

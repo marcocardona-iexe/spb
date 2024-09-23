@@ -14,10 +14,10 @@ class MateriasActivasModel extends CI_Model
 
     function materias_activas_programa($shortname)
     {
-        $shortname = ($shortname == 'mcd') ? "MCDA" : $shortname;
+        $shortname = (strtolower($shortname) == 'mcd') ? "MCDA" : $shortname;
 
-        $shortname = ($shortname == 'man') ? "MBA" : $shortname;
-        $shortname = ($shortname == 'mais') ? "MADIS" : $shortname;
+        $shortname = (strtolower($shortname) == 'man') ? "MBA" : $shortname;
+        $shortname = (strtolower($shortname) == 'mais') ? "MADIS" : $shortname;
         $this->db->select('*');
         $this->db->from("materias_activas");
         $this->db->where('shortname', $shortname);

@@ -13,6 +13,8 @@ class AlumnosModel extends CI_Model
         $this->table = 'alumnos';
     }
 
+
+
     /**
      * Obtiene todos los alumnos activos
      */
