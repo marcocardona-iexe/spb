@@ -1824,12 +1824,16 @@ class AlumnosController extends CI_Controller
             }
             $response = [
                 'matricula' => $matricula,
-                'status_actividad' => $encontroCalificacion
+                'status_actividad' => $encontroCalificacion,
+                'message' => "No se encuentra la matricula registrada en plataforma",
+                'status' => 1
             ];
         } else {
             $response = [
                 'matricula' => $matricula,
-                'status_actividad' => $encontroCalificacion
+                'status_actividad' => $encontroCalificacion,
+                'message' => "No se encuentra la matricula registrada en plataforma",
+                'status' => 0
             ];
         }
 
