@@ -356,6 +356,10 @@ class AlumnosController extends CI_Controller
             case 'dpp':
                 $arr_tipo  = $dataMaterias->doctorados($matricula);
                 break;
+
+            default:
+                $arr_tipo  = null;
+                break;
         }
         return $arr_tipo;
     }
@@ -441,6 +445,7 @@ class AlumnosController extends CI_Controller
 
         foreach ($infoalumno as $a) {
             $materias_enroladas  = $this->PlataformasModel->get_materia_activas($a->moodleid, strtolower($a->plataforma));
+
             foreach ($materias_enroladas as $m) {
                 // Obtener el código de la materia
                 $array_codigo = explode('-', $m->fullname);
@@ -1698,6 +1703,9 @@ class AlumnosController extends CI_Controller
 
     public function get_status_actividades_realizadas($matricula)
     {
+        $codigoMaterias = $this->get_data($matricula);
+        $secciones = array();
+
         $encontroCalificacion = false;
         preg_match('/[^0-9]+/', $matricula, $programa);
         $siglas = (count($programa) > 0) ? $programa[0] : "";
@@ -1734,7 +1742,9 @@ class AlumnosController extends CI_Controller
                 'matricula' => $matricula,
                 'status_actividad' => $encontroCalificacion,
                 'message' => "Matricula no encontrada",
-                'status' => 0
+                'status' => 0,
+                "elimina" => 0
+
             ];
             // Devolver la respuesta en formato JSON
             $this->output
@@ -1750,7 +1760,9 @@ class AlumnosController extends CI_Controller
                 'matricula' => $matricula,
                 'status_actividad' => $encontroCalificacion,
                 'message' => "No se encuentra la matricula registrada en plataforma",
-                'status' => 0
+                'status' => 0,
+                "elimina" => 0
+
             ];
             // Devolver la respuesta en formato JSON
             $this->output
@@ -1759,12 +1771,10 @@ class AlumnosController extends CI_Controller
                 ->set_output(json_encode($response));
             return;
         }
-
-        // Obtener la configuración de las materias activas para el programa dado
-        $materias_activas = $this->MateriasActivasModel->materias_activas_programa(strtoupper($siglas));
         // Iterar sobre cada alumno activo
         // Obtener las materias en las que está inscrito el alumno
-        $materias_enroladas  = $this->PlataformasModel->get_materia_activa($idMoodle, strtolower($plataforma), $materias_activas[0]->idsmaterias);
+        $materias_enroladas  = $this->PlataformasModel->get_materia_activas($idMoodle, strtolower($plataforma));
+
 
 
         // Bandera para indicar si el alumno ha sido dado de baja académicamente
@@ -1779,64 +1789,113 @@ class AlumnosController extends CI_Controller
 
                 // Obtener la fórmula configurada para la materia
                 $formula_materia = $this->PlataformasModel->formula_materia($m->id, strtolower($plataforma), $codigo);
+                if ($formula_materia !== null) {
+                    // Obtener las actividades de la fórmula
+                    preg_match_all("/gi\d+/", $formula_materia->calculation, $actividades);
+                    $actividades = str_replace("gi", "", $actividades[0]);
 
-                // Obtener las actividades de la fórmula
-                preg_match_all("/gi\d+/", $formula_materia->calculation, $actividades);
-                $actividades = str_replace("gi", "", $actividades[0]);
+                    // Convertir el arreglo de actividades en una cadena separada por comas
+                    $string_in = implode(',', $actividades);
 
-                // Convertir el arreglo de actividades en una cadena separada por comas
-                $string_in = implode(',', $actividades);
+                    // Obtener información de las actividades
+                    if ($string_in != '') {
+                        $lista_actividades = $this->PlataformasModel->get_info_actividades(strtolower($plataforma), $string_in);
 
-                // Obtener información de las actividades
-                $lista_actividades = $this->PlataformasModel->get_info_actividades(strtolower($plataforma), $string_in);
+                        // Verificar si el alumno ha participado en las actividades
 
-                // Verificar si el alumno ha participado en las actividades
-                foreach ($lista_actividades as  $ac) {
-                    $fechaActividad = new DateTime($ac->finalizacion);
-                    $hoy = new DateTime();
+                        foreach ($lista_actividades as  $ac) {
+                            $fechaActividad = new DateTime($ac->finalizacion);
+                            $hoy = new DateTime();
 
-                    $year = $fechaActividad->format('Y');
+                            //$year = $fechaActividad->format('Y');
 
-                    // Verificar si la fecha de la actividad es válida
-                    // if ($year != 1969) {
-                    $dataParticipacion = $this->PlataformasModel->obtiene_participacion(strtolower($plataforma), $ac->grade_item_id, $idMoodle);
+                            // Verificar si la fecha de la actividad es válida
+                            // if ($year != 1969) {
+                            $dataParticipacion = $this->PlataformasModel->obtiene_participacion(strtolower($plataforma), $ac->grade_item_id, $idMoodle);
 
-                    $ac->opcional = 0;
-                    // Verificar si el alumno no ha participado y la fecha de la actividad ha pasado
-                    if ($dataParticipacion[0]->participation == 0 && $hoy > $fechaActividad) {
-                        $ac->notificacion = 1;
-                    } else {
-                        $ac->notificacion = 0;
+                            $ac->opcional = 0;
+                            // Verificar si el alumno no ha participado y la fecha de la actividad ha pasado
+                            if ($dataParticipacion[0]->participation == 0 && $hoy > $fechaActividad) {
+                                $ac->notificacion = 1;
+                            } else {
+                                $ac->notificacion = 0;
+                            }
+                            $ac->calificacion_actividad = isset($dataParticipacion[0]->calificacion) ? $dataParticipacion[0]->calificacion : 0;
+                            // } else {
+                            //     $ac->opcional = 1;
+                            //     $ac->notificacion = 0;
+                            // }
+                        }
+                        $m->actividades = $lista_actividades;
                     }
-                    $ac->calificacion_actividad = isset($dataParticipacion[0]->calificacion) ? $dataParticipacion[0]->calificacion : 0;
-                    // } else {
-                    //     $ac->opcional = 1;
-                    //     $ac->notificacion = 0;
-                    // }
                 }
-                $m->actividades = $lista_actividades;
+                foreach ($codigoMaterias as $key => $value_trimestre) {
+                    if (stristr($m->fullname, $key)) {
+                        $secciones[] = $m;
+                    }
+                }
             }
-            foreach ($materias_enroladas[0]->actividades as $a) {
-                if ($a->calificacion_actividad != 0) {
+            // echo "<pre>";
+            // print_r($secciones);
+            // echo "</pre>";
+            // echo "....";
+
+            $encontroCalificacion = false;
+
+            // Buscar calificación en las secciones
+            foreach ($secciones as $a) {
+                if (!empty($a->finalgrade) && $a->finalgrade != 0) {
                     $encontroCalificacion = true;
-                    break; // Romper el bucle si se encuentra una calificación != 0
+                    break; // Rompe si encuentra una calificación != 0
                 }
             }
-            $response = [
-                'matricula' => $matricula,
-                'status_actividad' => $encontroCalificacion,
-                'message' => "Datos enviados correctamente",
-                'status' => 1
-            ];
+
+            // Si no encontró calificación en las secciones, busca en las actividades
+            if (!$encontroCalificacion) {
+                foreach ($secciones as $a) {
+                    foreach ($a->actividades as $ac) {
+                        if (!empty($ac->calificacion_actividad) && $ac->calificacion_actividad != 0) {
+                            $encontroCalificacion = true;
+                            break 2; // Rompe ambos bucles (secciones y actividades)
+                        }
+                    }
+                }
+            }
+
+            // Enviar mensaje según el resultado
+            if ($encontroCalificacion) {
+                //echo "Se encontró actividad o materia con calificación.";
+                $response = [
+                    'matricula' => $matricula,
+                    'status_actividad' => $encontroCalificacion,
+                    'message' => "Datos enviados correctamente",
+                    'status' => 1,
+                    "elimina" => "n"
+                ];
+            } else {
+                //echo "No se encontró ninguna actividad o materia con calificación.";
+                $response = [
+                    'matricula' => $matricula,
+                    'status_actividad' => $encontroCalificacion,
+                    'message' => "Datos enviados correctamente",
+                    'status' => 1,
+                    "elimina" => "s"
+                ];
+            }
         } else {
             $response = [
                 'matricula' => $matricula,
                 'status_actividad' => $encontroCalificacion,
-                'message' => "No se encuentra la matricula registrada en plataforma",
-                'status' => 0
+                'message' => "El alumno no cuenta con materias asignadas",
+                'status' => 1,
+                "elimina" => "s"
             ];
         }
 
+        // echo "<pre>";
+        // print_r($response);
+        // echo "</pre>";
+        // die;
 
         // Devolver la respuesta en formato JSON
         $this->output
