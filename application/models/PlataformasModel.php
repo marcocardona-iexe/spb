@@ -423,7 +423,8 @@ class PlataformasModel extends CI_Model
 
     public function usuarios_activosv2()
     {
-        $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
+        // $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
+        $arrconexiones       = array("mapp");
         $id_materias_activas = $this->local_materias_activas();
         $resultado_final     = array();
 
@@ -433,18 +434,51 @@ class PlataformasModel extends CI_Model
                 $DB = $this->load->database($conexion, TRUE);
                 $materias_activas = $id_materias_activas[$conexion];
                 //condicional agregada el 30022022, alumnos con matriculas inactivos no entran en el conteo.
+                // $consulta = $DB->query("
+                // 	SELECT distinct(a.id) as userid, a.username,a.firstname
+                // 	from mdl_user a 
+                // 	inner join mdl_role_assignments b on a.id=b.userid		
+                // 	inner join mdl_context c on b.contextid=c.id 		
+                // 	inner join mdl_user_info_data d on d.userid=a.id		
+                // 	inner join mdl_user_info_field e on  e.id=d.fieldid
+                // 	where c.contextlevel = 50 
+                //     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
+                // 	and (c.instanceid in(" . $materias_activas . ")) 
+                // 	and b.roleid = 5");
+
+
                 $consulta = $DB->query("
-					SELECT distinct(a.id) as userid, a.username,a.firstname
-					from mdl_user a 
-					inner join mdl_role_assignments b on a.id=b.userid		
-					inner join mdl_context c on b.contextid=c.id 		
-					inner join mdl_user_info_data d on d.userid=a.id		
-					inner join mdl_user_info_field e on  e.id=d.fieldid
-					where c.contextlevel = 50 
-                    and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
-					and (c.instanceid in(" . $materias_activas . ")) 
-					and b.roleid = 5");
+                SELECT DISTINCT
+    a.id AS userid,
+    a.username,
+    a.firstname,
+    d.data AS estatus, -- Estatus del usuario
+    f.data AS descripcionestatus -- Descripción del estatus
+FROM
+    mdl_user a
+    INNER JOIN mdl_user_info_data d ON d.userid = a.id -- Unión para el campo estatus
+    INNER JOIN mdl_user_info_field e ON e.id = d.fieldid AND e.shortname = 'estatus' -- Filtro para el campo estatus
+    INNER JOIN mdl_user_info_data f ON f.userid = a.id -- Unión para el campo descripcionestatus
+    INNER JOIN mdl_user_info_field g ON g.id = f.fieldid AND g.shortname = 'descripcionestatus' -- Filtro para el campo descripcionestatus
+    INNER JOIN mdl_role_assignments b ON b.userid = a.id -- Tabla de asignación de roles
+WHERE
+    d.data = 'Activo' -- Filtro de estatus Activo
+    AND b.roleid = 5; -- Filtro para el rol específico");
+
+
                 /*AND a.username NOT LIKE 'inactivo%'*/
+
+                // echo "
+                // 	SELECT distinct(a.id) as userid, a.username,a.firstname
+                // 	from mdl_user a 
+                // 	inner join mdl_role_assignments b on a.id=b.userid		
+                // 	inner join mdl_context c on b.contextid=c.id 		
+                // 	inner join mdl_user_info_data d on d.userid=a.id		
+                // 	inner join mdl_user_info_field e on  e.id=d.fieldid
+                // 	where c.contextlevel = 50 
+                //     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
+                // 	and (c.instanceid in(" . $materias_activas . ")) 
+                // 	and b.roleid = 5<br><br><br>";
                 $ids = array();
 
                 foreach ($consulta->result() as $key => $row) {
@@ -454,7 +488,6 @@ class PlataformasModel extends CI_Model
                 $resultado_final[$conexion] = $ids;
             }
         }
-        die;
         return $resultado_final;
     }
 
