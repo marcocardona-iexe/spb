@@ -109,6 +109,8 @@ class PlataformasModel extends CI_Model
                 $row->conexion    = "mapp";
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmapp[] = $row;
             }
         }
@@ -139,6 +141,8 @@ class PlataformasModel extends CI_Model
                 $row->conexion    = "mepp";
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmepp[] = $row;
             }
         }
@@ -171,6 +175,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmspp[] = $row;
             }
         }
@@ -217,6 +223,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultlic[] = $row;
             }
         }
@@ -255,6 +263,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmae[] = $row;
             }
         }
@@ -291,6 +301,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmige[] = $row;
             }
         }
@@ -329,6 +341,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultdoc[] = $row;
             }
         }
@@ -374,6 +388,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultmasters[] = $row;
             }
         }
@@ -414,6 +430,8 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
+                $row->descripcionestatus          = $value->descripcionestatus;
+
                 $resultiexetec[] = $row;
             }
         }
