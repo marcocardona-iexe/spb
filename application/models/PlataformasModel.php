@@ -81,10 +81,12 @@ class PlataformasModel extends CI_Model
             LEFT JOIN mdl_user_info_data AS ui5 ON ui5.userid = mdl_user.id AND ui5.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'periodo')
             LEFT JOIN mdl_user_info_data AS ui6 ON ui6.userid = mdl_user.id AND ui6.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'sexo')
             LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')
-            LEFT JOIN mdl_user_info_data AS ui8 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')";
+            LEFT JOIN mdl_user_info_data AS ui8 ON ui8.userid = mdl_user.id AND ui8.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')";
 
         $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo");
 
+        echo $str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo";
+        die;
 
         if ($sqlmapp->num_rows() > 0) {
             foreach ($sqlmapp->result() as $value) {
