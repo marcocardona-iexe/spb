@@ -85,8 +85,7 @@ class PlataformasModel extends CI_Model
 
         $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo");
 
-        echo $str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo";
-        die;
+
 
         if ($sqlmapp->num_rows() > 0) {
             foreach ($sqlmapp->result() as $value) {
