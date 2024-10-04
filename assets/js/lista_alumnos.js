@@ -590,6 +590,10 @@ $(document).ready(function () {
 				},
 				{
 					data: "estatus_plataforma",
+					searchable: true,
+				},
+				{
+					data: "descripcion_estatus",
 					render: function (data, type, row) {
 						let badgeClass = "";
 						if (data === "Bloqueado") {
@@ -872,37 +876,184 @@ $(document).ready(function () {
 		});
 	};
 
-	// $("#asignacion_consejeras").on("click", function () {
-	// 	$.confirm({
-	// 		title: false,
-	// 		closeIcon: true,
-	// 		type: "blue",
-	// 		content: `
-	// 			<div class="container-fluid">
-	// 				<div class="row">
-	// 					<div class="col-md-12">
-	// 						<div class="formularios_gral needs-validation" novalidate="">
-	// 							<!-- Primera fila -->
-	// 							<div class="row mb-3">
-	// 								<div class="col">
-	// 									<label for="fileInput" class="form-label">Archivo excel</label>
-	// 									<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
-	// 									<div class="invalid-feedback">Por favor, seleccione un archivo Excel válido.</div>
-	// 								</div>
-	// 							</div>
-	// 						</div>
-	// 					</div>
-	// 				</div>
-	// 			</div>`,
-	// 		type: "red",
-	// 		typeAnimated: true,
-	// 		buttons: {
-	// 			tryAgain: {
-	// 				text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
-	// 				btnClass: "btn btn-modal",
-	// 				action: function () {},
-	// 			},
-	// 		},
-	// 	});
-	// });
+	$("#asignacion_consejeras").on("click", function () {
+		$.confirm({
+			title: false,
+			closeIcon: true,
+			columnClass: "col-md-4 col-md-offset-4",
+			type: "green",
+			content: `
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="formularios_gral needs-validation" novalidate="">
+								<!-- Primera fila -->
+								<div class="row mb-3">
+									<div class="col-12">
+										<label for="fileInput" class="form-label">Selecciona tu archivo en excel</label>
+										<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
+										<div class="invalid-feedback">Por favor, seleccione un archivo Excel válido.</div>
+									</div>
+									<div class="col-12" id="form-alert2-container">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>`,
+			typeAnimated: true,
+			buttons: {
+				subir: {
+					text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
+					btnClass: "btn btn-modal",
+					action: function () {
+						var inputFile = $("#excel_consejera")[0].files[0];
+
+						let btn_subir = this.buttons.subir;
+
+						btn_subir.setText(
+							`<div class="spinner-border spinner-border-sm text-light" role="status"></div> Procesando archivo`
+						); // setText for 'hello' button
+
+						if (inputFile) {
+							var formData = new FormData();
+							formData.append("file", inputFile);
+
+							// Realizar la petición AJAX
+							$.ajax({
+								url: "consejera_masiva",
+								type: "POST",
+								data: formData,
+								processData: false,
+								contentType: false,
+								dataType: "json",
+								success: function (response) {
+									btn_subir.setText(
+										`<i class="fa-solid fa-upload"></i> Subir archivo`
+									);
+									// Manejar la respuesta del servidor
+									var responseObject = response;
+									console.log(responseObject);
+									if (responseObject.status === "error") {
+										var errors = responseObject.errors
+										.map((error) => `<li>${error}</li>`)
+										.join("");
+										var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                        <strong>Error:</strong> ${responseObject.message}<ul>${errors}</ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+										$("#form-alert2-container").html(alertHtml);
+									} else {
+										var alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <strong>Éxito:</strong> ${responseObject.message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+										$("#form-alert2-container").html(alertHtml);
+									}
+								},
+								error: function (xhr, status, error) {
+									$("#subir_archivo").html(
+										`<i class="fa-solid fa-upload"></i> Subir archivo`
+									);
+									// Manejar el error
+									var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <strong>Error:</strong> Error al procesar el archivo.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>`;
+									$("#form-alert2-container").html(alertHtml);
+									console.log(error);
+								},
+							});
+						}
+
+						return false;
+					},
+				},
+			},
+		});
+	});
+
+	$("#subir_archivo").click(function () {
+		// Resetear el botón
+		$("#subir_archivo").html(
+			`<div class="spinner-border spinner-border-sm text-light" role="status"></div> Procesando archivo`
+		);
+
+		var inputFile = $("#excel_consejera")[0].files[0];
+
+		// Validar que se haya seleccionado un archivo
+		if (inputFile) {
+			// Validar el tamaño del archivo (en bytes)
+			// var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
+			// if (inputFile.size > maxSize) {
+			// 	var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			//                     <strong>Error:</strong> El archivo seleccionado supera el tamaño máximo permitido de 2 MB.
+			//                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			//                 </div>`;
+			// 	$("#form-alert2-container").html(alertHtml);
+			// 	$("#subir_archivo").html(
+			// 		`<i class="fa-solid fa-upload"></i> Subir archivo`
+			// 	);
+			// 	return; // Detener el proceso si el archivo es demasiado grande
+			// }
+
+			var formData = new FormData();
+			formData.append("file", inputFile);
+
+			// Realizar la petición AJAX
+			$.ajax({
+				url: "consejera_masiva",
+				type: "POST",
+				data: formData,
+				processData: false,
+				contentType: false,
+				dataType: "json",
+				success: function (response) {
+					$("#subir_archivo").html(
+						`<i class="fa-solid fa-upload"></i> Subir archivo`
+					);
+					// Manejar la respuesta del servidor
+					var responseObject = response;
+					if (responseObject.status === "error") {
+						var errors = responseObject.errors
+						.map((error) => `<li>${error}</li>`)
+						.join("");
+						var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                        <strong>Error:</strong> ${responseObject.message}<ul>${errors}</ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+						$("#form-alert2-container").html(alertHtml);
+					} else {
+						var alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <strong>Éxito:</strong> ${responseObject.message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+						$("#form-alert2-container").html(alertHtml);
+					}
+				},
+				error: function (xhr, status, error) {
+					$("#subir_archivo").html(
+						`<i class="fa-solid fa-upload"></i> Subir archivo`
+					);
+					// Manejar el error
+					var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <strong>Error:</strong> Error al procesar el archivo.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>`;
+					$("#form-alert2-container").html(alertHtml);
+					console.log(error);
+				},
+			});
+		} else {
+			// Mostrar mensaje de error si no se seleccionó ningún archivo
+			var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Error:</strong> Por favor, seleccione un archivo Excel válido.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`;
+			$("#form-alert2-container").html(alertHtml);
+			$("#subir_archivo").html(
+				`<i class="fa-solid fa-upload"></i> Subir archivo`
+			);
+		}
+	});
 });

@@ -129,7 +129,7 @@ foreach ($sesion['roles'] as $rol) {
                                     </div>
                                 </div>
                                 <!-- Tercera fila -->
-                                <?php if ($esAdministrador) { ?>
+                                <!-- <?php if ($esAdministrador) { ?>
 
                                     <div class="row mb-3">
                                         <div class="col">
@@ -151,7 +151,7 @@ foreach ($sesion['roles'] as $rol) {
                                             </select>
                                         </div>
                                     </div>
-                                <?php } ?>
+                                <?php } ?> -->
                                 <button id="busqueda_avanzada" class="btn btn-sm btn-modal" onclick="busqueda_avanzada();"><i class="fa-solid fa-glasses"></i> Realizar</button>
                             </div>
                         </div>
@@ -184,9 +184,9 @@ foreach ($sesion['roles'] as $rol) {
 
                                 <button class="btn btn-sm btn-modal" id="ver_todos"><i class="fa-solid fa-eye"></i> Ver todos</button>
 
-                                <!--<button class="btn btn-sm btn-modal" id="asignacion_consejeras"><i class="fa-solid fa-headset"></i> Asing. Consejeras</button>
+                                <!-- <button class="btn btn-sm btn-modal" id="asignacion_consejeras"><i class="fa-solid fa-headset"></i> Asing. Consejeras</button>
 
-                                <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-comments-dollar"></i> Asign. Financiera</button>-->
+                                <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-comments-dollar"></i> Asign. Financiera</button> -->
                             </div>
                         </div>
 
@@ -204,6 +204,7 @@ foreach ($sesion['roles'] as $rol) {
                                         <th class="text-center cabecera_table">Ultima conexión</th>
                                         <th class="text-center cabecera_table">Probabilidad de Baja</th>
                                         <th class="text-center cabecera_table">Estatus Plataforma</th>
+                                        <th class="text-center cabecera_table">Descripción</th>
                                         <th class="text-center cabecera_table">Consejera</th>
                                         <th class="text-center cabecera_table">Asesor financiero</th>
                                         <th class="text-center cabecera_table">Promotor</th>

@@ -161,6 +161,7 @@ class AlumnosModel extends CI_Model
             alumnos.ultimo_acceso,
             alumnos.telefono,
             alumnos.promotor,
+            alumnos.descripcion_estatus,
             CASE
                 WHEN variable_academica = 1 AND variable_financiera = 1 THEN "Alta R1"
                 WHEN variable_academica = 0 AND variable_financiera = 1 THEN "Media R2"
