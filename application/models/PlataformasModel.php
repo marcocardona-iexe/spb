@@ -423,8 +423,8 @@ class PlataformasModel extends CI_Model
 
     public function usuarios_activosv2()
     {
-        // $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
-        $arrconexiones       = array("mapp");
+         $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
+        //$arrconexiones       = array("mapp");
         $id_materias_activas = $this->local_materias_activas();
         $resultado_final     = array();
 
