@@ -71,7 +71,8 @@ class PlataformasModel extends CI_Model
             ui4.data AS cuatrimestre,
             ui5.data AS periodo,
             ui6.data AS sexo,
-            ui7.data AS mes
+            ui7.data AS mes,
+            ui8.data AS descripcionestatus
             FROM mdl_user
             LEFT JOIN mdl_user_info_data AS ui1 ON ui1.userid = mdl_user.id AND ui1.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'Perfil')
             LEFT JOIN mdl_user_info_data AS ui2 ON ui2.userid = mdl_user.id AND ui2.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'estatus')
@@ -79,7 +80,8 @@ class PlataformasModel extends CI_Model
             LEFT JOIN mdl_user_info_data AS ui4 ON ui4.userid = mdl_user.id AND ui4.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'cuatrimestre')
             LEFT JOIN mdl_user_info_data AS ui5 ON ui5.userid = mdl_user.id AND ui5.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'periodo')
             LEFT JOIN mdl_user_info_data AS ui6 ON ui6.userid = mdl_user.id AND ui6.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'sexo')
-            LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')";
+            LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')
+            LEFT JOIN mdl_user_info_data AS ui8 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')";
 
         $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo");
 
@@ -423,70 +425,36 @@ class PlataformasModel extends CI_Model
 
     public function usuarios_activosv2()
     {
-         $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
+        $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
         //$arrconexiones       = array("mapp");
-        $id_materias_activas = $this->local_materias_activas();
+        //$id_materias_activas = $this->local_materias_activas();
         $resultado_final     = array();
 
         foreach ($arrconexiones as $keyconexion => $conexion) {
-            //echo $id_materias_activas[$conexion] . "<br><br>";
-            if (!empty($id_materias_activas[$conexion])) {
-                $DB = $this->load->database($conexion, TRUE);
-                $materias_activas = $id_materias_activas[$conexion];
-                //condicional agregada el 30022022, alumnos con matriculas inactivos no entran en el conteo.
-                // $consulta = $DB->query("
-                // 	SELECT distinct(a.id) as userid, a.username,a.firstname
-                // 	from mdl_user a 
-                // 	inner join mdl_role_assignments b on a.id=b.userid		
-                // 	inner join mdl_context c on b.contextid=c.id 		
-                // 	inner join mdl_user_info_data d on d.userid=a.id		
-                // 	inner join mdl_user_info_field e on  e.id=d.fieldid
-                // 	where c.contextlevel = 50 
-                //     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
-                // 	and (c.instanceid in(" . $materias_activas . ")) 
-                // 	and b.roleid = 5");
-
-
-                $consulta = $DB->query("
+            $DB = $this->load->database($conexion, TRUE);
+            $consulta = $DB->query("
                 SELECT DISTINCT
-    a.id AS userid,
-    a.username,
-    a.firstname,
-    d.data AS estatus, -- Estatus del usuario
-    f.data AS descripcionestatus -- Descripción del estatus
-FROM
-    mdl_user a
-    INNER JOIN mdl_user_info_data d ON d.userid = a.id -- Unión para el campo estatus
-    INNER JOIN mdl_user_info_field e ON e.id = d.fieldid AND e.shortname = 'estatus' -- Filtro para el campo estatus
-    INNER JOIN mdl_user_info_data f ON f.userid = a.id -- Unión para el campo descripcionestatus
-    INNER JOIN mdl_user_info_field g ON g.id = f.fieldid AND g.shortname = 'descripcionestatus' -- Filtro para el campo descripcionestatus
-    INNER JOIN mdl_role_assignments b ON b.userid = a.id -- Tabla de asignación de roles
-WHERE
-    d.data = 'Activo' -- Filtro de estatus Activo
-    AND b.roleid = 5; -- Filtro para el rol específico");
+                    a.id AS userid,
+                    a.username,
+                    a.firstname,
+                    d.data AS estatus
+                FROM
+                    mdl_user a
+                    INNER JOIN mdl_user_info_data d ON d.userid = a.id
+                    INNER JOIN mdl_user_info_field e ON e.id = d.fieldid
+                    INNER JOIN mdl_role_assignments b ON b.userid = a.id -- Agregamos la tabla de roles
+                WHERE
+                    e.shortname = 'estatus'
+                    AND d.data = 'Activo'
+                    AND b.roleid = 5;
+                ");
+            $ids = array();
 
-
-                /*AND a.username NOT LIKE 'inactivo%'*/
-
-                // echo "
-                // 	SELECT distinct(a.id) as userid, a.username,a.firstname
-                // 	from mdl_user a 
-                // 	inner join mdl_role_assignments b on a.id=b.userid		
-                // 	inner join mdl_context c on b.contextid=c.id 		
-                // 	inner join mdl_user_info_data d on d.userid=a.id		
-                // 	inner join mdl_user_info_field e on  e.id=d.fieldid
-                // 	where c.contextlevel = 50 
-                //     and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%')) 
-                // 	and (c.instanceid in(" . $materias_activas . ")) 
-                // 	and b.roleid = 5<br><br><br>";
-                $ids = array();
-
-                foreach ($consulta->result() as $key => $row) {
-                    $ids[$row->userid] = $row->userid;
-                }
-
-                $resultado_final[$conexion] = $ids;
+            foreach ($consulta->result() as $key => $row) {
+                $ids[$row->userid] = $row->userid;
             }
+
+            $resultado_final[$conexion] = $ids;
         }
         return $resultado_final;
     }
