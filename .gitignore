@@ -1,49 +1,44 @@
+# Sistema operativo y cachés generales
 .DS_Store
 
+# Archivos y directorios de caché y logs de CodeIgniter
 application/cache/*
 !application/cache/index.html
-
 application/logs/*
 !application/logs/index.html
 
-!application/*/.htaccess
+# Ignorar archivos de configuración sensibles
+application/config/config.php
+application/config/database.php
 
+# Ignorar archivos .htaccess en todas las subcarpetas de application/
+application/*/.htaccess
+
+# Ignorar composer.lock y vendor (si usas Composer)
 composer.lock
-tests/mocks/database/ci_test.sqlite
+/vendor/
 
+# Ignorar archivos específicos de tests y mocks
+tests/mocks/database/ci_test.sqlite
+tests/tests/
+tests/results/
+
+# Archivos generados en user_guide_src
 user_guide_src/build/*
 user_guide_src/cilexer/build/*
 user_guide_src/cilexer/dist/*
 user_guide_src/cilexer/pycilexer.egg-info/*
-/vendor/
 
-# IDE Files
-#-------------------------
+# Archivos de IDEs
 /nbproject/
 .idea/*
 
-## Sublime Text cache files
+# Archivos de caché de Sublime Text
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
-/tests/tests/
-/tests/results/
 
-
-# CodeIgniter directories
-application/cache/*
-application/logs/*
-application/config/*
-application/config/.htaccess
-
-# Ignorar todas las configuraciones excepto de ejemplo
-!application/config/config.php
-!application/config/database.php
+# Archivos generales de configuración en la raíz del proyecto
 .htaccess
-application/config/config.php
-.htaccess
-application/config/config.php
-application/config/database.php
-
