@@ -288,7 +288,7 @@ class AlumnosController extends CI_Controller
                         "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
                         "periodo" => $ap->periodo,
                         "is_active" => 1,
-                        "descripcion_estatus" => $ap->descripcionestatus
+                        "estatus_descripcion" => $ap->descripcionestatus
                     );
                 } else {
                     // Si el ID no existe, agregar los datos del alumno como nuevo
@@ -311,7 +311,7 @@ class AlumnosController extends CI_Controller
                         "is_active" => 1,
                         "variable_academica" => 0,
                         "variable_financiera" => 0,
-                        "descripcion_estatus" => $ap->descripcionestatus
+                        "estatus_descripcion" => $ap->descripcionestatus
                     );
                 }
             }
