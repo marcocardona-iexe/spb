@@ -208,31 +208,31 @@ class AlumnosController extends CI_Controller
             }
         }
 
-        $response1 = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
-        $chunks1 = array_chunk($response1, 100);
+        // $response1 = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
+        // $chunks1 = array_chunk($response1, 100);
 
-        $usernames1 = [];
-        foreach ($chunks1 as $chunk) {
-            foreach ($chunk as $item) {
-                $usernames1[] = $item->username;
-            }
-        }
+        // $usernames1 = [];
+        // foreach ($chunks1 as $chunk) {
+        //     foreach ($chunk as $item) {
+        //         $usernames1[] = $item->username;
+        //     }
+        // }
 
-        $response2 = $this->AlumnosModel->get_todos_activos();
-        $chunks2 = array_chunk($response2, 100);
+        // $response2 = $this->AlumnosModel->get_todos_activos();
+        // $chunks2 = array_chunk($response2, 100);
 
-        $usernames2 = [];
-        foreach ($chunks2 as $chunk) {
-            foreach ($chunk as $item) {
-                $usernames2[] = $item->matricula;
-            }
-        }
+        // $usernames2 = [];
+        // foreach ($chunks2 as $chunk) {
+        //     foreach ($chunk as $item) {
+        //         $usernames2[] = $item->matricula;
+        //     }
+        // }
 
-        $usernames2_to_delete = array_diff($usernames2, $usernames1);
+        // $usernames2_to_delete = array_diff($usernames2, $usernames1);
 
-        foreach ($usernames2_to_delete as $username) {
-            $this->AlumnosModel->elimnar_alumnos($username);
-        }
+        // foreach ($usernames2_to_delete as $username) {
+        //     $this->AlumnosModel->elimnar_alumnos($username);
+        // }
     }
 
     public function ingresa_alumnos_activos()
