@@ -59,7 +59,9 @@ $route['insert_banner'] = 'BannersController/insert_banner';
 
 
 $route['actualiza_alumnos_registro'] = 'AlumnosController/actualiza_alumnos_registro';
+$route['alumnos-activos'] = 'AlumnosController/alumnos_activos';
 $route['alumnos-bloqueados'] = 'AlumnosController/alumnos_bloqueados';
+$route['alumnos-inscritos'] = 'AlumnosController/alumnos_inscritos';
 $route['alumnos_probabilidad_baja/(:any)'] = 'AlumnosController/alumnos_probabilidad_baja/$1';
 $route['alumnos_buscar_seguimientos/(:any)'] = 'AlumnosController/alumnos_buscar_seguimientos/$1';
 
@@ -147,3 +149,8 @@ $route['actualiza-promotor'] = "AlumnosController/actualiza_promotor";
 
 
 $route['get-status-actividades-realizadas/(:any)'] = "AlumnosController/get_status_actividades_realizadas/$1";
+
+
+$route['recordatorio-consejera/(:any)'] = "RecordatoriosController/recordatorio_consejera/$1";
+$route['detalle_materia/(:any)/(:any)'] = "RecordatoriosController/detalle_materia/$1/$2";
+$route['actualizar_matricula'] = "AlumnosController/actualizar_matricula";

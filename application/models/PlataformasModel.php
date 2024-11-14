@@ -37,7 +37,7 @@ class PlataformasModel extends CI_Model
         $DBMASTERS       = $this->load->database('masters', TRUE);
 
 
-        $arr_alumnos_activos = $this->usuarios_activosv2();
+        //$arr_alumnos_activos = $this->usuarios_activosv2();
 
 
 
@@ -83,7 +83,15 @@ class PlataformasModel extends CI_Model
             LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')
             LEFT JOIN mdl_user_info_data AS ui8 ON ui8.userid = mdl_user.id AND ui8.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')";
 
-        $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%'  AND mdl_user.id IN(" . implode(',', $arr_alumnos_activos['mapp']) . ") ORDER BY periodo");
+            $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%' 
+            AND ui2.data = 'Activo'
+            AND ui3.data != 'Egresado'
+            AND (ui3.data = 'Bloqueado por pagos' or 
+                ui3.data = 'Bloqueado por documentos' or 
+                ui3.data = 'Inscrito' or
+                ui3.data = 'Regular'
+            )
+            ORDER BY periodo");
 
 
 
@@ -104,7 +112,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['mapp'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "MAPP";
                 $row->conexion    = "mapp";
@@ -116,9 +124,16 @@ class PlataformasModel extends CI_Model
             }
         }
 
+        $sqlmepp = $DBMEPP->query($str_query . " WHERE username LIKE 'mepp%'  
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
-
-        $sqlmepp = $DBMEPP->query($str_query . " WHERE username LIKE 'mepp%'  AND mdl_user.id IN(" . implode($arr_alumnos_activos['mepp'], ',') . ") ORDER BY periodo");
         if ($sqlmepp->num_rows() > 0) {
             foreach ($sqlmepp->result() as $value) {
                 $row = new stdClass();
@@ -136,7 +151,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['mepp'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "MEPP";
                 $row->conexion    = "mepp";
@@ -148,9 +163,16 @@ class PlataformasModel extends CI_Model
             }
         }
 
+        $sqlmspp = $DBMSPP->query($str_query . " WHERE username LIKE 'mspp%'
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
-
-        $sqlmspp = $DBMSPP->query($str_query . " WHERE username LIKE 'mspp%'  AND mdl_user.id IN(" . implode($arr_alumnos_activos['mspp'], ',') . ") ORDER BY periodo");
         if ($sqlmspp->num_rows() > 0) {
             foreach ($sqlmspp->result() as $value) {
                 $row = new stdClass();
@@ -169,7 +191,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma     = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['mspp'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "MSPP";
                 $row->conexion    = "mspp";
@@ -184,7 +206,15 @@ class PlataformasModel extends CI_Model
 
 
 
-        $sqllicenciaturas = $DBLICENCIATURAS->query($str_query . " WHERE (username LIKE 'lae%' OR username LIKE 'ld%' OR username LIKE 'lsp%' OR username LIKE 'lce%' OR username LIKE 'lcpap%') AND mdl_user.id IN(" . implode($arr_alumnos_activos['lic'], ',') . ") ORDER BY periodo");
+        $sqllicenciaturas = $DBLICENCIATURAS->query($str_query . " WHERE (username LIKE 'lae%' OR username LIKE 'ld%' OR username LIKE 'lsp%' OR username LIKE 'lce%' OR username LIKE 'lcpap%')
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqllicenciaturas->num_rows() > 0) {
             foreach ($sqllicenciaturas->result() as $value) {
@@ -217,7 +247,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->cuatrimestre = $value->cuatrimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['lic'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "LIC";
                 $row->conexion    = "lic";
@@ -231,7 +261,15 @@ class PlataformasModel extends CI_Model
         }
 
 
-        $sqlmaestrias = $DBMAESTRIAS->query($str_query . " WHERE (username LIKE 'mfp%' OR username LIKE 'man%') AND mdl_user.id IN(" . implode($arr_alumnos_activos['maestria'], ',') . ") ORDER BY periodo");
+        $sqlmaestrias = $DBMAESTRIAS->query($str_query . " WHERE (username LIKE 'mfp%' OR username LIKE 'man%')
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqlmaestrias->num_rows() > 0) {
             foreach ($sqlmaestrias->result() as $value) {
@@ -257,7 +295,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['maestria'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "MAESTRIA";
                 $row->conexion    = "mae";
@@ -270,7 +308,15 @@ class PlataformasModel extends CI_Model
             }
         }
 
-        $sqlmaestrias_mige = $DBMIGE->query($str_query . " WHERE username LIKE 'mige%' AND mdl_user.id IN(" . implode($arr_alumnos_activos['mige'], ',') . ") ORDER BY periodo");
+        $sqlmaestrias_mige = $DBMIGE->query($str_query . " WHERE username LIKE 'mige%'
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqlmaestrias_mige->num_rows() > 0) {
             foreach ($sqlmaestrias_mige->result() as $value) {
@@ -295,7 +341,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (in_array($value->id, $arr_alumnos_activos['mige'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "MIGE";
                 $row->conexion    = "mige";
@@ -308,7 +354,15 @@ class PlataformasModel extends CI_Model
             }
         }
 
-        $sqldoctorados = $DBDOC->query($str_query . " WHERE (username LIKE 'dpp%' OR username LIKE 'dsp%') AND mdl_user.id IN(" . implode($arr_alumnos_activos['doctorado'], ',') . ") ORDER BY periodo");
+        $sqldoctorados = $DBDOC->query($str_query . " WHERE (username LIKE 'dpp%' OR username LIKE 'dsp%')
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqldoctorados->num_rows() > 0) {
 
@@ -335,7 +389,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->cuatrimestre   = $value->cuatrimestre; //bug detectado, de $value->trimestre a $value->cuatrimestre 
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (isset($arr_alumnos_activos['doc']) && in_array($value->id, $arr_alumnos_activos['doctorado'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "Doctorado";
                 $row->conexion    = "doc";
@@ -349,7 +403,15 @@ class PlataformasModel extends CI_Model
         }
 
 
-        $sqlmasters = $DBMASTERS->query($str_query . " WHERE (username LIKE 'mais%' OR username LIKE 'mag%' OR username LIKE 'mgpm%' OR username LIKE 'mspajo%' OR username LIKE 'mmpop%') AND mdl_user.id IN(" . implode($arr_alumnos_activos['masters'], ',') . ") ORDER BY periodo");
+        $sqlmasters = $DBMASTERS->query($str_query . " WHERE (username LIKE 'mais%' OR username LIKE 'mag%' OR username LIKE 'mgpm%' OR username LIKE 'mspajo%' OR username LIKE 'mmpop%')
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado' 
+        AND (ui3.data = 'Bloqueado por pagos' or 
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqlmasters->num_rows() > 0) {
 
@@ -382,7 +444,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma    = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (isset($arr_alumnos_activos['masters']) && in_array($value->id, $arr_alumnos_activos['masters'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "Masters";
                 $row->conexion    = "masters";
@@ -396,7 +458,15 @@ class PlataformasModel extends CI_Model
         }
 
 
-        $sqlmaestrias_iexetec = $DBIEXETEC->query($str_query . " WHERE (username LIKE 'man%' OR username LIKE 'mcd%' OR username LIKE 'mcdia%' OR username LIKE 'miti%') AND mdl_user.id IN(" . implode($arr_alumnos_activos['iexetec'], ',') . ") ORDER BY periodo");
+        $sqlmaestrias_iexetec = $DBIEXETEC->query($str_query . " WHERE (username LIKE 'man%' OR username LIKE 'mcd%' OR username LIKE 'mcdia%' OR username LIKE 'miti%')
+        AND ui2.data = 'Activo'
+        AND ui3.data != 'Egresado'
+        AND (ui3.data = 'Bloqueado por pagos' or
+             ui3.data = 'Bloqueado por documentos' or 
+             ui3.data = 'Inscrito' or
+             ui3.data = 'Regular'
+        )
+        ORDER BY periodo");
 
         if ($sqlmaestrias_iexetec->num_rows() > 0) {
             foreach ($sqlmaestrias_iexetec->result() as $value) {
@@ -424,7 +494,7 @@ class PlataformasModel extends CI_Model
                 $row->estatus_plataforma      = $value->estatus;
                 $row->trimestre   = $value->trimestre;
                 $row->periodo     = $value->periodo;
-                $row->is_active   = (isset($arr_alumnos_activos['iexetec']) && in_array($value->id, $arr_alumnos_activos['iexetec'])) ? true : 0;
+                $row->is_active   = "";
                 $row->auth        = "manual";
                 $row->plataforma  = "IEXETEC";
                 $row->conexion    = "iexetec";
@@ -1006,4 +1076,255 @@ ORDER BY
 
         return false; // Retorna null si no se encuentra el usuario
     }
+
+    function eliminar_alumnos()
+    {
+        #MAPP	
+        $DBMAPP          = $this->load->database('mapp', TRUE);
+        #MEPP
+        $DBMEPP          = $this->load->database('mepp', TRUE);
+        #MSPP
+        $DBMSPP          = $this->load->database('mspp', TRUE);
+        #LICENCIATURAS
+        $DBLICENCIATURAS = $this->load->database('lic', TRUE);
+        #MAESTRIAS
+        $DBMAESTRIAS     = $this->load->database('maestria', TRUE);
+        #DOCTORADOS
+        $DBDOC           = $this->load->database('doctorado', TRUE);
+        #MIGE
+        $DBMIGE          = $this->load->database('mige', TRUE);
+        #IEXETEC
+        $DBIEXETEC          = $this->load->database('iexetec', TRUE);
+        #MASTERS
+        $DBMASTERS       = $this->load->database('masters', TRUE);
+
+
+        //$arr_alumnos_activos = $this->usuarios_activosv2();
+
+
+
+        $resultmapp      = array();
+        $resultmepp      = array();
+        $resultmspp      = array();
+        $resultlic       = array();
+        $resultmae       = array();
+        $resultdoc       = array();
+        $resultiexetec   = array();
+        $resultmige      = array();
+        $resultiexetec   = array();
+        $resultmasters    = array();
+
+
+        $str_query = "SELECT 
+        mdl_user.id,
+        username,
+        ui2.data AS estatus,
+        ui6.data AS periodo,
+        ui3.data AS descripcionestatus
+        FROM mdl_user
+        LEFT JOIN mdl_user_info_data AS ui3 ON ui3.userid = mdl_user.id AND ui3.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')
+        LEFT JOIN mdl_user_info_data AS ui2 ON ui2.userid = mdl_user.id AND ui2.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'estatus')
+        LEFT JOIN mdl_user_info_data AS ui6 ON ui6.userid = mdl_user.id AND ui6.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'periodo')";
+
+        $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%' 
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmapp->num_rows() > 0) {
+            foreach ($sqlmapp->result() as $value) {
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid    = $value->id;
+                $row->programa    = "MAPP";
+                $row->estatus_plataforma = $value->estatus;
+                $resultmapp[] = $row;
+            }
+        }
+
+        $sqlmepp = $DBMEPP->query($str_query . " WHERE username LIKE 'mepp%'  
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmepp->num_rows() > 0) {
+            foreach ($sqlmepp->result() as $value) {
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = "MEPP";
+                $row->estatus_plataforma      = $value->estatus;
+                $resultmepp[] = $row;
+            }
+        }
+
+        $sqlmspp = $DBMSPP->query($str_query . " WHERE username LIKE 'mspp%'
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmspp->num_rows() > 0) {
+            foreach ($sqlmspp->result() as $value) {
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = "MSPP";
+                $row->estatus_plataforma     = $value->estatus;
+                $resultmspp[] = $row;
+            }
+        }
+
+
+
+        $sqllicenciaturas = $DBLICENCIATURAS->query($str_query . " WHERE (username LIKE 'lae%' OR username LIKE 'ld%' OR username LIKE 'lsp%' OR username LIKE 'lce%' OR username LIKE 'lcpap%')
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqllicenciaturas->num_rows() > 0) {
+            foreach ($sqllicenciaturas->result() as $value) {
+                $programa = "";
+                if (stristr($value->username, "lae")) {
+                    $programa = "LAE";
+                } else if (stristr($value->username, "ld")) {
+                    $programa = "LD";
+                } else if (stristr($value->username, "lsp")) {
+                    $programa = "LSP";
+                } else if (stristr($value->username, "lcpap")) {
+                    $programa = "LCPAP";
+                } else if (stristr($value->username, "lce")) {
+                    $programa = "LCE";
+                }
+
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma      = $value->estatus;
+                $resultlic[] = $row;
+            }
+        }
+
+
+        $sqlmaestrias = $DBMAESTRIAS->query($str_query . " WHERE (username LIKE 'mfp%' OR username LIKE 'man%')
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmaestrias->num_rows() > 0) {
+            foreach ($sqlmaestrias->result() as $value) {
+                $programa = "";
+                if (stristr($value->username, "mfp")) {
+                    $programa = "MFP";
+                } else if (stristr($value->username, "man")) {
+                    $programa = "MAN";
+                }
+
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma      = $value->estatus;
+                $resultmae[] = $row;
+            }
+        }
+
+        $sqlmaestrias_mige = $DBMIGE->query($str_query . " WHERE username LIKE 'mige%'
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmaestrias_mige->num_rows() > 0) {
+            foreach ($sqlmaestrias_mige->result() as $value) {
+
+                $programa = "";
+                if (stristr($value->username, "mige")) {
+                    $programa = "MIGE";
+                }
+
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma      = $value->estatus;
+                $resultmige[] = $row;
+            }
+        }
+
+        $sqldoctorados = $DBDOC->query($str_query . " WHERE (username LIKE 'dpp%' OR username LIKE 'dsp%')
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqldoctorados->num_rows() > 0) {
+
+            foreach ($sqldoctorados->result() as $value) {
+                $programa = "";
+                if (stristr($value->username, "dpp")) {
+                    $programa = "DPP";
+                } else if (stristr($value->username, "dsp")) {
+                    $programa = "DSP";
+                }
+
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma      = $value->estatus;
+                $resultdoc[] = $row;
+            }
+        }
+
+
+        $sqlmasters = $DBMASTERS->query($str_query . " WHERE (username LIKE 'mais%' OR username LIKE 'mag%' OR username LIKE 'mgpm%' OR username LIKE 'mspajo%' OR username LIKE 'mmpop%')
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmasters->num_rows() > 0) {
+
+
+            foreach ($sqlmasters->result() as $value) {
+                $programa = "";
+                if (stristr($value->username, "mais")) {
+                    $programa = "MAIS";
+                } else if (stristr($value->username, "mag")) {
+                    $programa = "MAG";
+                } else if (stristr($value->username, "mgpm")) {
+                    $programa = "MGPM";
+                } else if (stristr($value->username, "mspajo")) {
+                    $programa = "MSPAJO";
+                } else if (stristr($value->username, "mmpop")) {
+                    $programa = "MMPOP";
+                }
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid    = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma    = $value->estatus;
+                $resultmasters[] = $row;
+            }
+        }
+
+
+        $sqlmaestrias_iexetec = $DBIEXETEC->query($str_query . " WHERE (username LIKE 'man%' OR username LIKE 'mcd%' OR username LIKE 'mcdia%' OR username LIKE 'miti%')
+        AND (ui2.data = 'Inactivo' OR (ui2.data = 'Activo' AND ui3.data = 'Egresado'))
+        ORDER BY periodo");
+
+        if ($sqlmaestrias_iexetec->num_rows() > 0) {
+            foreach ($sqlmaestrias_iexetec->result() as $value) {
+                if (stristr($value->username, "man")) {
+                    $programa = "MAN";
+                } else if (stristr($value->username, "mcdia")) {
+                    $programa = "MCDIA";
+                } else if (stristr($value->username, "mcd")) {
+                    $programa = "MCD";
+                } else if (stristr($value->username, "miti")) {
+                    $programa = "MITI";
+                }
+                $row = new stdClass();
+                $row->username    = $value->username;
+                $row->moodleid = $value->id;
+                $row->programa    = $programa;
+                $row->estatus_plataforma      = $value->estatus;
+                $resultiexetec[] = $row;
+            }
+        }
+
+        $resultado = array_merge($resultmapp, $resultmepp, $resultmspp, $resultlic, $resultmae, $resultdoc, $resultmige, $resultiexetec, $resultmasters);
+        return $resultado;
+    }
+
 }

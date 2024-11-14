@@ -61,57 +61,77 @@ $(document).ready(function () {
 				})
 				.done(function (response) {
 					console.log(response);
-					let actividades = "";
-					const icon_financiero =
-						response.financiera.variable_financiera == 0
-							? '<i class="fa-regular fa-circle-check"></i>'
-							: '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-					console.log(
-						"La variable financiera es " +
-							response.financiera.variable_financiera
-					);
+					let mensaje_academico = "";
 
-					console.log(
-						"La variable academica es " + response.academica.variable_academica
-					);
+					$.each(response.academica.result, function(index, matriculaDatos) {
+						$.each(matriculaDatos.items, function(index, item) {
 
-					const clase_card_financiero =
-						response.financiera.variable_financiera == "0"
-							? "modal-success"
-							: "modal-danger";
-					const clase_card_academica =
-						response.academica.variable_academica == "0"
-							? "modal-success"
-							: "modal-danger";
-					$.each(response.academica.materia[0].actividades, function (i, a) {
-						if (a.opcional == 1) {
-							icon = '<i class="fa-regular fa-star"></i>';
-							fecha_establecida = "";
-						} else {
-							icon =
-								a.notificacion == 0
-									? '<i class="fa-regular fa-circle-check"></i>'
-									: '<i class="fa-solid fa-triangle-exclamation"></i>';
+							if (parseInt(item.actividad_opcional) == 1) {
+								mensaje_academico += `<li><i class="fa-regular fa-star"></i> ${item.itemname}</li>`;
+							} 
+							else if (parseInt(item.actividad_finalizada) == 1 && parseInt(item.calificacion) == 0 && parseInt(item.actividad_opcional) != 1) {
+								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificación: ${item.calificacion} (${item.finalizacion})</li>`;
+							} 
+							else if (parseInt(item.calificacion) > 0 && parseInt(item.actividad_opcional) != 1) {
+								let calificacion = parseFloat(item.calificacion).toFixed(2);
+								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificación: ${calificacion} (${item.finalizacion})</li>`;
+							}else{
+								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
+							}
 
-							fecha_establecida = `(${a.finalizacion})`;
-						}
-						actividades += `<li>${icon} ${a.itemname} ${fecha_establecida}</li>`;
+						});
 					});
+
+					if(response.academica.result==""){
+						mensaje_academico = "Sin materias activas";
+					}
+
+					let clase_card_acdemico = "";
+
+					if(response.academica.estado == 0){
+						clase_card_acdemico = "modal-success";
+					}else{
+						clase_card_acdemico = "modal-danger";
+					}
+
+					let mensaje = "";
+
+					response.financiera.ultimasFechas.forEach(function(item) {
+						if(item.adeudo > 0){
+							mensaje += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
+						}
+						else{
+							mensaje += `<li><i class="fa-regular fa-circle-check"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
+						}
+					});
+
+					if(response.financiera.ultimasFechas==""){
+						mensaje = "Sin pagos para verificar";
+					}
+
+					let clase_card_financiero = "";
+
+					if(response.financiera.decodedResponseAdeudo.retrasos[matricula] == 0){
+						clase_card_financiero = "modal-success";
+					}
+					else{
+						clase_card_financiero = "modal-danger";
+					}
 
 					let body = `
 						<div class="container-fluid">
 							<div class="row g-3">
 								<div class="col-md-12">
 									<div class="card">
-										<div class="card-header text-start ${clase_card_academica}">
+										<div class="card-header text-start ${clase_card_acdemico}">
 											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
 										</div>
 										<div class="card-body text-start">
-											<p>Materia: ${response.academica.materia[0].fullname}</p>
+											<p>Materia: <b>${response.academica.result[0].items[0].fullname} (${response.academica.result[0].items[0].shortname})</b></p>
 											<p>
 											<ul>
-												${actividades}
+												${mensaje_academico}
 											</ul>
 											</p>
 											<div class="container">
@@ -126,7 +146,15 @@ $(document).ready(function () {
 													</div>
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-solid fa-triangle-exclamation"></i>
-														<span>Actividad Incompleta</span>
+														<span>Retraso Actividad</span>
+													</div>
+												</div>
+											</div>
+											<div class="container">
+												<div class="row justify-content-start">
+													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3" style="margin-left: 7px;">
+														<i class="far fa-clock"></i>
+														<span style="margin-left: 2px;">A tiempo de entrega</span>
 													</div>
 												</div>
 											</div>
@@ -139,10 +167,10 @@ $(document).ready(function () {
 											<i class="fa-solid fa-wallet"></i> Información Financiera
 										</div>
 										<div class="card-body text-start">
-											<p>${response.financiera.message}</p>
+											<p></p>
 											<p>
 											<ul>
-												<li>${icon_financiero} Día de pago del alumno ${response.financiera.moroso} de cada mes</li>
+												${mensaje}
 											</ul>
 											</p>
 											<div class="container">
@@ -566,7 +594,17 @@ $(document).ready(function () {
 					render: function (data, type, row) {
 						let tiempo = calcularTiempoRelativo(data);
 						let fecha = unixToDate(data);
-						return `${fecha} <b>(${tiempo})</b>`;
+
+						fechaCompro = fecha.split("-");
+		
+						if(	fechaCompro[0] <= 1976){
+							fecha = "<b>Nunca</b>";
+							return `${fecha}`;
+						}
+						else{
+							return `${fecha} <b>(${tiempo})</b>`;
+						}
+	
 					},
 				},
 				{
@@ -576,10 +614,10 @@ $(document).ready(function () {
 						let estatus = "";
 						if (data === "Alta R1") {
 							badgeClass = "bg-danger";
-							estatus = "Baja R1";
+							estatus = "Alta R1";
 						} else if (data === "Media R2") {
 							badgeClass = "bg-warning text-dark";
-							estatus = "Baja R2";
+							estatus = "Media R2";
 						} else if (data === "Baja R3") {
 							badgeClass = "bg-success";
 							estatus = "Baja R3";
@@ -609,6 +647,10 @@ $(document).ready(function () {
 						}
 						return `<div class="text-center"><span class="badge ${badgeClass} status_plataforma">${data}</span></div>`;
 					},
+					searchable: true,
+				},
+				{
+					data: "estatus_descripcion",
 					searchable: true,
 				},
 				{
@@ -753,7 +795,37 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 		// Configurar la tabla con la URL específica
-		const table = configurarTablaAlumnos("alumnos-bloqueados");
+		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_bloqueados");
+
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
+
+	window.inscritos = function () {
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_inscritos");
+
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		table.on("draw", function () {
+			$("#loading").hide();
+			$("#contenedor_tabla_alumnos").show();
+		});
+	};
+
+	window.Activos = function () {
+		// Destruir la tabla DataTable actual si ya existe
+		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
+			$("#tbl_alumnos").DataTable().destroy();
+		}
+		// Configurar la tabla con la URL específica
+		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_activos");
 
 		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
