@@ -3,7 +3,7 @@ $(document).ready(function () {
 		"#nombre, #apellidos, #correo, #matricula, #programas, #periodos, #periodos_mensuales, #estatus-plataforma, #consejera, #financiero"
 	).on("keypress", function (e) {
 		if (e.which === 13) {
-			// 13 es el código de la tecla Enter
+			// 13 es el cÃ³digo de la tecla Enter
 			window.busqueda_avanzada();
 		}
 	});
@@ -17,10 +17,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -71,11 +71,11 @@ $(document).ready(function () {
 								mensaje_academico += `<li><i class="fa-regular fa-star"></i> ${item.itemname}</li>`;
 							} 
 							else if (parseInt(item.actividad_finalizada) == 1 && parseInt(item.calificacion) == 0 && parseInt(item.actividad_opcional) != 1) {
-								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificación: ${item.calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaciÃ³n: ${item.calificacion} (${item.finalizacion})</li>`;
 							} 
 							else if (parseInt(item.calificacion) > 0 && parseInt(item.actividad_opcional) != 1) {
 								let calificacion = parseFloat(item.calificacion).toFixed(2);
-								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificación: ${calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaciÃ³n: ${calificacion} (${item.finalizacion})</li>`;
 							}else{
 								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
 							}
@@ -125,7 +125,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_acdemico}">
-											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
+											<i class="fa-solid fa-graduation-cap"></i> Historial AcadÃ©mico
 										</div>
 										<div class="card-body text-start">
 											<p>Materia: <b>${response.academica.result[0].items[0].fullname} (${response.academica.result[0].items[0].shortname})</b></p>
@@ -164,7 +164,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_financiero}">
-											<i class="fa-solid fa-wallet"></i> Información Financiera
+											<i class="fa-solid fa-wallet"></i> InformaciÃ³n Financiera
 										</div>
 										<div class="card-body text-start">
 											<p></p>
@@ -177,7 +177,7 @@ $(document).ready(function () {
 												<div class="row justify-content-center">
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-regular fa-circle-check"></i>
-														<span>Pago al día</span>
+														<span>Pago al dÃ­a</span>
 													</div>
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-solid fa-triangle-exclamation"></i>
@@ -209,10 +209,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -283,10 +283,10 @@ $(document).ready(function () {
                     <div class="container-fluid">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label">Método de contacto</label>
+                                <label class="form-label">MÃ©todo de contacto</label>
                                 <select onchange="cambiarVerde('m_contacto')" class="form-control form-control-sm" id="m_contacto">
                                     <option value="1">Seleccione una opcion</option>
-                                    <option value="Correo electrónico">Correo electrónico</option>
+                                    <option value="Correo electrÃ³nico">Correo electrÃ³nico</option>
                                     <option value="Llamada">Llamada</option>
                                     <option value="Whatsapp">Whatsapp</option>
                                 </select>
@@ -295,11 +295,11 @@ $(document).ready(function () {
                                 <label class="form-label">Estatus del seguimiento</label>
                                 <select onchange="cambiarVerde('estatus_seguimiento')" class="form-control form-control-sm" id="estatus_seguimiento">
                                     <option value="1">Seleccione una opcion</option>
-                                    <option value="Respondio">Respondió</option>
-                                    <option value="No respondio">No respondió</option>
-                                    <option value="Buzón directo">Buzón directo</option>
-                                    <option value="Respondio y colgo">Respondió y colgó</option>
-                                    <option value="Dejo en visto">Dejó en visto</option>
+                                    <option value="Respondio">RespondiÃ³</option>
+                                    <option value="No respondio">No respondiÃ³</option>
+                                    <option value="BuzÃ³n directo">BuzÃ³n directo</option>
+                                    <option value="Respondio y colgo">RespondiÃ³ y colgÃ³</option>
+                                    <option value="Dejo en visto">DejÃ³ en visto</option>
                                     <option value="No le entran los mensajes">No le entran los mensajes</option>
                                 </select>
                             </div>
@@ -310,7 +310,7 @@ $(document).ready(function () {
                                     <option value="Interesado en continuar">Interesado en continuar</option>
                                     <option value="Solicita baja">Solicita baja</option>
                                     <option value="Baja por falta de respuesta">Baja por falta de respuesta</option>
-                                    <option value="No respondió">No respondió</option>
+                                    <option value="No respondiÃ³">No respondiÃ³</option>
                                 </select>
                             </div>
                             <div class="col-md-12 text-center">
@@ -380,7 +380,7 @@ $(document).ready(function () {
 									return false;
 								} else {
 									$("#error_message").hide();
-									// Aquí manejamos la acción si la validación es correcta
+									// AquÃ­ manejamos la acciÃ³n si la validaciÃ³n es correcta
 									$.ajax({
 										type: "POST",
 										url: `guardar-seguimiento`,
@@ -478,7 +478,7 @@ $(document).ready(function () {
 						// 			return false;
 						// 		} else {
 						// 			$("#error_message").hide();
-						// 			// Aquí manejamos la acción si la validación es correcta
+						// 			// AquÃ­ manejamos la acciÃ³n si la validaciÃ³n es correcta
 
 						// 			segundoConfirm(
 						// 				metodo_contacto,
@@ -500,7 +500,7 @@ $(document).ready(function () {
 						);
 						$.ajax({
 							url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
-							type: "GET", // Método HTTP GET
+							type: "GET", // MÃ©todo HTTP GET
 							dataType: "json",
 
 							success: function (response) {
@@ -560,12 +560,12 @@ $(document).ready(function () {
 	function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
 		let ajaxConfig = {
 			url: url,
-			type: "POST", // o "GET" dependiendo de tu aplicación
+			type: "POST", // o "GET" dependiendo de tu aplicaciÃ³n
 		};
 		if (data !== null) {
 			ajaxConfig = {
 				url: url,
-				type: "POST", // o "GET" dependiendo de tu aplicación
+				type: "POST", // o "GET" dependiendo de tu aplicaciÃ³n
 				data: data,
 			};
 		}
@@ -628,10 +628,6 @@ $(document).ready(function () {
 				},
 				{
 					data: "estatus_plataforma",
-					searchable: true,
-				},
-				{
-					data: "descripcion_estatus",
 					render: function (data, type, row) {
 						let badgeClass = "";
 						if (data === "Bloqueado") {
@@ -657,7 +653,7 @@ $(document).ready(function () {
 					data: "nombre_consejera",
 					render: function (data, type, row) {
 						if (!data) {
-							return `Sin asignación`;
+							return `Sin asignaciÃ³n`;
 						} else {
 							return data;
 						}
@@ -668,7 +664,7 @@ $(document).ready(function () {
 					data: "nombre_financiero",
 					render: function (data, type, row) {
 						if (!data) {
-							return `Sin asignación`;
+							return `Sin asignaciÃ³n`;
 						} else {
 							return data;
 						}
@@ -692,7 +688,7 @@ $(document).ready(function () {
 						const notiId = `noti_${row.id}`;
 
 						//tiene_seguimiento = verifica_seguimiento_abierto(row.id);
-						// Render inicial con un marcador de posición
+						// Render inicial con un marcador de posiciÃ³n
 						setTimeout(() => {
 							verifica_seguimiento_abierto(row.id)
 							.then((noti) => {
@@ -732,14 +728,14 @@ $(document).ready(function () {
 				infoFiltered: "(filtrado de _MAX_ registros totales)",
 				infoPostFix: "",
 				thousands: ".",
-				lengthMenu: "Mostrar _MENU_ registros por página",
+				lengthMenu: "Mostrar _MENU_ registros por pÃ¡gina",
 				loadingRecords: "Cargando...",
 				processing: "Procesando...",
 				search: "Buscar:",
 				zeroRecords: "No se encontraron registros",
 				paginate: {
 					first: "Primero",
-					last: "Último",
+					last: "Ãšltimo",
 					next: "Siguiente",
 					previous: "Anterior",
 				},
@@ -776,7 +772,7 @@ $(document).ready(function () {
 			tiempoRelativo = `Hace ${horas} horas`;
 		} else {
 			const dias = Math.floor(segundos / 86400);
-			tiempoRelativo = `Hace ${dias} días`;
+			tiempoRelativo = `Hace ${dias} dÃ­as`;
 		}
 
 		return tiempoRelativo;
@@ -794,10 +790,10 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_bloqueados");
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -809,10 +805,10 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_inscritos");
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -824,10 +820,10 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_activos");
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -846,7 +842,7 @@ $(document).ready(function () {
 		} else if (probabilidad === "r1") {
 			URL = "alumnos_probabilidad_baja/r1";
 		} else {
-			console.error("Nivel de probabilidad no válido");
+			console.error("Nivel de probabilidad no vÃ¡lido");
 			return;
 		}
 
@@ -855,10 +851,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL específica
+		// Configurar la tabla con la URL especÃ­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading después de cargar los datos
+		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -876,7 +872,7 @@ $(document).ready(function () {
 		var periodoMensual = $("#periodos_mensuales").val();
 		var estatusPlataforma = $("#estatus-plataforma").val();
 		var consejera = $("#consejera").val();
-		var financiero = $("#financiero").val(); // Asegúrate de usar un id único para este campo
+		var financiero = $("#financiero").val(); // AsegÃºrate de usar un id Ãºnico para este campo
 
 		if (
 			nombre === "" &&
@@ -901,7 +897,7 @@ $(document).ready(function () {
 				$("#tbl_alumnos").DataTable().destroy();
 			}
 
-			// Configurar la tabla con la URL específica
+			// Configurar la tabla con la URL especÃ­fica
 			let data = {
 				nombre,
 				apellidos,
@@ -916,7 +912,7 @@ $(document).ready(function () {
 			};
 			const table = configurarTablaAlumnos("busuqeda_avanzada", data);
 
-			// Mostrar la tabla y ocultar el loading después de cargar los datos
+			// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 			table.on("draw", function () {
 				$("#loading").hide();
 				$("#contenedor_tabla_alumnos").show();
@@ -948,184 +944,37 @@ $(document).ready(function () {
 		});
 	};
 
-	$("#asignacion_consejeras").on("click", function () {
-		$.confirm({
-			title: false,
-			closeIcon: true,
-			columnClass: "col-md-4 col-md-offset-4",
-			type: "green",
-			content: `
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-md-12">
-							<div class="formularios_gral needs-validation" novalidate="">
-								<!-- Primera fila -->
-								<div class="row mb-3">
-									<div class="col-12">
-										<label for="fileInput" class="form-label">Selecciona tu archivo en excel</label>
-										<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
-										<div class="invalid-feedback">Por favor, seleccione un archivo Excel válido.</div>
-									</div>
-									<div class="col-12" id="form-alert2-container">
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>`,
-			typeAnimated: true,
-			buttons: {
-				subir: {
-					text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
-					btnClass: "btn btn-modal",
-					action: function () {
-						var inputFile = $("#excel_consejera")[0].files[0];
-
-						let btn_subir = this.buttons.subir;
-
-						btn_subir.setText(
-							`<div class="spinner-border spinner-border-sm text-light" role="status"></div> Procesando archivo`
-						); // setText for 'hello' button
-
-						if (inputFile) {
-							var formData = new FormData();
-							formData.append("file", inputFile);
-
-							// Realizar la petición AJAX
-							$.ajax({
-								url: "consejera_masiva",
-								type: "POST",
-								data: formData,
-								processData: false,
-								contentType: false,
-								dataType: "json",
-								success: function (response) {
-									btn_subir.setText(
-										`<i class="fa-solid fa-upload"></i> Subir archivo`
-									);
-									// Manejar la respuesta del servidor
-									var responseObject = response;
-									console.log(responseObject);
-									if (responseObject.status === "error") {
-										var errors = responseObject.errors
-										.map((error) => `<li>${error}</li>`)
-										.join("");
-										var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                        <strong>Error:</strong> ${responseObject.message}<ul>${errors}</ul>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>`;
-										$("#form-alert2-container").html(alertHtml);
-									} else {
-										var alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        <strong>Éxito:</strong> ${responseObject.message}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>`;
-										$("#form-alert2-container").html(alertHtml);
-									}
-								},
-								error: function (xhr, status, error) {
-									$("#subir_archivo").html(
-										`<i class="fa-solid fa-upload"></i> Subir archivo`
-									);
-									// Manejar el error
-									var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    <strong>Error:</strong> Error al procesar el archivo.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>`;
-									$("#form-alert2-container").html(alertHtml);
-									console.log(error);
-								},
-							});
-						}
-
-						return false;
-					},
-				},
-			},
-		});
-	});
-
-	$("#subir_archivo").click(function () {
-		// Resetear el botón
-		$("#subir_archivo").html(
-			`<div class="spinner-border spinner-border-sm text-light" role="status"></div> Procesando archivo`
-		);
-
-		var inputFile = $("#excel_consejera")[0].files[0];
-
-		// Validar que se haya seleccionado un archivo
-		if (inputFile) {
-			// Validar el tamaño del archivo (en bytes)
-			// var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
-			// if (inputFile.size > maxSize) {
-			// 	var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-			//                     <strong>Error:</strong> El archivo seleccionado supera el tamaño máximo permitido de 2 MB.
-			//                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			//                 </div>`;
-			// 	$("#form-alert2-container").html(alertHtml);
-			// 	$("#subir_archivo").html(
-			// 		`<i class="fa-solid fa-upload"></i> Subir archivo`
-			// 	);
-			// 	return; // Detener el proceso si el archivo es demasiado grande
-			// }
-
-			var formData = new FormData();
-			formData.append("file", inputFile);
-
-			// Realizar la petición AJAX
-			$.ajax({
-				url: "consejera_masiva",
-				type: "POST",
-				data: formData,
-				processData: false,
-				contentType: false,
-				dataType: "json",
-				success: function (response) {
-					$("#subir_archivo").html(
-						`<i class="fa-solid fa-upload"></i> Subir archivo`
-					);
-					// Manejar la respuesta del servidor
-					var responseObject = response;
-					if (responseObject.status === "error") {
-						var errors = responseObject.errors
-						.map((error) => `<li>${error}</li>`)
-						.join("");
-						var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                        <strong>Error:</strong> ${responseObject.message}<ul>${errors}</ul>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>`;
-						$("#form-alert2-container").html(alertHtml);
-					} else {
-						var alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        <strong>Éxito:</strong> ${responseObject.message}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>`;
-						$("#form-alert2-container").html(alertHtml);
-					}
-				},
-				error: function (xhr, status, error) {
-					$("#subir_archivo").html(
-						`<i class="fa-solid fa-upload"></i> Subir archivo`
-					);
-					// Manejar el error
-					var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    <strong>Error:</strong> Error al procesar el archivo.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>`;
-					$("#form-alert2-container").html(alertHtml);
-					console.log(error);
-				},
-			});
-		} else {
-			// Mostrar mensaje de error si no se seleccionó ningún archivo
-			var alertHtml = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <strong>Error:</strong> Por favor, seleccione un archivo Excel válido.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>`;
-			$("#form-alert2-container").html(alertHtml);
-			$("#subir_archivo").html(
-				`<i class="fa-solid fa-upload"></i> Subir archivo`
-			);
-		}
-	});
+	// $("#asignacion_consejeras").on("click", function () {
+	// 	$.confirm({
+	// 		title: false,
+	// 		closeIcon: true,
+	// 		type: "blue",
+	// 		content: `
+	// 			<div class="container-fluid">
+	// 				<div class="row">
+	// 					<div class="col-md-12">
+	// 						<div class="formularios_gral needs-validation" novalidate="">
+	// 							<!-- Primera fila -->
+	// 							<div class="row mb-3">
+	// 								<div class="col">
+	// 									<label for="fileInput" class="form-label">Archivo excel</label>
+	// 									<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
+	// 									<div class="invalid-feedback">Por favor, seleccione un archivo Excel vÃ¡lido.</div>
+	// 								</div>
+	// 							</div>
+	// 						</div>
+	// 					</div>
+	// 				</div>
+	// 			</div>`,
+	// 		type: "red",
+	// 		typeAnimated: true,
+	// 		buttons: {
+	// 			tryAgain: {
+	// 				text: `<i class="fa-solid fa-upload"></i> Subir archivo`,
+	// 				btnClass: "btn btn-modal",
+	// 				action: function () {},
+	// 			},
+	// 		},
+	// 	});
+	// });
 });
