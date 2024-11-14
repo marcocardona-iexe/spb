@@ -67,21 +67,21 @@ class PlataformasModel extends CI_Model
             auth,
             ui1.data AS perfil,
             ui2.data AS estatus,
-            ui3.data AS trimestre,
-            ui4.data AS cuatrimestre,
-            ui5.data AS periodo,
-            ui6.data AS sexo,
-            ui7.data AS mes,
-            ui8.data AS descripcionestatus
+            ui3.data AS descripcionestatus,
+            ui4.data AS trimestre,
+            ui5.data AS cuatrimestre,
+            ui6.data AS periodo,
+            ui7.data AS sexo,
+            ui8.data AS mes
             FROM mdl_user
             LEFT JOIN mdl_user_info_data AS ui1 ON ui1.userid = mdl_user.id AND ui1.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'Perfil')
             LEFT JOIN mdl_user_info_data AS ui2 ON ui2.userid = mdl_user.id AND ui2.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'estatus')
-            LEFT JOIN mdl_user_info_data AS ui3 ON ui3.userid = mdl_user.id AND ui3.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'trimestre')
-            LEFT JOIN mdl_user_info_data AS ui4 ON ui4.userid = mdl_user.id AND ui4.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'cuatrimestre')
-            LEFT JOIN mdl_user_info_data AS ui5 ON ui5.userid = mdl_user.id AND ui5.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'periodo')
-            LEFT JOIN mdl_user_info_data AS ui6 ON ui6.userid = mdl_user.id AND ui6.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'sexo')
-            LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')
-            LEFT JOIN mdl_user_info_data AS ui8 ON ui8.userid = mdl_user.id AND ui8.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')";
+            LEFT JOIN mdl_user_info_data AS ui3 ON ui3.userid = mdl_user.id AND ui3.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'descripcionestatus')
+            LEFT JOIN mdl_user_info_data AS ui4 ON ui4.userid = mdl_user.id AND ui4.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'trimestre')
+            LEFT JOIN mdl_user_info_data AS ui5 ON ui5.userid = mdl_user.id AND ui5.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'cuatrimestre')
+            LEFT JOIN mdl_user_info_data AS ui6 ON ui6.userid = mdl_user.id AND ui6.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'periodo')
+            LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'sexo')
+            LEFT JOIN mdl_user_info_data AS ui8 ON ui8.userid = mdl_user.id AND ui8.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')";
 
             $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%' 
             AND ui2.data = 'Activo'
@@ -92,7 +92,6 @@ class PlataformasModel extends CI_Model
                 ui3.data = 'Regular'
             )
             ORDER BY periodo");
-
 
 
         if ($sqlmapp->num_rows() > 0) {
@@ -118,8 +117,7 @@ class PlataformasModel extends CI_Model
                 $row->conexion    = "mapp";
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmapp[] = $row;
             }
         }
@@ -157,8 +155,7 @@ class PlataformasModel extends CI_Model
                 $row->conexion    = "mepp";
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmepp[] = $row;
             }
         }
@@ -198,8 +195,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmspp[] = $row;
             }
         }
@@ -254,8 +250,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultlic[] = $row;
             }
         }
@@ -302,8 +297,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmae[] = $row;
             }
         }
@@ -348,8 +342,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmige[] = $row;
             }
         }
@@ -396,8 +389,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultdoc[] = $row;
             }
         }
@@ -451,8 +443,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultmasters[] = $row;
             }
         }
@@ -501,8 +492,7 @@ class PlataformasModel extends CI_Model
 
                 $row->sexo           = $value->sexo;
                 $row->mes          = $value->mes;
-                $row->descripcionestatus          = $value->descripcionestatus;
-
+                $row->descripcionestatus = $value->descripcionestatus;
                 $resultiexetec[] = $row;
             }
         }
@@ -515,36 +505,38 @@ class PlataformasModel extends CI_Model
     public function usuarios_activosv2()
     {
         $arrconexiones       = array("mapp", "mepp", "mspp", "lic", "maestria", "doctorado", "mige", "iexetec", "masters");
-        //$arrconexiones       = array("mapp");
-        //$id_materias_activas = $this->local_materias_activas();
+        $id_materias_activas = $this->local_materias_activas();
         $resultado_final     = array();
 
         foreach ($arrconexiones as $keyconexion => $conexion) {
-            $DB = $this->load->database($conexion, TRUE);
-            $consulta = $DB->query("
-                SELECT DISTINCT
-                    a.id AS userid,
-                    a.username,
-                    a.firstname,
-                    d.data AS estatus
-                FROM
-                    mdl_user a
-                    INNER JOIN mdl_user_info_data d ON d.userid = a.id
-                    INNER JOIN mdl_user_info_field e ON e.id = d.fieldid
-                    INNER JOIN mdl_role_assignments b ON b.userid = a.id -- Agregamos la tabla de roles
-                WHERE
-                    e.shortname = 'estatus'
-                    AND d.data = 'Activo'
-                    AND b.roleid = 5;
-                ");
-            $ids = array();
+            //echo $id_materias_activas[$conexion] . "<br><br>";
+            if (!empty($id_materias_activas[$conexion])) {
+                $DB = $this->load->database($conexion, TRUE);
+                $materias_activas = $id_materias_activas[$conexion];
+                //condicional agregada el 30022022, alumnos con matriculas inactivos no entran en el conteo.
+                $consulta = $DB->query("
+					SELECT distinct(a.id) as userid, a.username,a.firstname
+					from mdl_user a 
+					inner join mdl_role_assignments b on a.id=b.userid		
+					inner join mdl_context c on b.contextid=c.id 		
+					inner join mdl_user_info_data d on d.userid=a.id		
+					inner join mdl_user_info_field e on  e.id=d.fieldid
+					where c.contextlevel = 50 
+                    and ((e.shortname='trimestre' and d.data NOT LIKE 'Baja%') OR (e.shortname='cuatrimestre' and d.data NOT LIKE 'Baja%'))
+                    and (e.shortname='estatus' and d.data NOT LIKE 'Inactivo%')
+					and (c.instanceid in(" . $materias_activas . ")) 
+					and b.roleid = 5");
+                /*AND a.username NOT LIKE 'inactivo%'*/
+                $ids = array();
 
-            foreach ($consulta->result() as $key => $row) {
-                $ids[$row->userid] = $row->userid;
+                foreach ($consulta->result() as $key => $row) {
+                    $ids[$row->userid] = $row->userid;
+                }
+
+                $resultado_final[$conexion] = $ids;
             }
-
-            $resultado_final[$conexion] = $ids;
         }
+        die;
         return $resultado_final;
     }
 

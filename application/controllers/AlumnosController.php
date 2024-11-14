@@ -179,7 +179,7 @@ class AlumnosController extends CI_Controller
             ->_display();
         exit;
     }
-    
+
     public function testeo()
     {
         $data = $this->PlataformasModel->local_materias_activas();
