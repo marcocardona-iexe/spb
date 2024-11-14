@@ -16,6 +16,9 @@ foreach ($sesion['roles'] as $rol) {
             <div class="row mt-3">
                 <div class="col">
                     <div class="button-list border-bottom pb-3">
+                        <button type="button" class="btn btn-sm btn-success" onclick="Activos()">
+                            <span class="badge bg-primary notification-badge"><?php echo $activos;?></span> Activos
+                        </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="bloqueados()">
                             <span class="badge bg-primary notification-badge"><?php echo $bloqueados; ?></span> Bloqueados
                         </button>
@@ -27,6 +30,13 @@ foreach ($sesion['roles'] as $rol) {
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="buscar_baja('r1')">
                             <span class="badge bg-primary notification-badge"><?php echo $total_r1; ?></span> Alta R1
+                        </button>
+                        <button type="button" class="btn btn-sm" 
+                            style="background-color: #6f42c1; border-color: #6f42c1; color: #fff;"
+                            onmouseover="this.style.backgroundColor='#5a379e'; this.style.borderColor='#5a379e';" 
+                            onmouseout="this.style.backgroundColor='#6f42c1'; this.style.borderColor='#6f42c1';"
+                            onclick="inscritos()">
+                            <span class="badge bg-primary notification-badge"><?php echo $inscritos; ?></span> Inscritos
                         </button>
                     </div>
                 </div>
@@ -204,6 +214,7 @@ foreach ($sesion['roles'] as $rol) {
                                         <th class="text-center cabecera_table">Ultima conexión</th>
                                         <th class="text-center cabecera_table">Probabilidad de Baja</th>
                                         <th class="text-center cabecera_table">Estatus Plataforma</th>
+                                        <th class="text-center cabecera_table">Estatus Descripcion</th>
                                         <th class="text-center cabecera_table">Consejera</th>
                                         <th class="text-center cabecera_table">Asesor financiero</th>
                                         <th class="text-center cabecera_table">Promotor</th>

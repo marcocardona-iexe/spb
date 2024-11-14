@@ -73,66 +73,38 @@
     <div class="container-fluid mt-3 ps-5 pe-5">
         <div class="accordion" id="accordionForm">
             <div class="card">
-                <div class="card-header" id="advancedSearchHeader">
+                <div class="card-header">
                     <h6 class="mb-0">
                         <i class="fa-solid fa-wallet"></i> Información Financiera
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <?php if ($numero != 24) { ?>
-                            <table class="table table-striped table-hover">
-                                <thead>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Concepto</th>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Moneda</th>
+                                    <th scope="col">$ Monto</th>
+                                    <th scope="col">$ Por pagar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pagos->datos as $d) { ?>
+                                    <!-- Aquí van las filas de datos -->
                                     <tr>
-                                        <th scope="col">Descripción</th>
-                                        <th scope="col">Importe</th>
-                                        <th scope="col">Forma de Pago</th>
-                                        <th scope="col">Banco</th>
-                                        <th scope="col">Fecha</th>
+                                        <td><?php echo $d->concepto . " " . $d->consecutivo_cobro; ?></td>
+                                        <td><?php echo $d->fecha; ?></td>
+                                        <td><?php echo $d->moneda; ?></td>
+                                        <td><?php echo $d->monto; ?></td>
+                                        <td><?php echo $d->adeudo; ?></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($pagos as $p) { ?>
-                                        <!-- Aquí van las filas de datos -->
-                                        <tr>
-                                            <td><?php echo $p->Descripcion; ?></td>
-                                            <td>$ <?php echo number_format($p->Importe, 2); ?></td>
-                                            <td><?php echo $p->FormaPago; ?></td>
-                                            <td><?php echo $p->banco; ?></td>
-                                            <td><?php echo $p->f_pago; ?></td>
-                                        </tr>
-                                        <!-- Puedes agregar más filas aquí -->
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        <?php } else { ?>
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Concepto</th>
-                                        <th scope="col">Fecha</th>
-                                        <th scope="col">Moneda</th>
-                                        <th scope="col">$ Monto</th>
-                                        <th scope="col">$ Por pagar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($pagos->datos as $d) { ?>
-                                        <!-- Aquí van las filas de datos -->
-                                        <tr>
-                                            <td><?php echo $d->concepto . " " . $d->consecutivo_cobro; ?></td>
-                                            <td><?php echo $d->fecha; ?></td>
-                                            <td><?php echo $d->moneda; ?></td>
-                                            <td><?php echo $d->monto; ?></td>
-                                            <td><?php echo $d->adeudo; ?></td>
-                                        </tr>
-                                        <!-- Puedes agregar más filas aquí -->
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        <?php } ?>
+                                    <!-- Puedes agregar más filas aquí -->
+                                <?php } ?>
+                            </tbody>
+                        </table>
                     </div>
-
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ foreach ($sesion['roles'] as $rol) {
         break; // Salir del bucle una vez encontrado el rol de Administrador
     }
 }
+
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-custom">
@@ -20,18 +21,18 @@ foreach ($sesion['roles'] as $rol) {
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item dropdown">
-                    <a class="nav-link" href="dashboard">
+                    <a class="nav-link" href="<?php echo base_url(); ?>dashboard">
                         <i class="fa-solid fa-chart-pie"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link" href="lista-alumnos">
+                    <a class="nav-link" href="<?php echo base_url(); ?>lista-alumnos">
                         <i class="fa-solid fa-graduation-cap"></i> Alumnos
                     </a>
                 </li>
                 <?php if ($esAdministrador) { ?>
                     <li class="nav-item ">
-                        <a class="nav-link" href="usuarios">
+                        <a class="nav-link" href="<?php echo base_url(); ?>usuarios">
                             <i class="fa-solid fa-users"></i> Usuarios
                         </a>
                     </li>
@@ -49,6 +50,20 @@ foreach ($sesion['roles'] as $rol) {
                             <li><a class="dropdown-item" href="asignaciones-consejeras"><i class="fa-solid fa-comments"></i> Consejeras</a></li>
                             <li><a class="dropdown-item" href="asignaciones-financiero"><i class="fa-solid fa-headset"></i> Asesores financiero</a></li>
                         </ul>
+                    </li>
+                <?php } ?>
+
+                <?php if ($sesion['correo'] == 'giles.carlos@iexe.edu.mx') { ?>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="<?php echo base_url(); ?>recordatorio-consejera/campis.sara@iexe.edu.mx">
+                            <i class="fa-regular fa-clipboard"></i> Revisión recordatorios
+                        </a>
+                    </li>
+                <?php } else { ?>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="<?php echo base_url(); ?>recordatorio-consejera/<?php echo $sesion['correo']; ?>">
+                            <i class="fa-regular fa-clipboard"></i> Revisión recordatorios
+                        </a>
                     </li>
                 <?php } ?>
 

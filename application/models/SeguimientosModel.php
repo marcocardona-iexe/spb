@@ -38,7 +38,7 @@ class SeguimientosModel extends CI_Model
         $this->db->select('seguimientos.*, usuarios.nombre, usuarios.apellidos, usuarios.correo');
         $this->db->from('seguimientos');
         $this->db->join('usuarios', 'seguimientos.asesor = usuarios.id');
-        $this->db->where('DATE(seguimientos.insert_date)', $fecha); // Comparar solo la parte de la fecha
+        //$this->db->where('DATE(seguimientos.insert_date)', $fecha); // Comparar solo la parte de la fecha
         $this->db->where('idalumno', $idAlumno);
 
         // Ejecutar la consulta

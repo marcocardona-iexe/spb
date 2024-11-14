@@ -30,3 +30,15 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.sublime-project
 /tests/tests/
 /tests/results/
+
+
+# CodeIgniter directories
+application/cache/*
+application/logs/*
+application/config/*
+application/config/.htaccess
+
+# Ignorar todas las configuraciones excepto de ejemplo
+!application/config/config.php
+!application/config/database.php
+.htaccess

@@ -70,6 +70,116 @@ class AlumnosController extends CI_Controller
         );
     }
 
+    // Controlador
+    public function actualizar_matricula()
+    {
+        // Configuración de los headers para CORS
+        header('Access-Control-Allow-Origin: *'); // Permite todas las orígenes
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); // Métodos permitidos
+        header('Access-Control-Allow-Headers: Content-Type, Authorization'); // Headers permitidos
+
+        // Obtén las matrículas desde el cuerpo de la solicitud
+        $input = json_decode(file_get_contents('php://input'), true);
+        $matricula_anterior = isset($input['matricula_anterior']) ? $input['matricula_anterior'] : null;
+        $matricula_nueva = isset($input['matricula_nueva']) ? $input['matricula_nueva'] : null;
+
+        $id_moodle_anterior = isset($input['id_moodle_anterior']) ? $input['id_moodle_anterior'] : null;
+        $id_moodle_nuevo = isset($input['id_moodle_nuevo']) ? $input['id_moodle_nuevo'] : null;
+
+
+        // Verifica si se han recibido ambas matrículas
+        if (empty($matricula_anterior) || empty($matricula_nueva)) {
+            $response = array(
+                "status" => "error",
+                "message" => "Ambas matrículas son requeridas."
+            );
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response))
+                ->_display();
+            exit;
+        }
+
+        // Si las matrículas son iguales, no se hace nada
+        if ($matricula_anterior === $matricula_nueva) {
+            $response = array(
+                "status" => "success",
+                "message" => "Las matrículas son iguales, no se realizó ninguna actualización."
+            );
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response))
+                ->_display();
+            exit;
+        }
+
+        preg_match('/[^0-9]+/', $matricula_anterior, $programa_anterior);
+        preg_match('/[^0-9]+/', $matricula_nueva, $programa_nuevo);
+
+
+
+
+        // Verifica si la matrícula anterior existe
+        if (!$this->AlumnosModel->existe_matricula($matricula_anterior, $id_moodle_anterior)) {
+            // Si no existe, devuelve un error
+            $response = array(
+                "status" => "error",
+                "message" => "La matrícula anterior no existe en el registro."
+            );
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response))
+                ->_display();
+            exit;
+        }
+
+        // Verifica si la matrícula nueva ya existe
+        if ($this->AlumnosModel->existe_matricula($matricula_nueva, $id_moodle_nuevo)) {
+            // Si existe, devuelve un error
+            $response = array(
+                "status" => "error",
+                "message" => "La matrícula nueva ya existe en el registro."
+            );
+
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response))
+                ->_display();
+            exit;
+        }
+
+
+        $idAnterior = $programa_anterior[0] . $id_moodle_anterior;
+        $idNuevo = $programa_nuevo[0] . $id_moodle_nuevo;
+
+        if ($this->AlumnosModel->actualizar_matricula($matricula_anterior, $matricula_nueva, $idAnterior, $idNuevo, $id_moodle_nuevo)) {
+
+            $dataInsert = array(
+                "matricula" => $matricula_anterior,
+                "moodleid" => $id_moodle_anterior,
+                "matriculanueva" => $matricula_nueva,
+                "moodleidnuevo" => $id_moodle_nuevo
+
+            );
+            $this->AlumnosModel->guardar_en_eliminados($dataInsert);
+            $response = array(
+                "status" => "success",
+                "message" => "Matrícula actualizada correctamente."
+            );
+        } else {
+            $response = array(
+                "status" => "error",
+                "message" => "Error al actualizar la matrícula."
+            );
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response))
+            ->_display();
+        exit;
+    }
+    
     public function testeo()
     {
         $data = $this->PlataformasModel->local_materias_activas();
@@ -78,8 +188,63 @@ class AlumnosController extends CI_Controller
         echo "</pre>";
     }
 
+    public function elimnar_alumnos()
+    {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/elimnarAlumnos.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| elimnarAlumnos" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
+        $response = $this->PlataformasModel->eliminar_alumnos();
+        $chunks = array_chunk($response, 100);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $this->AlumnosModel->elimnar_alumnos($item->username);
+            }
+        }
+
+        $response1 = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
+        $chunks1 = array_chunk($response1, 100);
+
+        $usernames1 = [];
+        foreach ($chunks1 as $chunk) {
+            foreach ($chunk as $item) {
+                $usernames1[] = $item->username;
+            }
+        }
+
+        $response2 = $this->AlumnosModel->get_todos_activos();
+        $chunks2 = array_chunk($response2, 100);
+
+        $usernames2 = [];
+        foreach ($chunks2 as $chunk) {
+            foreach ($chunk as $item) {
+                $usernames2[] = $item->matricula;
+            }
+        }
+
+        $usernames2_to_delete = array_diff($usernames2, $usernames1);
+
+        foreach ($usernames2_to_delete as $username) {
+            $this->AlumnosModel->elimnar_alumnos($username);
+        }
+    }
+
     public function ingresa_alumnos_activos()
     {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/IngresaAlumnosActivos.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| ingresa_alumnos_activos" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
 
         // Obtener todos los alumnos de las plataformas externas
         $alumnos_plataformas = $this->PlataformasModel->obtener_alumnos_todas_plataformas();
@@ -122,7 +287,8 @@ class AlumnosController extends CI_Controller
                         "estatus_plataforma" => $ap->estatus_plataforma,
                         "periodo_mensual" => (isset($ap->trimestre)) ? $ap->trimestre : $ap->cuatrimestre,
                         "periodo" => $ap->periodo,
-                        "is_active" => 1
+                        "is_active" => 1,
+                        "estatus_descripcion" => $ap->descripcionestatus
                     );
                 } else {
                     // Si el ID no existe, agregar los datos del alumno como nuevo
@@ -144,25 +310,34 @@ class AlumnosController extends CI_Controller
                         "periodo" => $ap->periodo,
                         "is_active" => 1,
                         "variable_academica" => 0,
-                        "variable_financiera" => 0
+                        "variable_financiera" => 0,
+                        "estatus_descripcion" => $ap->descripcionestatus
                     );
                 }
             }
         }
 
-        // Desactivar alumnos que no están presentes en las plataformas externas
+        $batchSize = 100;
+
         if (!empty($array_in)) {
-            $this->AlumnosModel->desactivar_batch($array_in);
-        }
-        // Insertar datos de los nuevos alumnos
-        if (!empty($dataInsert)) {
-            $this->AlumnosModel->insert_batch($dataInsert);
+            foreach (array_chunk($array_in, $batchSize) as $batch) {
+                $this->AlumnosModel->desactivar_batch($batch);
+            }
         }
 
-        // Actualizar datos de los alumnos existentes
-        if (!empty($dataUpdate)) {
-            $this->AlumnosModel->update_batch($dataUpdate);
+        if (!empty($dataInsert)) {
+            foreach (array_chunk($dataInsert, $batchSize) as $batch) {
+                $this->AlumnosModel->insert_batch($batch);
+            }
         }
+
+        if (!empty($dataUpdate)) {
+            foreach (array_chunk($dataUpdate, $batchSize) as $batch) {
+                $this->AlumnosModel->update_batch($batch);
+            }
+        }
+
+        $this->ultimoBloqueo();
     }
 
 
@@ -180,7 +355,9 @@ class AlumnosController extends CI_Controller
         $ver_select = (count($sesion['roles']) > 0) ? 1 : 0;
 
         // Obtener totales de alumnos por estatus de bloqueo
+        $activos = $this->AlumnosModel->no_alumnos_activos();
         $bloqueados = $this->AlumnosModel->no_alumnos_bloqueados();
+        $inscritos = $this->AlumnosModel->no_alumnos_inscritos();
         // Obtener totales de alumnos por cada nivel de probabilidad
         $total_r1 = $this->AlumnosModel->no_alumnos_por_probabilidad("r1");
         $total_r2 = $this->AlumnosModel->no_alumnos_por_probabilidad("r2");
@@ -199,7 +376,9 @@ class AlumnosController extends CI_Controller
             "ver_select" => $ver_select,
             "consejeras" => $consejeras,
             "financieros" => $financieros,
-            "bloqueados" => $bloqueados
+            "bloqueados" => $bloqueados,
+            "activos" => $activos,
+            "inscritos" => $inscritos
         );
 
         // Cargar vistas y pasar datos a ellas
@@ -237,11 +416,20 @@ class AlumnosController extends CI_Controller
         echo json_encode($data);
     }
 
-    public function alumnos_bloqueados()
+    public function alumnos_inscritos()
     {
-        $this->response_to_datatable('AlumnosModel', 'get_bloqueados', 'get_alumnos_where', array("estatus_plataforma" => "Bloqueado"), true);
+        $this->response_to_datatable('AlumnosModel', 'get_inscritos', 'get_alumnos_where_inscritos', array("estatus_descripcion" => "Inscrito"), true);
     }
 
+    public function alumnos_bloqueados()
+    {
+        $this->response_to_datatable('AlumnosModel', 'get_bloqueados', 'get_alumnos_where', array("estatus_descripcion" => "Bloqueado por pagos"), true);
+    }
+
+    public function alumnos_activos()
+    {
+        $this->response_to_datatable('AlumnosModel', 'get_activos', 'get_alumnos_where_activos', array("estatus_descripcion" => "Bloqueado por pagos"), true);
+    }
 
     public function alumnos_probabilidad_baja($nivel_probabilidad)
     {
@@ -512,34 +700,31 @@ class AlumnosController extends CI_Controller
         preg_match('/([A-Za-z]+)(\d+)([A-Za-z]+\d+)/', $matricula, $matches);
         if (!empty($matches)) {
             $numero = $matches[2];
-            if ($numero == 24) {
-                // Definir la matrícula
 
-                // Construir la URL con la matrícula
-                $url = "https://dockserver.lat/ver_adeudos?matricula=" . $matricula . "&muestra_todos=1&totales=1";
+            // Definir la matrícula
 
-                // Inicializar cURL
-                $ch = curl_init();
+            // Construir la URL con la matrícula
+            $url = "https://dockserver.lat/ver_adeudos?matricula=" . $matricula . "&muestra_todos=1&totales=1";
 
-                // Configurar las opciones de cURL
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Opcional: Deshabilitar la verificación SSL (no recomendado para producción)
+            // Inicializar cURL
+            $ch = curl_init();
 
-                // Ejecutar la solicitud cURL
-                $response = curl_exec($ch);
+            // Configurar las opciones de cURL
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Opcional: Deshabilitar la verificación SSL (no recomendado para producción)
 
-                // Verificar si ocurrió algún error
-                if ($response === false) {
-                    $error = curl_error($ch);
-                }
+            // Ejecutar la solicitud cURL
+            $response = curl_exec($ch);
 
-                $dataPagos = json_decode($response);
-                // Cerrar cURL
-                curl_close($ch);
-            } else {
-                $dataPagos = $this->PlataformasModel->obtenerPagosCRM($matricula);
+            // Verificar si ocurrió algún error
+            if ($response === false) {
+                $error = curl_error($ch);
             }
+
+            $dataPagos = json_decode($response);
+            // Cerrar cURL
+            curl_close($ch);
         }
 
         $data = array(
@@ -943,6 +1128,14 @@ class AlumnosController extends CI_Controller
     public function variable_academica($programa)
     {
 
+        try {
+
+            $logFile = APPPATH . 'registroCron/variableAcademica.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| variableAcademica" . $programa . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
         // Queda pendiente MAN
         // Establecer la zona horaria
         date_default_timezone_set('America/Mexico_City');
@@ -1079,6 +1272,15 @@ class AlumnosController extends CI_Controller
 
     public function variable_financiera()
     {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/variableFinanciera.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| variableFinanciera" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
         // Configura la zona horaria a Ciudad de México
         date_default_timezone_set('America/Mexico_City');
 
@@ -1253,10 +1455,122 @@ class AlumnosController extends CI_Controller
 
     public function probabilidad_baja($matricula)
     {
-        $vfinanciera =  $this->variable_financiera_matricula($matricula);
-        $vacademica =  $this->variable_academica_alumno($matricula);
+        $vfinanciera =  $this->variable_financiera_matricula_modificado($matricula);
+        $vacademica =  $this->variable_academica_alumno_modificado($matricula);
 
         echo json_encode(array("financiera" => $vfinanciera, "academica" => $vacademica));
+    }
+
+    public function variable_financiera_matricula_modificado($matricula)
+    {
+        $url = "https://dockserver.lat/ver_adeudos?totales=1&muestra_todos=1&datos_p=1&matricula=" . $matricula;
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        $decodedResponse = json_decode($response, true);
+
+        curl_close($ch);
+
+        $fechaServidor = date('Y-m-d H:i:s');
+        $timestampServidor = strtotime($fechaServidor);
+
+        if (isset($decodedResponse["datos"]) && is_array($decodedResponse["datos"])) {
+
+            $url = "https://dockserver.lat/retraso_en_pagos";
+
+            $data = [
+                "matriculas" => [$matricula]
+            ];
+
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen(json_encode($data))
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+            $response = curl_exec($ch);
+            $decodedResponseAdeudo = json_decode($response, true);
+
+            curl_close($ch);
+
+            $fechasUnicas = []; // Para almacenar fechas únicas
+
+            // Filtrar fechas anteriores a la fecha de hoy
+            foreach ($decodedResponse["datos"] as $value) {
+                if (isset($value["fecha"]) && strtotime($value["fecha"]) < $timestampServidor) {
+                    $fecha = $value["fecha"];
+                    // Solo añadir si no está ya en el array
+                    if (!isset($fechasUnicas[$fecha])) {
+                        $fechasUnicas[$fecha] = [
+                            'fecha' => $fecha,
+                            'adeudo' => $value["adeudo"] ?? 0,
+                            'concepto' => $value["concepto"] ?? 'N/A'
+                        ];
+                    }
+                }
+            }
+
+            // Ordenar fechas de más recientes a más antiguas
+            usort($fechasUnicas, function ($a, $b) {
+                return strtotime($b["fecha"]) - strtotime($a["fecha"]);
+            });
+
+            // Obtener las últimas 3 fechas únicas
+            $ultimasTresFechas = array_slice($fechasUnicas, 0, 3);
+
+            $adeudoCero = null;
+
+            foreach ($decodedResponse["datos"] as $value) {
+                if (isset($value["adeudo"]) && $value["adeudo"] != 0 && strtotime($value["fecha"]) < $timestampServidor) {
+                    $fecha = $value["fecha"];
+                    $concepto = $value["concepto"] ?? 'N/A';
+
+                    // Comprobar si la fecha y concepto ya están en las últimas tres fechas
+                    $fechasDeUltimasTres = array_column($ultimasTresFechas, 'fecha');
+                    $conceptosDeUltimasTres = array_column($ultimasTresFechas, 'concepto');
+
+                    // Solo agregar si la fecha no está en las últimas tres fechas y el concepto es diferente
+                    if (!in_array($fecha, $fechasDeUltimasTres) && !in_array($concepto, $conceptosDeUltimasTres)) {
+                        $adeudoCero = [
+                            'fecha' => $fecha,
+                            'adeudo' => $value["adeudo"],
+                            'concepto' => $concepto
+                        ];
+                        break; // Solo tomar el primero que encuentra
+                    }
+                }
+            }
+
+            // Si existe un adeudo diferente de 0, no repetido en fechas ni conceptos, añadirlo
+            if ($adeudoCero) {
+                $ultimasTresFechas[] = $adeudoCero;
+            }
+
+            // Preparar la respuesta final
+            $response = new stdClass();
+            $response->ultimasFechas = array_values($ultimasTresFechas); // Asegurarse de que es un array indexado
+            $response->decodedResponseAdeudo = $decodedResponseAdeudo;
+
+            return $response;
+        }
+
+        return null;
+    }
+
+    public function variable_academica_alumno_modificado($matricula)
+    {
+        $response = $this->AlumnosModel->variable_academica_consulta_tabla_modificado($matricula);
+        return $response;
     }
 
     public function variable_academica_alumno($matricula)
@@ -1385,6 +1699,32 @@ class AlumnosController extends CI_Controller
         // Obtener los datos de los alumnos
         $dataAlumnos = $this->AlumnosModel->reporte_excel_todos();
 
+        foreach ($dataAlumnos as &$alumno) {
+            // Verificar si ultimoacceso es nulo
+            if ($alumno->ultimoacceso === null) {
+                $alumno->ultimoacceso = 'nunca';
+            } else {
+                // Convertir la fecha a un formato UNIX timestamp para una comparación segura
+                $ultimoAccesoTimestamp = strtotime($alumno->ultimoacceso);
+                $fechaEspecifica = strtotime('1976-10-10');
+
+                if ($ultimoAccesoTimestamp <= $fechaEspecifica) {
+                    $alumno->ultimoacceso = 'Nunca';
+                } else {
+                    // Si es una fecha válida diferente, formatearla como dd/mm/YYYY
+                    $alumno->ultimoacceso = date('d/m/Y', $ultimoAccesoTimestamp);
+                }
+            }
+
+            $alumno->estatus_descripcion_plataforma = $alumno->estatus_descripcion;
+
+            if ($alumno->estatus_descripcion === "Regular" && $alumno->dias_bloqueado > 0) {
+                $alumno->estatus_descripcion = "Desbloqueado";
+            } else if ($alumno->estatus_descripcion === "Regular") {
+                $alumno->estatus_descripcion = "Activo";
+            }
+        }
+
         // Convertir los objetos a arrays
         $dataAlumnos = json_decode(json_encode($dataAlumnos), true);
 
@@ -1413,7 +1753,9 @@ class AlumnosController extends CI_Controller
             'estatus_plataforma' => 'ESTATUS EN PLATAFORMA',
             'programa' => 'PROGRAMA',
             'variable_academica' => 'VARIABLE ACADEMICA',
-            'variable_financiera' => 'VARIABLE FINANCIERA'
+            'variable_financiera' => 'VARIABLE FINANCIERA',
+            'estatus_descripcion' => 'ESTATUS DESCRIPCION',
+            'estatus_descripcion_plataforma' => 'ESTATUS ORIGINAL'
         ];
 
         // Crear un nuevo objeto Spreadsheet
@@ -1501,6 +1843,15 @@ class AlumnosController extends CI_Controller
 
     public function actualiza_alumnos_registro()
     {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/actualizaAlumnosRegistro.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| actualizaAlumnosRegistro" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
         // Obtiene todos los alumnos que están activos
         $dataAlumnos  = $this->AlumnosModel->get_todos_activos();
 
@@ -1661,6 +2012,15 @@ class AlumnosController extends CI_Controller
 
     public function actualiza_promotor()
     {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/actualizaPromotor.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| actualizaPromotor" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
         $dataAlumnos = $this->AlumnosModel->get_todos_activos();
         echo "<pre>";
         print_r($dataAlumnos);
@@ -1902,5 +2262,133 @@ class AlumnosController extends CI_Controller
             ->set_content_type('application/json')
             ->set_status_header(200)
             ->set_output(json_encode($response));
+    }
+
+    public function ultimoBloqueo()
+    {
+
+        $this->AlumnosModel->setear_alumnos();
+
+        $matriculas = $this->AlumnosModel->obtener_matriculas();
+
+        $matriculas_str = '';
+
+        for ($i = 0; $i < count($matriculas); $i++) {
+            $matriculas_str .= "'" . $matriculas[$i]->matricula . "'";
+            if ($i < count($matriculas) - 1) {
+                $matriculas_str .= ',';
+            }
+        }
+
+        $response = $this->AlumnosModel->revisar_bloqueo($matriculas_str);
+
+        $batch_size = 100;
+        $response_batches = array_chunk($response, $batch_size);
+
+        foreach ($response_batches as $batch) {
+            foreach ($batch as $row) {
+                $this->AlumnosModel->ActualizarDias($row->matricula, $row->diferencia_dias);
+            }
+        }
+    }
+
+    public function actualizar_alumno_finaciero()
+    {
+
+        try {
+
+            $logFile = APPPATH . 'registroCron/actualizarAlumnoFinaciero.txt';
+            $logEntry = date('Y-m-d H:i:s') . "| actualizarAlumnoFinaciero" . PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND);
+        } catch (Exception $e) {
+        }
+
+        $response = $this->AlumnosModel->obtenerTodasLasMatriculas();
+        $batches = array_chunk($response, 300);
+
+        $resultados = [];
+
+        foreach ($batches as $index => $batch) {
+            $matriculas = [];
+
+            foreach ($batch as $element) {
+
+                $matriculas[] = strtoupper($element->matricula);
+            }
+
+            $url = "https://dockserver.lat/retraso_en_pagos";
+
+            $data = [
+                "matriculas" => $matriculas
+            ];
+
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen(json_encode($data))
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+            $response = curl_exec($ch);
+            $decodedResponse = json_decode($response, true);
+
+            curl_close($ch);
+
+            if (isset($decodedResponse['retrasos'])) {
+                $retrasos = $decodedResponse['retrasos'];
+
+                foreach ($retrasos as $matricula => $retraso) {
+                    $resultados[$matricula] = $retraso;
+                }
+            }
+        }
+
+        $batchesResultados = array_chunk($resultados, 100, true);
+
+        foreach ($batchesResultados as $batchResultados) {
+            foreach ($batchResultados as $matricula => $retraso) {
+                $this->AlumnosModel->actualizar_variable_financiera($matricula, $retraso);
+            }
+        }
+    }
+
+    public function variable_academica_consulta_tabla()
+    {
+
+        $response = $this->AlumnosModel->obtenerTodasLasMatriculasRevision();
+        $batches = array_chunk($response, 100);
+
+        $resultados = [];
+
+        foreach ($batches as $batch) {
+
+            $matriculas = [];
+
+            foreach ($batch as $value) {
+                $matriculas[] = $value->matricula;
+            }
+
+            $response = $this->AlumnosModel->variable_academica_consulta_tabla($matriculas);
+
+            foreach ($response as $value) {
+
+                $estado = 0;
+
+                foreach ($value["items"] as $valueItem) {
+
+                    if ($valueItem["actividad_finalizada"] == 1 && (int) floatval($valueItem["calificacion"]) == 0) {
+                        $estado = 1;
+                        break;
+                    } else {
+                        $estado = 0;
+                    }
+                }
+
+                $this->AlumnosModel->actualiza_variable_academica($value["matricula"], $estado);
+            }
+        }
     }
 }
