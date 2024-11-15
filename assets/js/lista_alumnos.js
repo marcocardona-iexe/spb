@@ -63,62 +63,63 @@ $(document).ready(function () {
 					console.log(response);
 
 					let mensaje_academico = "";
+					let materia = "";
 
-					$.each(response.academica.result, function (index, matriculaDatos) {
-						$.each(matriculaDatos.items, function (index, item) {
+					$.each(response.academica.result, function(index, matriculaDatos) {
+						$.each(matriculaDatos.items, function(index, item) {
+
 							if (parseInt(item.actividad_opcional) == 1) {
 								mensaje_academico += `<li><i class="fa-regular fa-star"></i> ${item.itemname}</li>`;
-							} else if (
-								parseInt(item.actividad_finalizada) == 1 &&
-								parseInt(item.calificacion) == 0 &&
-								parseInt(item.actividad_opcional) != 1
-							) {
-								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificación: ${item.calificacion} (${item.finalizacion})</li>`;
-							} else if (
-								parseInt(item.calificacion) > 0 &&
-								parseInt(item.actividad_opcional) != 1
-							) {
+							} 
+							else if (parseInt(item.actividad_finalizada) == 1 && parseInt(item.calificacion) == 0 && parseInt(item.actividad_opcional) != 1) {
+								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaciÃ³n: ${item.calificacion} (${item.finalizacion})</li>`;
+							} 
+							else if (parseInt(item.calificacion) > 0 && parseInt(item.actividad_opcional) != 1) {
 								let calificacion = parseFloat(item.calificacion).toFixed(2);
-								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificación: ${calificacion} (${item.finalizacion})</li>`;
-							} else {
+								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaciÃ³n: ${calificacion} (${item.finalizacion})</li>`;
+							}else{
 								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
 							}
+
 						});
 					});
 
-					if (response.academica.result == "") {
+					if(response.academica.result==""){
 						mensaje_academico = "Sin materias activas";
+						materia = "";
+					}else{
+						materia = `<b>${response.academica.result[0].items[0].fullname} (${response.academica.result[0].items[0].shortname})</b>`;
 					}
 
 					let clase_card_acdemico = "";
 
-					if (response.academica.estado == 0) {
+					if(response.academica.estado == 0){
 						clase_card_acdemico = "modal-success";
-					} else {
+					}else{
 						clase_card_acdemico = "modal-danger";
 					}
 
 					let mensaje = "";
 
-					response.financiera.ultimasFechas.forEach(function (item) {
-						if (item.adeudo > 0) {
+					response.financiera.ultimasFechas.forEach(function(item) {
+						if(item.adeudo > 0){
 							mensaje += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
-						} else {
+						}
+						else{
 							mensaje += `<li><i class="fa-regular fa-circle-check"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
 						}
 					});
 
-					if (response.financiera.ultimasFechas == "") {
+					if(response.financiera.ultimasFechas==""){
 						mensaje = "Sin pagos para verificar";
 					}
 
 					let clase_card_financiero = "";
 
-					if (
-						response.financiera.decodedResponseAdeudo.retrasos[matricula] == 0
-					) {
+					if(response.financiera.decodedResponseAdeudo.retrasos[matricula] == 0){
 						clase_card_financiero = "modal-success";
-					} else {
+					}
+					else{
 						clase_card_financiero = "modal-danger";
 					}
 
@@ -128,10 +129,10 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_acdemico}">
-											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
+											<i class="fa-solid fa-graduation-cap"></i> Historial AcadÃ©mico
 										</div>
 										<div class="card-body text-start">
-											<p>Materia: <b>${response.academica.result[0].items[0].fullname} (${response.academica.result[0].items[0].shortname})</b></p>
+											<p>Materia: ${materia}</p>
 											<p>
 											<ul>
 												${mensaje_academico}
@@ -167,7 +168,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_financiero}">
-											<i class="fa-solid fa-wallet"></i> Información Financiera
+											<i class="fa-solid fa-wallet"></i> InformaciÃ³n Financiera
 										</div>
 										<div class="card-body text-start">
 											<p></p>
@@ -180,7 +181,7 @@ $(document).ready(function () {
 												<div class="row justify-content-center">
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-regular fa-circle-check"></i>
-														<span>Pago al dí­a</span>
+														<span>Pago al dÃ­a</span>
 													</div>
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-solid fa-triangle-exclamation"></i>
