@@ -3,7 +3,7 @@ $(document).ready(function () {
 		"#nombre, #apellidos, #correo, #matricula, #programas, #periodos, #periodos_mensuales, #estatus-plataforma, #consejera, #financiero"
 	).on("keypress", function (e) {
 		if (e.which === 13) {
-			// 13 es el cÃ³digo de la tecla Enter
+			// 13 es el código de la tecla Enter
 			window.busqueda_avanzada();
 		}
 	});
@@ -73,13 +73,13 @@ $(document).ready(function () {
 								parseInt(item.calificacion) == 0 &&
 								parseInt(item.actividad_opcional) != 1
 							) {
-								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaciÃ³n: ${item.calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificación: ${item.calificacion} (${item.finalizacion})</li>`;
 							} else if (
 								parseInt(item.calificacion) > 0 &&
 								parseInt(item.actividad_opcional) != 1
 							) {
 								let calificacion = parseFloat(item.calificacion).toFixed(2);
-								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaciÃ³n: ${calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificación: ${calificacion} (${item.finalizacion})</li>`;
 							} else {
 								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
 							}
@@ -167,7 +167,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_financiero}">
-											<i class="fa-solid fa-wallet"></i> InformaciÃ³n Financiera
+											<i class="fa-solid fa-wallet"></i> Información Financiera
 										</div>
 										<div class="card-body text-start">
 											<p></p>
@@ -289,7 +289,7 @@ $(document).ready(function () {
                                 <label class="form-label">MÃ©todo de contacto</label>
                                 <select onchange="cambiarVerde('m_contacto')" class="form-control form-control-sm" id="m_contacto">
                                     <option value="1">Seleccione una opcion</option>
-                                    <option value="Correo electrÃ³nico">Correo electrÃ³nico</option>
+                                    <option value="Correo electrónico">Correo electrónico</option>
                                     <option value="Llamada">Llamada</option>
                                     <option value="Whatsapp">Whatsapp</option>
                                 </select>
@@ -300,7 +300,7 @@ $(document).ready(function () {
                                     <option value="1">Seleccione una opcion</option>
                                     <option value="Respondio">Respondióo</option>
                                     <option value="No respondio">No respondió</option>
-                                    <option value="BuzÃ³n directo">Buzón directo</option>
+                                    <option value="Buzónn directo">Buzón directo</option>
                                     <option value="Respondio y colgo">Respondió y colgó</option>
                                     <option value="Dejo en visto">Dejó en visto</option>
                                     <option value="No le entran los mensajes">No le entran los mensajes</option>
@@ -313,7 +313,7 @@ $(document).ready(function () {
                                     <option value="Interesado en continuar">Interesado en continuar</option>
                                     <option value="Solicita baja">Solicita baja</option>
                                     <option value="Baja por falta de respuesta">Baja por falta de respuesta</option>
-                                    <option value="No respondiÃ³">No respondió</option>
+                                    <option value="No respondió">No respondió</option>
                                 </select>
                             </div>
                             <div class="col-md-12 text-center">
@@ -383,7 +383,7 @@ $(document).ready(function () {
 									return false;
 								} else {
 									$("#error_message").hide();
-									// AquÃ­ manejamos la acciÃ³n si la validaciÃ³n es correcta
+									// AquÃ­ manejamos la acción si la validación es correcta
 									$.ajax({
 										type: "POST",
 										url: `guardar-seguimiento`,
@@ -481,7 +481,7 @@ $(document).ready(function () {
 						// 			return false;
 						// 		} else {
 						// 			$("#error_message").hide();
-						// 			// AquÃ­ manejamos la acciÃ³n si la validaciÃ³n es correcta
+						// 			// AquÃ­ manejamos la acción si la validación es correcta
 
 						// 			segundoConfirm(
 						// 				metodo_contacto,
@@ -563,12 +563,12 @@ $(document).ready(function () {
 	function configurarTablaAlumnos(url = "data_tabla_inicial", data = null) {
 		let ajaxConfig = {
 			url: url,
-			type: "POST", // o "GET" dependiendo de tu aplicaciÃ³n
+			type: "POST", // o "GET" dependiendo de tu aplicación
 		};
 		if (data !== null) {
 			ajaxConfig = {
 				url: url,
-				type: "POST", // o "GET" dependiendo de tu aplicaciÃ³n
+				type: "POST", // o "GET" dependiendo de tu aplicación
 				data: data,
 			};
 		}
@@ -654,7 +654,7 @@ $(document).ready(function () {
 					data: "nombre_consejera",
 					render: function (data, type, row) {
 						if (!data) {
-							return `Sin asignaciÃ³n`;
+							return `Sin asignación`;
 						} else {
 							return data;
 						}
@@ -665,7 +665,7 @@ $(document).ready(function () {
 					data: "nombre_financiero",
 					render: function (data, type, row) {
 						if (!data) {
-							return `Sin asignaciÃ³n`;
+							return `Sin asignación`;
 						} else {
 							return data;
 						}
@@ -689,7 +689,7 @@ $(document).ready(function () {
 						const notiId = `noti_${row.id}`;
 
 						//tiene_seguimiento = verifica_seguimiento_abierto(row.id);
-						// Render inicial con un marcador de posiciÃ³n
+						// Render inicial con un marcador de posición
 						setTimeout(() => {
 							verifica_seguimiento_abierto(row.id)
 							.then((noti) => {
