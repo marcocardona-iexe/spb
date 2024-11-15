@@ -154,3 +154,5 @@ $route['get-status-actividades-realizadas/(:any)'] = "AlumnosController/get_stat
 $route['recordatorio-consejera/(:any)'] = "RecordatoriosController/recordatorio_consejera/$1";
 $route['detalle_materia/(:any)/(:any)'] = "RecordatoriosController/detalle_materia/$1/$2";
 $route['actualizar_matricula'] = "AlumnosController/actualizar_matricula";
+
+$route['alumnos-inscritos'] = "AlumnosController/alumnos_inscritos";

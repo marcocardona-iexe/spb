@@ -64,58 +64,61 @@ $(document).ready(function () {
 
 					let mensaje_academico = "";
 
-					$.each(response.academica.result, function(index, matriculaDatos) {
-						$.each(matriculaDatos.items, function(index, item) {
-
+					$.each(response.academica.result, function (index, matriculaDatos) {
+						$.each(matriculaDatos.items, function (index, item) {
 							if (parseInt(item.actividad_opcional) == 1) {
 								mensaje_academico += `<li><i class="fa-regular fa-star"></i> ${item.itemname}</li>`;
-							} 
-							else if (parseInt(item.actividad_finalizada) == 1 && parseInt(item.calificacion) == 0 && parseInt(item.actividad_opcional) != 1) {
+							} else if (
+								parseInt(item.actividad_finalizada) == 1 &&
+								parseInt(item.calificacion) == 0 &&
+								parseInt(item.actividad_opcional) != 1
+							) {
 								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaciÃ³n: ${item.calificacion} (${item.finalizacion})</li>`;
-							} 
-							else if (parseInt(item.calificacion) > 0 && parseInt(item.actividad_opcional) != 1) {
+							} else if (
+								parseInt(item.calificacion) > 0 &&
+								parseInt(item.actividad_opcional) != 1
+							) {
 								let calificacion = parseFloat(item.calificacion).toFixed(2);
 								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaciÃ³n: ${calificacion} (${item.finalizacion})</li>`;
-							}else{
+							} else {
 								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
 							}
-
 						});
 					});
 
-					if(response.academica.result==""){
+					if (response.academica.result == "") {
 						mensaje_academico = "Sin materias activas";
 					}
 
 					let clase_card_acdemico = "";
 
-					if(response.academica.estado == 0){
+					if (response.academica.estado == 0) {
 						clase_card_acdemico = "modal-success";
-					}else{
+					} else {
 						clase_card_acdemico = "modal-danger";
 					}
 
 					let mensaje = "";
 
-					response.financiera.ultimasFechas.forEach(function(item) {
-						if(item.adeudo > 0){
+					response.financiera.ultimasFechas.forEach(function (item) {
+						if (item.adeudo > 0) {
 							mensaje += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
-						}
-						else{
+						} else {
 							mensaje += `<li><i class="fa-regular fa-circle-check"></i> ${item.concepto} fecha limite de pago ${item.fecha} Adeudo $${item.adeudo} MXN</li>`;
 						}
 					});
 
-					if(response.financiera.ultimasFechas==""){
+					if (response.financiera.ultimasFechas == "") {
 						mensaje = "Sin pagos para verificar";
 					}
 
 					let clase_card_financiero = "";
 
-					if(response.financiera.decodedResponseAdeudo.retrasos[matricula] == 0){
+					if (
+						response.financiera.decodedResponseAdeudo.retrasos[matricula] == 0
+					) {
 						clase_card_financiero = "modal-success";
-					}
-					else{
+					} else {
 						clase_card_financiero = "modal-danger";
 					}
 
@@ -295,11 +298,11 @@ $(document).ready(function () {
                                 <label class="form-label">Estatus del seguimiento</label>
                                 <select onchange="cambiarVerde('estatus_seguimiento')" class="form-control form-control-sm" id="estatus_seguimiento">
                                     <option value="1">Seleccione una opcion</option>
-                                    <option value="Respondio">RespondiÃ³</option>
-                                    <option value="No respondio">No respondiÃ³</option>
-                                    <option value="BuzÃ³n directo">BuzÃ³n directo</option>
-                                    <option value="Respondio y colgo">RespondiÃ³ y colgÃ³</option>
-                                    <option value="Dejo en visto">DejÃ³ en visto</option>
+                                    <option value="Respondio">Respondióo</option>
+                                    <option value="No respondio">No respondió</option>
+                                    <option value="BuzÃ³n directo">Buzón directo</option>
+                                    <option value="Respondio y colgo">Respondió y colgó</option>
+                                    <option value="Dejo en visto">Dejó en visto</option>
                                     <option value="No le entran los mensajes">No le entran los mensajes</option>
                                 </select>
                             </div>
@@ -310,7 +313,7 @@ $(document).ready(function () {
                                     <option value="Interesado en continuar">Interesado en continuar</option>
                                     <option value="Solicita baja">Solicita baja</option>
                                     <option value="Baja por falta de respuesta">Baja por falta de respuesta</option>
-                                    <option value="No respondiÃ³">No respondiÃ³</option>
+                                    <option value="No respondiÃ³">No respondió</option>
                                 </select>
                             </div>
                             <div class="col-md-12 text-center">
@@ -596,15 +599,13 @@ $(document).ready(function () {
 						let fecha = unixToDate(data);
 
 						fechaCompro = fecha.split("-");
-		
-						if(	fechaCompro[0] <= 1976){
+
+						if (fechaCompro[0] <= 1976) {
 							fecha = "<b>Nunca</b>";
 							return `${fecha}`;
-						}
-						else{
+						} else {
 							return `${fecha} <b>(${tiempo})</b>`;
 						}
-	
 					},
 				},
 				{
@@ -728,7 +729,7 @@ $(document).ready(function () {
 				infoFiltered: "(filtrado de _MAX_ registros totales)",
 				infoPostFix: "",
 				thousands: ".",
-				lengthMenu: "Mostrar _MENU_ registros por pÃ¡gina",
+				lengthMenu: "Mostrar _MENU_ registros por página",
 				loadingRecords: "Cargando...",
 				processing: "Procesando...",
 				search: "Buscar:",
@@ -791,7 +792,9 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 		// Configurar la tabla con la URL especÃ­fica
-		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_bloqueados");
+		const table = configurarTablaAlumnos(
+			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_bloqueados"
+		);
 
 		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
@@ -806,7 +809,9 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 		// Configurar la tabla con la URL especÃ­fica
-		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_inscritos");
+		const table = configurarTablaAlumnos(
+			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_inscritos"
+		);
 
 		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
@@ -821,7 +826,9 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 		// Configurar la tabla con la URL especÃ­fica
-		const table = configurarTablaAlumnos("https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_activos");
+		const table = configurarTablaAlumnos(
+			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_activos"
+		);
 
 		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
 		table.on("draw", function () {
