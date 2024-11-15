@@ -17,10 +17,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -128,7 +128,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_acdemico}">
-											<i class="fa-solid fa-graduation-cap"></i> Historial AcadÃ©mico
+											<i class="fa-solid fa-graduation-cap"></i> Historial Académico
 										</div>
 										<div class="card-body text-start">
 											<p>Materia: <b>${response.academica.result[0].items[0].fullname} (${response.academica.result[0].items[0].shortname})</b></p>
@@ -180,7 +180,7 @@ $(document).ready(function () {
 												<div class="row justify-content-center">
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-regular fa-circle-check"></i>
-														<span>Pago al dÃ­a</span>
+														<span>Pago al dí­a</span>
 													</div>
 													<div class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3">
 														<i class="fa-solid fa-triangle-exclamation"></i>
@@ -212,10 +212,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -286,7 +286,7 @@ $(document).ready(function () {
                     <div class="container-fluid">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label">MÃ©todo de contacto</label>
+                                <label class="form-label">Método de contacto</label>
                                 <select onchange="cambiarVerde('m_contacto')" class="form-control form-control-sm" id="m_contacto">
                                     <option value="1">Seleccione una opcion</option>
                                     <option value="Correo electrónico">Correo electrónico</option>
@@ -383,7 +383,7 @@ $(document).ready(function () {
 									return false;
 								} else {
 									$("#error_message").hide();
-									// AquÃ­ manejamos la acción si la validación es correcta
+									// Aquí­ manejamos la acción si la validación es correcta
 									$.ajax({
 										type: "POST",
 										url: `guardar-seguimiento`,
@@ -481,7 +481,7 @@ $(document).ready(function () {
 						// 			return false;
 						// 		} else {
 						// 			$("#error_message").hide();
-						// 			// AquÃ­ manejamos la acción si la validación es correcta
+						// 			// Aquí­ manejamos la acción si la validación es correcta
 
 						// 			segundoConfirm(
 						// 				metodo_contacto,
@@ -503,7 +503,7 @@ $(document).ready(function () {
 						);
 						$.ajax({
 							url: "obtener_acuerdos", // Reemplaza con tu endpoint de la API
-							type: "GET", // MÃ©todo HTTP GET
+							type: "GET", // Método HTTP GET
 							dataType: "json",
 
 							success: function (response) {
@@ -736,7 +736,7 @@ $(document).ready(function () {
 				zeroRecords: "No se encontraron registros",
 				paginate: {
 					first: "Primero",
-					last: "Ãšltimo",
+					last: "íšltimo",
 					next: "Siguiente",
 					previous: "Anterior",
 				},
@@ -773,7 +773,7 @@ $(document).ready(function () {
 			tiempoRelativo = `Hace ${horas} horas`;
 		} else {
 			const dias = Math.floor(segundos / 86400);
-			tiempoRelativo = `Hace ${dias} dÃ­as`;
+			tiempoRelativo = `Hace ${dias} dí­as`;
 		}
 
 		return tiempoRelativo;
@@ -791,12 +791,12 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(
 			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_bloqueados"
 		);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -808,12 +808,12 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(
 			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_inscritos"
 		);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -825,12 +825,12 @@ $(document).ready(function () {
 		if ($.fn.DataTable.isDataTable("#tbl_alumnos")) {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(
 			"https://app.iexe.edu.mx/seguimiento/AlumnosController/alumnos_activos"
 		);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -849,7 +849,7 @@ $(document).ready(function () {
 		} else if (probabilidad === "r1") {
 			URL = "alumnos_probabilidad_baja/r1";
 		} else {
-			console.error("Nivel de probabilidad no vÃ¡lido");
+			console.error("Nivel de probabilidad no ví¡lido");
 			return;
 		}
 
@@ -858,10 +858,10 @@ $(document).ready(function () {
 			$("#tbl_alumnos").DataTable().destroy();
 		}
 
-		// Configurar la tabla con la URL especÃ­fica
+		// Configurar la tabla con la URL especí­fica
 		const table = configurarTablaAlumnos(URL);
 
-		// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+		// Mostrar la tabla y ocultar el loading después de cargar los datos
 		table.on("draw", function () {
 			$("#loading").hide();
 			$("#contenedor_tabla_alumnos").show();
@@ -879,7 +879,7 @@ $(document).ready(function () {
 		var periodoMensual = $("#periodos_mensuales").val();
 		var estatusPlataforma = $("#estatus-plataforma").val();
 		var consejera = $("#consejera").val();
-		var financiero = $("#financiero").val(); // AsegÃºrate de usar un id Ãºnico para este campo
+		var financiero = $("#financiero").val(); // Asegíºrate de usar un id íºnico para este campo
 
 		if (
 			nombre === "" &&
@@ -904,7 +904,7 @@ $(document).ready(function () {
 				$("#tbl_alumnos").DataTable().destroy();
 			}
 
-			// Configurar la tabla con la URL especÃ­fica
+			// Configurar la tabla con la URL especí­fica
 			let data = {
 				nombre,
 				apellidos,
@@ -919,7 +919,7 @@ $(document).ready(function () {
 			};
 			const table = configurarTablaAlumnos("busuqeda_avanzada", data);
 
-			// Mostrar la tabla y ocultar el loading despuÃ©s de cargar los datos
+			// Mostrar la tabla y ocultar el loading después de cargar los datos
 			table.on("draw", function () {
 				$("#loading").hide();
 				$("#contenedor_tabla_alumnos").show();
@@ -966,7 +966,7 @@ $(document).ready(function () {
 	// 								<div class="col">
 	// 									<label for="fileInput" class="form-label">Archivo excel</label>
 	// 									<input type="file" class="form-control form-control-sm" id="excel_consejera" name="excel_financiero" accept=".xlsx, .xls" required="">
-	// 									<div class="invalid-feedback">Por favor, seleccione un archivo Excel vÃ¡lido.</div>
+	// 									<div class="invalid-feedback">Por favor, seleccione un archivo Excel ví¡lido.</div>
 	// 								</div>
 	// 							</div>
 	// 						</div>
