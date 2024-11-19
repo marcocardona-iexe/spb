@@ -298,7 +298,7 @@ $(document).ready(function () {
                                 <label class="form-label">Estatus del seguimiento</label>
                                 <select onchange="cambiarVerde('estatus_seguimiento')" class="form-control form-control-sm" id="estatus_seguimiento">
                                     <option value="1">Seleccione una opcion</option>
-                                    <option value="Respondio">Respondióo</option>
+                                    <option value="Respondió">Respondió</option>
                                     <option value="No respondio">No respondió</option>
                                     <option value="Buzónn directo">Buzón directo</option>
                                     <option value="Respondio y colgo">Respondió y colgó</option>
