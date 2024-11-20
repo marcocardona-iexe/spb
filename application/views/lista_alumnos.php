@@ -226,9 +226,9 @@ foreach ($sesion['roles'] as $rol) {
                         <div class="container-fluid ps-3 pe-3">
                             <div class="row mt-3">
                                 <div class="col-auto">
-                                    <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-headset"></i></button>
 
-                                    <button class="btn btn-sm btn-modal" id="descargar_seguimientos"><i class="fa-solid fa-headset"></i></button>
+                                    <button class="btn btn-sm btn-modal" onclick="asignar_alumnos();"><i class="fa-solid fa-headset"></i></button>
+
                                 </div>
                             </div>
                         </div>
