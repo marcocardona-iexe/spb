@@ -189,6 +189,14 @@
                         }
                     });
                 });
+
+                $('#correo, #password').keydown(function(e) {
+                    if (e.key === "Enter") {  // Verifica si la tecla presionada es Enter
+                        e.preventDefault();  // Evita que el formulario se envíe al presionar Enter
+                        $('#iniciar_sesion').click();  // Dispara el evento de clic del botón "Iniciar sesión"
+                    }
+                });
+
             });
 
 
