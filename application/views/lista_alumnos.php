@@ -196,7 +196,7 @@ foreach ($sesion['roles'] as $rol) {
 
                                 <?php if($esAdministrador == true){ ?>
                                     <button class="btn btn-sm btn-modal" onclick="asignar_alumnos();"><i class="fa-solid fa-file-excel" style="margin-right: 5px;"></i>Cargar consejeros</button>
-                                <? } ?>
+                                <?php } ?>
 
                                 <!-- <button class="btn btn-sm btn-modal" id="asignacion_consejeras"><i class="fa-solid fa-headset"></i> Asing. Consejeras</button>
 

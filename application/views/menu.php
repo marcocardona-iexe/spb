@@ -42,7 +42,7 @@ foreach ($sesion['roles'] as $rol) {
                         </a>
                     </li> -->
 
-                    <li class="nav-item dropdown">
+                    <!--<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="menu4Dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-clipboard"></i> Asignaciones
                         </a>
@@ -50,7 +50,7 @@ foreach ($sesion['roles'] as $rol) {
                             <li><a class="dropdown-item" href="asignaciones-consejeras"><i class="fa-solid fa-comments"></i> Consejeras</a></li>
                             <li><a class="dropdown-item" href="asignaciones-financiero"><i class="fa-solid fa-headset"></i> Asesores financiero</a></li>
                         </ul>
-                    </li>
+                    </li>-->
                 <?php } ?>
 
                 <?php if ($sesion['correo'] == 'giles.carlos@iexe.edu.mx') { ?>
