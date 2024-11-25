@@ -960,9 +960,97 @@ $(document).ready(function () {
 			type: "blue",
 			theme: "Modern",
 			buttons: {
-				close: {
-					text: 'Cerrar',
+				CargarArchivo: {
+					text:`<i class="fa-regular fa-pen-to-square fa-2x"></i><span style="margin-right: 5px;">Cargar archivo</span>
+						  <div class="spinner-border text-light circulo" role="status" style="font-size: 10px;height: 22px;width: 22px;display: none !important;">
+						  </div>`,
+					btnClass: 'btn btn-sm btn-modal',
 					style: 'background-color: #808080; color: white; border-color: #808080;',
+					action: function() {
+
+						var formData = new FormData();
+						var inputFile = $("#file")[0].files[0];
+
+						$(".messajes").empty();
+				
+						if (inputFile) {
+							
+							var formData = new FormData();
+							formData.append("file", inputFile);
+				
+							$(".circulo").show();
+				
+							$.ajax({
+								url: "consejera_masiva",
+								type: "POST",
+								data: formData,
+								processData: false,
+								contentType: false,
+								dataType: "json",
+								success: function (response) {
+
+									let html = "";
+
+									if(response.status == "error") {
+
+										$(".circulo").hide();
+									
+										response.errors.forEach((element, index) => {
+											html += `<li class="list-group-item d-flex justify-content-between align-items-center mt-2 mb-2">
+														<span><strong>Error:</strong> ${element.replace("Error", "")}</span>
+													</li>`;
+										});
+									
+										$(".messajes").append(`
+											<div class="alert alert-danger" role="alert">
+												<span class="mb-2"><strong>${response.message}</strong></span>
+												<br><br>
+												<ul class="no-padding">${html}</ul> <!-- Aquí se muestra la lista de errores -->
+											</div>
+										`);
+
+										$(".messajes").show();
+
+										$("#file").val("");
+									
+									} else {
+
+										$(".circulo").hide();
+
+										$(".messajes").append(`
+											<div class="alert alert-success alert-dismissible fade show d-flex align-items-center justify-content-between" role="alert">
+												<i class="fas fa-check-circle me-2" style="font-size: 1.5rem;"></i>
+												<span><strong>${response.message}</strong></span>
+												<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+											</div>
+										`);
+
+										$(".messajes").show();
+										$(".messajes").fadeOut(5000);
+
+										$("#file").val("");
+
+									}
+				
+								},
+								error: function (xhr, status, error) {
+								},
+							});
+							
+						} else {
+
+							$(".circulo").hide();
+
+							$(".messajes").append(`
+								<div class="alert alert-danger" role="alert">
+									<span class="mb-2"><strong>No se cargo ningun archivo</strong></span>
+								</div>
+							`);
+							
+						}
+
+						return false;
+					}
 				}
 			},
 			content: function () {
@@ -978,128 +1066,53 @@ $(document).ready(function () {
 					let body = `
 
 						<style>
-							.btn-primary {
-								background-color: #007bff;
-								border-color: #007bff;
+						
+							.no-padding {
+								list-style-position: inside; 
+								padding-left: 0; 
+								margin-left: 0;
 							}
 
-							.btn-primary:hover {
-								background-color: #0056b3;
-								border-color: #004085;
-							}
-
-							.form-control {
-								border-radius: 8px;
-								border: 1px solid #ddd;
-							}
-
-							.form-control:focus {
-								border-color: #007bff;
-								box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+							.no-padding li {
+								margin-left: 0;
+								padding-left: 0; 
+								text-align: left;
 							}
 
 							.alert-info {
-								background-color: #e9f7fd;
-								border-color: #b8daff;
+								text-align: left;
 							}
 
-							.svg-inline--fa {
-								margin-right: 8px;
-							}
-
-							#error_message {
-								padding: 10px;
-								background-color: #f8d7da;
-								border-radius: 4px;
-							}
-
-							.container-fluid {
-								padding: 20px;
-							}
-
-							/* Style for List */
-							.list-group-item {
-								font-size: 1.1rem;
-								padding: 12px;
-								border-radius: 8px;
-							}
-
-							.list-group-item button {
-								margin-left: 15px;
-							}
-
-							/* Add a little padding between elements in the row */
-							.row {
-								margin-bottom: 20px;
-							}
-
-							#anuncio{
-								display: none;
-							}
-
-							.spinner-border{
-								display: none;
-							}
-								
 						</style>
 
 						<div class="container-fluid">
 							<div class="row g-3">
 								<!-- File Input -->
-								<div class="col-md-6">
-									<label for="formFile" class="form-label text-muted">Seleccionar archivo</label>
+
+								<div class="col-md-12">
 									<input class="form-control mt-2" type="file" id="file" name="file">
 								</div>
 
 								<!-- Button to Upload File -->
 								<div class="col-md-6">
 									<div class="d-flex align-items-center justify-content-start">
-										<button type="button" class="btn btn-primary btn-sm rounded-pill d-flex align-items-center" id="subir">
-											<svg class="svg-inline--fa fa-pen-to-square fa-2x" aria-hidden="true" focusable="false" data-prefix="far" data-icon="pen-to-square" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-												<path fill="currentColor" d="M495.6 49.23l-32.82-32.82C451.8 5.471 437.5 0 423.1 0c-14.33 0-28.66 5.469-39.6 16.41L167.5 232.5C159.1 240 154.8 249.5 152.4 259.8L128.3 367.2C126.5 376.1 133.4 384 141.1 384c.916 0 1.852-.0918 2.797-.2813c0 0 74.03-15.71 107.4-23.56c10.1-2.377 19.13-7.459 26.46-14.79l217-217C517.5 106.5 517.4 71.1 495.6 49.23zM461.7 94.4L244.7 311.4C243.6 312.5 242.5 313.1 241.2 313.4c-13.7 3.227-34.65 7.857-54.3 12.14l12.41-55.2C199.6 268.9 200.3 267.5 201.4 266.5l216.1-216.1C419.4 48.41 421.6 48 423.1 48s3.715 .4062 5.65 2.342l32.82 32.83C464.8 86.34 464.8 91.27 461.7 94.4zM424 288c-13.25 0-24 10.75-24 24v128c0 13.23-10.78 24-24 24h-304c-13.22 0-24-10.77-24-24v-304c0-13.23 10.78-24 24-24h144c13.25 0 24-10.75 24-24S229.3 64 216 64L71.1 63.99C32.31 63.99 0 96.29 0 135.1v304C0 479.7 32.31 512 71.1 512h303.1c39.69 0 71.1-32.3 71.1-72L448 312C448 298.8 437.3 288 424 288z"></path>
-											</svg>
-											<span class="ms-2">Subir archivo al sistema</span>
-											<div class="spinner-border text-primary" role="status" style="color: rgba(255, 255, 255, 0.86) !important;margin-left: 10px !important;  width: 18px; height: 18px;"
-											</div>
-										</button>
 									</div>
 								</div>
 
 								<!-- Alert Message -->
 								<div class="col-12">
 									<div class="alert alert-info" role="alert">
-										<strong>Información:</strong> Los archivos deben subirse seleccionando el módulo de arriba 
+										<ul class="no-padding">
+											<li>El archivo no debe contener ningún formato.</li>
+											<li>Subir únicamente  archivos <strong>.xlsx o .csv.<strong></li>
+										</ul>
 									</div>
 								</div>
-							</div>
 
-							<!-- Error Message (Hidden by default) -->
-							<div id="error_message" class="text-danger mt-3" style="display: none;">
-								<strong>¡Error!</strong> Todos los campos son obligatorios.
-							</div>
-							
-
-							<!-- List Below the Form -->
-							<div class="row mt-4">
-								<div class="col-12">
-									<h5 class="mb-3">Ingrese archivo .xlsx o .csv</h5>
-									<p id="mensaje"></p>
-									<ul class="list-group">
-									</ul>
+								<div class="col-12 messajes">
 								</div>
+
 							</div>
-
-
-							<div id="anuncio" class="container mt-4">
-								<div class="alert alert-success alert-dismissible fade show d-flex align-items-center justify-content-between" role="alert">
-									<!-- Icono de éxito -->
-									<i class="fas fa-check-circle me-2" style="font-size: 1.5rem;"></i>
-									<span><strong>Subido correctamente</strong></span>
-									<!-- Botón de cierre -->
-									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-								</div>
-							</div>
-
 						</div>
 					`;
 					self.setContent(body);
@@ -1113,78 +1126,6 @@ $(document).ready(function () {
 			},
 		});
 	};
-		
-	$(document).on("click", "#subir", function () {
-
-		var formData = new FormData();
-		var inputFile = $("#file")[0].files[0];
-
-		if (inputFile) {
-			
-			var formData = new FormData();
-			formData.append("file", inputFile);
-
-			$(".spinner-border").show();
-
-			$.ajax({
-				url: "consejera_masiva",
-				type: "POST",
-				data: formData,
-				processData: false,
-				contentType: false,
-				dataType: "json",
-				success: function (response) {
-
-					console.log(response);
-
-					$("#mensaje").text("");
-
-					$(".spinner-border").hide();
-
-					$('#file').val('');
-
-					$(".list-group").empty();
-
-					if(response.status == "error"){
-
-						response.errors.forEach((element, index) => {
-							$(".list-group").append(`
-								<li class="list-group-item d-flex justify-content-between align-items-center">
-									<span><strong>Error:</strong> ${element.replace("Error", "")}</span>
-									<button class="btn btn-sm btn-outline-danger delete-error" data-index="${index}">...</button>
-								</li>
-							`);
-						});
-
-						$("#anuncio").hide();
-						$("#mensaje").text(response.message).show();
-
-					}else{
-
-						$("#mensaje").text(response.message).show();
-						$("#anuncio").show();
-
-						setTimeout(function() {
-							$("#anuncio").fadeOut();
-						}, 5000);
-
-
-						setTimeout(function() {
-							$("#mensaje").fadeOut();
-						}, 5000);
-
-					}
-
-
-				},
-				error: function (xhr, status, error) {
-				},
-			});
-			
-		} else {
-		}
-
-	});
 
 	// $("#asignacion_consejeras").on("click", function () {
 	// 	$.confirm({
