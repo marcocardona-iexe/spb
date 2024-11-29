@@ -72,11 +72,11 @@ $(document).ready(function () {
 								mensaje_academico += `<li><i class="fa-regular fa-star"></i> ${item.itemname}</li>`;
 							} 
 							else if (parseInt(item.actividad_finalizada) == 1 && parseInt(item.calificacion) == 0 && parseInt(item.actividad_opcional) != 1) {
-								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaciÃ³n: ${item.calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-solid fa-triangle-exclamation"></i> ${item.itemname} calificaci&oacute;n: ${item.calificacion} (${item.finalizacion})</li>`;
 							} 
 							else if (parseInt(item.calificacion) > 0 && parseInt(item.actividad_opcional) != 1) {
 								let calificacion = parseFloat(item.calificacion).toFixed(2);
-								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaciÃ³n: ${calificacion} (${item.finalizacion})</li>`;
+								mensaje_academico += `<li><i class="fa-regular fa-circle-check"></i> ${item.itemname} calificaci&oacute;n: ${calificacion} (${item.finalizacion})</li>`;
 							}else{
 								mensaje_academico += `<li><i class="far fa-clock"></i> ${item.itemname} (${item.finalizacion})</li>`;
 							}
@@ -129,7 +129,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_acdemico}">
-											<i class="fa-solid fa-graduation-cap"></i> Historial AcadÃ©mico
+											<i class="fa-solid fa-graduation-cap"></i> Historial Acad&eacute;mico
 										</div>
 										<div class="card-body text-start">
 											<p>Materia: ${materia}</p>
@@ -168,7 +168,7 @@ $(document).ready(function () {
 								<div class="col-md-12">
 									<div class="card">
 										<div class="card-header text-start ${clase_card_financiero}">
-											<i class="fa-solid fa-wallet"></i> InformaciÃ³n Financiera
+											<i class="fa-solid fa-wallet"></i> Informaci&oacute;n Financiera
 										</div>
 										<div class="card-body text-start">
 											<p></p>
