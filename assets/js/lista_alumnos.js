@@ -1058,7 +1058,7 @@ $(document).ready(function () {
 
 				var self = this;
 				return $.ajax({
-					url: `http://localhost/spb/AlumnosController/formulario`,
+					url: "formulario",
 					method: "POST",
 				})
 				.done(function (response) {
