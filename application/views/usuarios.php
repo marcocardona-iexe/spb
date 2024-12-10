@@ -94,7 +94,7 @@
                                     foreach ($usuarios as &$usuarios) { ?>
                                         <tr>
                                             <td><?php echo $i; ?></td>
-                                            <td><?php echo $usuarios->nombre . " " . $usuarios->apellidos; ?></td>
+                                            <td><a href="<?php echo base_url() . 'recordatorio-consejera/' . $usuarios->correo; ?>"><?php echo $usuarios->nombre . " " . $usuarios->apellidos; ?></a></td>
                                             <td><?php echo $usuarios->correo; ?></td>
                                             <td><?php echo $usuarios->estatus; ?></td>
                                             <td><?php echo $usuarios->badge; ?></td>

@@ -202,7 +202,7 @@ class PlataformasModel extends CI_Model
 
 
 
-        $sqllicenciaturas = $DBLICENCIATURAS->query($str_query . " WHERE (username LIKE 'lae%' OR username LIKE 'ld%' OR username LIKE 'lsp%' OR username LIKE 'lce%' OR username LIKE 'lcpap%')
+        $sqllicenciaturas = $DBLICENCIATURAS->query($str_query . " WHERE (username LIKE 'lae%' OR username LIKE 'ld%' OR username LIKE 'lsp%' OR username LIKE 'lce%' OR username LIKE 'lcpap%' OR username LIKE 'lri%')
         AND ui2.data = 'Activo'
         AND ui3.data != 'Egresado' 
         AND (ui3.data = 'Bloqueado por pagos' or 

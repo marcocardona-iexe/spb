@@ -4,8 +4,22 @@
 <body>
     <div class="content">
 
+        <div class="container-fluid ms-5 mt-5 me-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item"><a href="#">Consejeras</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Lista de materias</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
 
-        <div class="container-fluid mt-3 ps-2 pe-2">
+
+        <div class="container-fluid mt-3 ms-5 me-5">
             <div class="accordion" id="accordionForm">
                 <div class="card">
                     <div class="card-header" id="">
