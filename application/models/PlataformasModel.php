@@ -83,7 +83,7 @@ class PlataformasModel extends CI_Model
             LEFT JOIN mdl_user_info_data AS ui7 ON ui7.userid = mdl_user.id AND ui7.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'sexo')
             LEFT JOIN mdl_user_info_data AS ui8 ON ui8.userid = mdl_user.id AND ui8.fieldid = (SELECT id FROM mdl_user_info_field WHERE shortname = 'mes')";
 
-            $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%' 
+        $sqlmapp = $DBMAPP->query($str_query . " WHERE username LIKE 'mapp%' 
             AND ui2.data = 'Activo'
             AND ui3.data != 'Egresado'
             AND (ui3.data = 'Bloqueado por pagos' or 
@@ -225,6 +225,8 @@ class PlataformasModel extends CI_Model
                     $programa = "LCPAP";
                 } else if (stristr($value->username, "lce")) {
                     $programa = "LCE";
+                } else if (stristr($value->username, "lri")) {
+                    $programa = "LRI";
                 }
 
                 $row = new stdClass();
@@ -1318,5 +1320,4 @@ ORDER BY
         $resultado = array_merge($resultmapp, $resultmepp, $resultmspp, $resultlic, $resultmae, $resultdoc, $resultmige, $resultiexetec, $resultmasters);
         return $resultado;
     }
-
 }
