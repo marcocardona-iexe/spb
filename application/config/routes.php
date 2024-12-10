@@ -157,4 +157,4 @@ $route['actualizar_matricula'] = "AlumnosController/actualizar_matricula";
 
 $route['alumnos-inscritos'] = "AlumnosController/alumnos_inscritos";
 
-$route['formulario'] = "alumnosController/formulario";
+$route['formulario'] = "AlumnosController/formulario";
