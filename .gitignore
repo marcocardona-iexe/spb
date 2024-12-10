@@ -10,7 +10,7 @@ application/logs/*
 # Ignorar archivos de configuración sensibles
 application/config/config.php
 application/config/database.php
-
+application/registroCron/
 # Ignorar archivos .htaccess en todas las subcarpetas de application/
 application/*/.htaccess
 
